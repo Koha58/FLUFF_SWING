@@ -1,90 +1,115 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚ªƒƒCƒ„[‚ğg‚Á‚Ä’nŒ`iTilemapj‚ÉÚ‘±‚µAƒXƒCƒ“ƒOˆÚ“®‚ğs‚¤ƒAƒNƒVƒ‡ƒ“‚ğ§Œä‚·‚éƒNƒ‰ƒXB
-/// ¶ƒNƒŠƒbƒN‚ÅÚ‘±‰Â”\’n“_‚ğw’è‚µAj‚ğ”ò‚Î‚µ‚ÄÚ‘±B
-/// ‰EƒNƒŠƒbƒN‚ÅƒƒCƒ„[‚ğØ’fB
-/// Ú‘±’†‚ÍŒÅ’è’·‚ÌƒƒCƒ„[‚Å•¨—“I‚ÉÚ‘±‚³‚êAÚ‘±’¼Œã‚ÉƒXƒCƒ“ƒOŠJn‚Ì—Í‚ª‰Á‚í‚éB
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’ä½¿ã£ã¦åœ°å½¢ï¼ˆTilemapï¼‰ã«æ¥ç¶šã—ã€ã‚¹ã‚¤ãƒ³ã‚°ç§»å‹•ã‚’è¡Œã†ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’åˆ¶å¾¡ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
+/// å·¦ã‚¯ãƒªãƒƒã‚¯ã§æ¥ç¶šå¯èƒ½åœ°ç‚¹ã‚’æŒ‡å®šã—ã€é‡ã‚’é£›ã°ã—ã¦æ¥ç¶šã€‚
+/// å³ã‚¯ãƒªãƒƒã‚¯ã§ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’åˆ‡æ–­ã€‚
+/// æ¥ç¶šä¸­ã¯å›ºå®šé•·ã®ãƒ¯ã‚¤ãƒ¤ãƒ¼ã§ç‰©ç†çš„ã«æ¥ç¶šã•ã‚Œã€æ¥ç¶šç›´å¾Œã«ã‚¹ã‚¤ãƒ³ã‚°é–‹å§‹ã®åŠ›ãŒåŠ ã‚ã‚‹ã€‚
 /// </summary>
 public class WireActionScript : MonoBehaviour
 {
-    [SerializeField] private Transform needlePivot;  // jEˆÊ’u—p‚ÌqƒIƒuƒWƒFƒNƒg
+    [SerializeField] private Transform needlePivot;  // é‡å­”ä½ç½®ç”¨ã®å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     [SerializeField] private GameObject needle;
 
-    // Ú‘±‘ÎÛ‚ÌƒIƒuƒWƒFƒNƒg
+    // needleã®è¡¨ç¤ºåˆ¶å¾¡ç”¨Rendererã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥
+    private Renderer needleRenderer;
+
+    // æ¥ç¶šå¯¾è±¡ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     private GameObject targetObject = null;
 
-    // ƒƒCƒ„[‚ÌŒ©‚½–Ú‚ğ’S“–‚·‚é LineRenderer ƒRƒ“ƒ|[ƒlƒ“ƒg
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ã‚’æ‹…å½“ã™ã‚‹ LineRenderer ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
     private LineRenderer lineRenderer => GetComponent<LineRenderer>();
 
-    // ƒvƒŒƒCƒ„[‚ğÚ‘±‚·‚é•¨—ƒWƒ‡ƒCƒ“ƒgi‹——£ŒÅ’èj
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’æ¥ç¶šã™ã‚‹ç‰©ç†ã‚¸ãƒ§ã‚¤ãƒ³ãƒˆï¼ˆè·é›¢å›ºå®šï¼‰
     private DistanceJoint2D distanceJoint => GetComponent<DistanceJoint2D>();
 
-    // Œ»İis’†‚ÌjˆÚ“®ƒRƒ‹[ƒ`ƒ“i•¡”“¯‚É“®‚©‚³‚È‚¢‚½‚ßŠÇ—j
+    // ç¾åœ¨é€²è¡Œä¸­ã®é‡ç§»å‹•ã‚³ãƒ«ãƒ¼ãƒãƒ³ï¼ˆè¤‡æ•°åŒæ™‚ã«å‹•ã‹ã•ãªã„ãŸã‚ç®¡ç†ï¼‰
     private Coroutine currentNeedleCoroutine;
 
-    #region ’è”
-    private const float NEEDLE_STOP_DISTANCE = 0.01f;  // j’â~‚Ì”»’è‹——£
-    private const float NEEDLE_SPEED = 0.2f;           // j‚ÌˆÚ“®‘¬“x
-    private const float SWING_FORCE = 300f;            // ƒXƒCƒ“ƒOŠJn‚É‰Á‚¦‚é—Í
-    private const float PLAYER_GRAVITY_SCALE = 3f;     // Ú‘±‚Ìd—ÍƒXƒP[ƒ‹
-    private const float RIGIDBODY_LINEAR_DAMPING = 0f; // ‹ó‹C’ïR
-    private const float RIGIDBODY_ANGULAR_DAMPING = 0f;// ‰ñ“]Œ¸Š
-    private const int LINE_RENDERER_POINT_COUNT = 2;   // ƒ‰ƒCƒ“‚Ì“_”
-    private const float FIXED_WIRE_LENGTH = 3.5f;      // ƒƒCƒ„[‚ÌŒÅ’è’·‚³
-    private const int LINE_START_INDEX = 0;            // ƒ‰ƒCƒ“‚Ìn“_ƒCƒ“ƒfƒbƒNƒX
-    private const int LINE_END_INDEX = 1;              // ƒ‰ƒCƒ“‚ÌI“_ƒCƒ“ƒfƒbƒNƒX
-    private const int LINE_POINT_NONE = 0;             // ƒ‰ƒCƒ“”ñ•\¦‚Ì“_”
+    #region å®šæ•°
+    private const float NEEDLE_STOP_DISTANCE = 0.01f;  // é‡åœæ­¢ã®åˆ¤å®šè·é›¢
+    private const float NEEDLE_SPEED = 0.15f;           // é‡ã®ç§»å‹•é€Ÿåº¦
+    private const float SWING_FORCE = 300f;            // ã‚¹ã‚¤ãƒ³ã‚°é–‹å§‹æ™‚ã«åŠ ãˆã‚‹åŠ›
+    private const float PLAYER_GRAVITY_SCALE = 3f;     // æ¥ç¶šæ™‚ã®é‡åŠ›ã‚¹ã‚±ãƒ¼ãƒ«
+    private const float RIGIDBODY_LINEAR_DAMPING = 0f; // ç©ºæ°—æŠµæŠ—
+    private const float RIGIDBODY_ANGULAR_DAMPING = 0f;// å›è»¢æ¸›è¡°
+    private const int LINE_RENDERER_POINT_COUNT = 2;   // ãƒ©ã‚¤ãƒ³ã®ç‚¹æ•°
+    private const float FIXED_WIRE_LENGTH = 3.5f;      // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®å›ºå®šé•·ã•
+    private const int LINE_START_INDEX = 0;            // ãƒ©ã‚¤ãƒ³ã®å§‹ç‚¹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+    private const int LINE_END_INDEX = 1;              // ãƒ©ã‚¤ãƒ³ã®çµ‚ç‚¹ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+    private const int LINE_POINT_NONE = 0;             // ãƒ©ã‚¤ãƒ³éè¡¨ç¤ºæ™‚ã®ç‚¹æ•°
     #endregion
+
+    private void Awake()
+    {
+        // needleã®Rendererã‚’å–å¾—ï¼ˆSpriteRendererã§ã‚‚MeshRendererã§ã‚‚Rendererãªã‚‰ã“ã‚Œã§å–ã‚Œã‚‹ï¼‰
+        needleRenderer = needle.GetComponent<Renderer>();
+
+        // åˆæœŸã¯needleã‚’éè¡¨ç¤ºã«ã—ã¦ãŠã
+        SetNeedleVisible(false);
+    }
 
     void Update()
     {
-        HandleLeftClick();   // ¶ƒNƒŠƒbƒNFÚ‘±ˆ—
-        HandleRightClick();  // ‰EƒNƒŠƒbƒNFØ’fˆ—
-        UpdateLine();        // í‚ÉƒƒCƒ„[‚ÌŒ©‚½–Ú‚ğXV
+        HandleLeftClick();   // å·¦ã‚¯ãƒªãƒƒã‚¯ï¼šæ¥ç¶šå‡¦ç†
+        HandleRightClick();  // å³ã‚¯ãƒªãƒƒã‚¯ï¼šåˆ‡æ–­å‡¦ç†
+        UpdateLine();        // å¸¸ã«ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ã‚’æ›´æ–°
     }
 
     /// <summary>
-    /// ¶ƒNƒŠƒbƒN‚ÌÚ‘±ˆ—B
-    /// ƒNƒŠƒbƒNˆÊ’u‚ª Ground ƒ^ƒCƒ‹‚Å‚ ‚ê‚ÎAƒƒCƒ„[‚ğÚ‘±‚·‚éB
+    /// needleã®è¡¨ç¤º/éè¡¨ç¤ºåˆ‡ã‚Šæ›¿ãˆï¼ˆRendererã®enabledåˆ¶å¾¡ï¼‰
+    /// </summary>
+    private void SetNeedleVisible(bool visible)
+    {
+        if (needleRenderer != null)
+            needleRenderer.enabled = visible;
+    }
+
+    /// <summary>
+    /// å·¦ã‚¯ãƒªãƒƒã‚¯æ™‚ã®æ¥ç¶šå‡¦ç†ã€‚
+    /// ã‚¯ãƒªãƒƒã‚¯ä½ç½®ãŒ Ground ã‚¿ã‚¤ãƒ«ã§ã‚ã‚Œã°ã€ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’æ¥ç¶šã™ã‚‹ã€‚
     /// </summary>
     private void HandleLeftClick()
     {
-        // ¶ƒNƒŠƒbƒN‚ª‰Ÿ‚³‚ê‚Ä‚¢‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+        // å·¦ã‚¯ãƒªãƒƒã‚¯ãŒæŠ¼ã•ã‚Œã¦ã„ãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
         if (!Input.GetMouseButtonDown(0)) return;
 
-        // ƒ}ƒEƒX‚Ìƒ[ƒ‹ƒhÀ•W‚ğæ“¾
+        // ãƒã‚¦ã‚¹ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã‚’å–å¾—
         Vector3 mouseWorldPos = GetMouseWorldPosition();
 
-        // ƒ}ƒEƒXÀ•W‚Å2DƒŒƒCƒLƒƒƒXƒgi‚»‚ÌÀ•W‚ÉƒIƒuƒWƒFƒNƒg‚ª‘¶İ‚·‚é‚©Šm”Fj
+        // ãƒã‚¦ã‚¹åº§æ¨™ã§2Dãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆï¼ˆãã®åº§æ¨™ã«ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒå­˜åœ¨ã™ã‚‹ã‹ç¢ºèªï¼‰
         RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-        if (hit.collider == null) return; // ƒqƒbƒg‚µ‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+        if (hit.collider == null) return; // ãƒ’ãƒƒãƒˆã—ãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
 
-        // ƒqƒbƒg‚µ‚½ƒIƒuƒWƒFƒNƒg‚©‚ç Tilemap ‚ğæ“¾iTilemapCollider2D ‚Ìê‡‚à‘z’è‚µe‚àŠm”Fj
+        // ãƒ’ãƒƒãƒˆã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰ Tilemap ã‚’å–å¾—ï¼ˆTilemapCollider2D ã®å ´åˆã‚‚æƒ³å®šã—è¦ªã‚‚ç¢ºèªï¼‰
         Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
-        if (tilemap == null) return; // Tilemap ‚Å‚È‚¯‚ê‚Î‰½‚à‚µ‚È‚¢
+        if (tilemap == null) return; // Tilemap ã§ãªã‘ã‚Œã°ä½•ã‚‚ã—ãªã„
 
-        // ƒqƒbƒg‚µ‚½ˆÊ’u‚Ìƒ^ƒCƒ‹À•W‚ğæ“¾
+        // ãƒ’ãƒƒãƒˆã—ãŸä½ç½®ã®ã‚¿ã‚¤ãƒ«åº§æ¨™ã‚’å–å¾—
         Vector3Int cellPos = tilemap.WorldToCell(hit.point);
 
-        // ŠY“–‚Ìƒ^ƒCƒ‹‚ğæ“¾
+        // è©²å½“ã®ã‚¿ã‚¤ãƒ«ã‚’å–å¾—
         TileBase tile = tilemap.GetTile(cellPos);
 
-        // Ground ƒ^ƒCƒv‚ÌƒJƒXƒ^ƒ€ƒ^ƒCƒ‹‚È‚çÚ‘±ˆ—‚ğs‚¤
+        // Ground ã‚¿ã‚¤ãƒ—ã®ã‚«ã‚¹ã‚¿ãƒ ã‚¿ã‚¤ãƒ«ãªã‚‰æ¥ç¶šå‡¦ç†ã‚’è¡Œã†
         if (tile is CustomTile customTile && customTile.tileType == CustomTile.TileType.Ground)
         {
-            TryConnectWire(hit.point, hit.collider.gameObject);
+            // ã‚¯ãƒªãƒƒã‚¯ä½ç½®ã‚’ãã®ã¾ã¾ä½¿ã‚ãšã€è¡¨é¢ã‚’æ¢ã™é–¢æ•°ã‚’å‘¼ã³å‡ºã™
+            Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+
+            // è¦‹ã¤ã‹ã‚Œã°æ¥ç¶š
+            TryConnectWire(adjustedTarget, hit.collider.gameObject);
         }
     }
 
     /// <summary>
-    /// ‰EƒNƒŠƒbƒNAƒƒCƒ„[‚ğØ’f‚·‚éB
+    /// å³ã‚¯ãƒªãƒƒã‚¯æ™‚ã€ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’åˆ‡æ–­ã™ã‚‹ã€‚
     /// </summary>
     private void HandleRightClick()
     {
-        // ‰EƒNƒŠƒbƒN‚ª‰Ÿ‚³‚ê‚½‚çƒƒCƒ„[‚ğØ’f
+        // å³ã‚¯ãƒªãƒƒã‚¯ãŒæŠ¼ã•ã‚ŒãŸã‚‰ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’åˆ‡æ–­
         if (Input.GetMouseButtonDown(1))
         {
             CutWire();
@@ -92,151 +117,224 @@ public class WireActionScript : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒƒCƒ„[‚ÌŒ©‚½–ÚiLineRendererj‚ğXV‚·‚éB
+    /// ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ï¼ˆLineRendererï¼‰ã‚’æ›´æ–°ã™ã‚‹ã€‚
     /// </summary>
     private void UpdateLine()
     {
-        // ƒWƒ‡ƒCƒ“ƒg‚ª—LŒø‚©‚Â LineRenderer ‚ªÅ’áŒÀ‚Ì“_”‚ğ‚Á‚Ä‚¢‚éê‡‚Ì‚İXV
+        // ã‚¸ãƒ§ã‚¤ãƒ³ãƒˆãŒæœ‰åŠ¹ã‹ã¤ LineRenderer ãŒæœ€ä½é™ã®ç‚¹æ•°ã‚’æŒã£ã¦ã„ã‚‹å ´åˆã®ã¿æ›´æ–°
         if (distanceJoint.enabled && lineRenderer.positionCount >= LINE_RENDERER_POINT_COUNT)
         {
-            // n“_‚ÍƒvƒŒƒCƒ„[i©•ªj
+            // å§‹ç‚¹ã¯ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ï¼ˆè‡ªåˆ†ï¼‰
             lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
 
-            // I“_‚ÍƒWƒ‡ƒCƒ“ƒg‚ÌÚ‘±ƒAƒ“ƒJ[iÚ‘±À•Wj
+            // çµ‚ç‚¹ã¯ã‚¸ãƒ§ã‚¤ãƒ³ãƒˆã®æ¥ç¶šã‚¢ãƒ³ã‚«ãƒ¼ï¼ˆæ¥ç¶šåº§æ¨™ï¼‰
             lineRenderer.SetPosition(LINE_END_INDEX, distanceJoint.connectedAnchor);
         }
     }
 
     /// <summary>
-    /// ƒƒCƒ„[Ú‘±—v‹B
-    /// “¯‚¶’n“_‚ÉÚ‘±Ï‚İ‚Ìê‡‚Íˆ—‚ğƒXƒLƒbƒvB
-    /// j‚ğ”ò‚Î‚·ƒRƒ‹[ƒ`ƒ“‚ğŠJnB
+    /// ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šè¦æ±‚ã€‚
+    /// åŒã˜åœ°ç‚¹ã«æ¥ç¶šæ¸ˆã¿ã®å ´åˆã¯å‡¦ç†ã‚’ã‚¹ã‚­ãƒƒãƒ—ã€‚
+    /// é‡ã‚’é£›ã°ã™ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é–‹å§‹ã€‚
     /// </summary>
     private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
     {
-        // Šù‚ÉÚ‘±’†‚È‚ç“¯‚¶ƒ^[ƒQƒbƒg‚©Šm”F
+        // æ—¢ã«æ¥ç¶šä¸­ãªã‚‰åŒã˜ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‹ç¢ºèª
         if (distanceJoint.enabled && distanceJoint.connectedAnchor != Vector2.zero)
         {
             bool isSameTarget = (Vector2.Distance(distanceJoint.connectedAnchor, targetPos) < 0.01f);
             if (isSameTarget)
             {
-                // “¯‚¶êŠ‚È‚çƒXƒLƒbƒvi–³‘Ê‚ÈÚ‘±‚ğ”ğ‚¯‚éj
-                Debug.Log("“¯‚¶êŠ‚ÉŠù‚ÉÚ‘±’†‚Ì‚½‚ßƒXƒLƒbƒv");
+                // åŒã˜å ´æ‰€ãªã‚‰ã‚¹ã‚­ãƒƒãƒ—ï¼ˆç„¡é§„ãªæ¥ç¶šã‚’é¿ã‘ã‚‹ï¼‰
+                Debug.Log("åŒã˜å ´æ‰€ã«æ—¢ã«æ¥ç¶šä¸­ã®ãŸã‚ã‚¹ã‚­ãƒƒãƒ—");
                 return;
             }
         }
 
-        // Šù‘¶‚ÌjƒRƒ‹[ƒ`ƒ“‚ğ’â~i•¡”“¯‹N“®–h~j
+        // æ—¢å­˜ã®é‡ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’åœæ­¢ï¼ˆè¤‡æ•°åŒæ™‚èµ·å‹•é˜²æ­¢ï¼‰
         if (currentNeedleCoroutine != null)
             StopCoroutine(currentNeedleCoroutine);
 
-        // V‚µ‚¢j‚ğ”ò‚Î‚·ƒRƒ‹[ƒ`ƒ“‚ğŠJn
+        SetNeedleVisible(true);
+
+        // æ–°ã—ã„é‡ã‚’é£›ã°ã™ã‚³ãƒ«ãƒ¼ãƒãƒ³ã‚’é–‹å§‹
         currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
     }
 
     /// <summary>
-    /// ƒƒCƒ„[‚ğØ’fB
+    /// Tilemapå°‚ç”¨ï¼šã‚¯ãƒªãƒƒã‚¯ä½ç½®ã‹ã‚‰ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ–¹å‘ã«æˆ»ã‚Šã€å£è¡¨é¢ã‚’æ¢ã™ã€‚
+    /// </summary>
+    private Vector2 FindSurfaceAlongPlayerDirectionTilemap(Vector2 clickPosition)
+    {
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚¯ãƒªãƒƒã‚¯ä½ç½®ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—
+        Vector2 playerPos = transform.position;
+        Vector2 directionToPlayer = (playerPos - clickPosition).normalized;
+
+        // æ¢ç´¢é–‹å§‹ä½ç½®ã‚’ã‚¯ãƒªãƒƒã‚¯ä½ç½®ã«è¨­å®š
+        Vector2 probePosition = clickPosition;
+        Vector2 lastInsidePosition = clickPosition;
+
+        // çŠ¶æ…‹ç®¡ç†ç”¨å¤‰æ•°
+        bool wasInside = true;
+        bool foundSurface = false;
+
+        // æœ€åˆã«ã‚¯ãƒªãƒƒã‚¯ä½ç½®ã§Tilemapã‚’å–å¾—ï¼ˆã‚¯ãƒªãƒƒã‚¯åœ°ç‚¹ã®Tilemapé™å®šï¼‰
+        RaycastHit2D hit = Physics2D.Raycast(clickPosition, Vector2.zero);
+        if (hit.collider == null) return clickPosition; // Tilemapä»¥å¤–ã«ã‚¯ãƒªãƒƒã‚¯ãªã‚‰ãã®ã¾ã¾è¿”ã™
+
+        Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
+        if (tilemap == null) return clickPosition; // Tilemapã˜ã‚ƒãªã„å ´åˆã‚‚ãã®ã¾ã¾
+
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ–¹å‘ã¸50å›åˆ†ã€ä¸€å®šè·é›¢ãšã¤é€²ã‚“ã§ãƒã‚§ãƒƒã‚¯
+        for (int i = 0; i < 50; i++)
+        {
+            // ç¾åœ¨ä½ç½®ã®Tileåº§æ¨™ã‚’å–å¾—
+            Vector3Int cellPos = tilemap.WorldToCell(probePosition);
+
+            // è©²å½“ä½ç½®ã«ã‚¿ã‚¤ãƒ«ãŒã‚ã‚‹ã‹ç¢ºèª
+            TileBase tile = tilemap.GetTile(cellPos);
+
+            bool isInside = (tile != null);
+
+            // ã€Œã‚¿ã‚¤ãƒ«å†…ã€â†’ã€Œã‚¿ã‚¤ãƒ«å¤–ã€ã«å¤‰ã‚ã£ãŸç¬é–“ãŒå£ã®è¡¨é¢
+            if (wasInside && !isInside)
+            {
+                foundSurface = true;
+                break;
+            }
+
+            // ã‚¿ã‚¤ãƒ«å†…ãªã‚‰ã€ãã®ä½ç½®ã‚’è¨˜éŒ²ï¼ˆæœ€å¾Œã«ã‚¿ã‚¤ãƒ«å†…ã ã£ãŸå ´æ‰€ï¼‰
+            if (isInside)
+                lastInsidePosition = probePosition;
+
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ–¹å‘ã«å°‘ã—é€²ã‚ã‚‹
+            probePosition += directionToPlayer * 0.1f;
+
+            // çŠ¶æ…‹æ›´æ–°
+            wasInside = isInside;
+        }
+
+        if (foundSurface)
+        {
+            Debug.Log($"Tilemapè¡¨é¢æ¤œå‡º:{lastInsidePosition}");
+            return lastInsidePosition;
+        }
+        else
+        {
+            Debug.Log($"Tilemapè¡¨é¢è¦‹ã¤ã‹ã‚‰ãš:{clickPosition}");
+            return clickPosition;
+        }
+    }
+
+
+
+    /// <summary>
+    /// ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’åˆ‡æ–­ã€‚
     /// </summary>
     private void CutWire()
     {
-        // ƒWƒ‡ƒCƒ“ƒg‚ğ–³Œø‰»
+        // ã‚¸ãƒ§ã‚¤ãƒ³ãƒˆã‚’ç„¡åŠ¹åŒ–
         distanceJoint.enabled = false;
 
-        // ƒƒCƒ„[‚ÌŒ©‚½–Ú‚à”ñ•\¦
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ã‚‚éè¡¨ç¤º
         lineRenderer.positionCount = LINE_POINT_NONE;
 
-        // Ú‘±‘ÎÛ‚àƒŠƒZƒbƒg
+        // æ¥ç¶šå¯¾è±¡ã‚‚ãƒªã‚»ãƒƒãƒˆ
         targetObject = null;
 
-        Debug.Log("ƒƒCƒ„[‚ğØ’f‚µ‚Ü‚µ‚½");
+        SetNeedleVisible(false);
+
+        Debug.Log("ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’åˆ‡æ–­ã—ã¾ã—ãŸ");
     }
 
     /// <summary>
-    /// j‚ğƒ^[ƒQƒbƒgˆÊ’u‚Ü‚ÅˆÚ“®‚µA“’B‚µ‚½‚çƒƒCƒ„[Ú‘±‚ğs‚¤ƒRƒ‹[ƒ`ƒ“B
+    /// é‡ã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆä½ç½®ã¾ã§ç§»å‹•ã—ã€åˆ°é”ã—ãŸã‚‰ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šã‚’è¡Œã†ã‚³ãƒ«ãƒ¼ãƒãƒ³ã€‚
     /// </summary>
     private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
     {
-        // j‚Ì‰ŠúˆÊ’u‚ğƒvƒŒƒCƒ„[ˆÊ’u‚ÉƒZƒbƒgijˆÚ“®ŠJnˆÊ’uj
-        needle.transform.position = transform.position; // © ’Ç‰Á
+        SetNeedleVisible(true);
+
+        // é‡ã®åˆæœŸä½ç½®ã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ä½ç½®ã«ã‚»ãƒƒãƒˆï¼ˆé‡ç§»å‹•é–‹å§‹ä½ç½®ï¼‰
+        needle.transform.position = transform.position; // â† è¿½åŠ 
 
         while (Vector2.Distance(needle.transform.position, targetPosition) > NEEDLE_STOP_DISTANCE)
         {
-            // j‚ÌŒ»İˆÊ’u‚©‚çƒ^[ƒQƒbƒg‚Ö‚Ì’PˆÊƒxƒNƒgƒ‹‚ğŒvZ
+            // é‡ã®ç¾åœ¨ä½ç½®ã‹ã‚‰ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã¸ã®å˜ä½ãƒ™ã‚¯ãƒˆãƒ«ã‚’è¨ˆç®—
             Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
 
-            // j‚ÌŒü‚«‚ğƒ^[ƒQƒbƒg•ûŒü‚É‰ñ“]‚³‚¹‚éiƒfƒtƒHƒ‹ƒg‰ºŒü‚«‚Ìj‰æ‘œ‚É‡‚í‚¹‚Ä’²®j
-            // ‚±‚±‚ÅAj‚Ìuupv•ûŒü‚ğƒ^[ƒQƒbƒg‚Ì‹t•ûŒü‚ÉŒü‚¯‚é‚±‚Æ‚Å
-            // j‚Ì‰ºŒü‚«iæ’[j‚ªƒ^[ƒQƒbƒg•ûŒü‚ğŒü‚­‚æ‚¤‚É‚µ‚Ä‚¢‚é
-            needle.transform.up = -direction; // © ‚±‚±‚ğC³
+            // é‡ã®å‘ãã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆæ–¹å‘ã«å›è»¢ã•ã›ã‚‹ï¼ˆãƒ‡ãƒ•ã‚©ãƒ«ãƒˆä¸‹å‘ãã®é‡ç”»åƒã«åˆã‚ã›ã¦èª¿æ•´ï¼‰
+            // ã“ã“ã§ã€é‡ã®ã€Œupã€æ–¹å‘ã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã®é€†æ–¹å‘ã«å‘ã‘ã‚‹ã“ã¨ã§
+            // é‡ã®ä¸‹å‘ãï¼ˆå…ˆç«¯ï¼‰ãŒã‚¿ãƒ¼ã‚²ãƒƒãƒˆæ–¹å‘ã‚’å‘ãã‚ˆã†ã«ã—ã¦ã„ã‚‹
+            needle.transform.up = -direction; // â† ã“ã“ã‚’ä¿®æ­£
 
-            // j‚ğƒ^[ƒQƒbƒg•ûŒü‚É­‚µ‚¸‚ÂˆÚ“®
+            // é‡ã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆæ–¹å‘ã«å°‘ã—ãšã¤ç§»å‹•
             needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NEEDLE_SPEED);
 
             yield return null;
         }
 
-        // j‚ğ‚Ò‚Á‚½‚èƒ^[ƒQƒbƒgˆÊ’u‚É”z’u
+        // é‡ã‚’ã´ã£ãŸã‚Šã‚¿ãƒ¼ã‚²ãƒƒãƒˆä½ç½®ã«é…ç½®
         needle.transform.position = targetPosition;
 
-        // Ú‘±‘ÎÛƒIƒuƒWƒFƒNƒg‚ğ•Û
+        // æ¥ç¶šå¯¾è±¡ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä¿æŒ
         targetObject = hitObject;
 
-        // jE‚Ì¢ŠEÀ•W‚ğæ“¾
+        // é‡å­”ã®ä¸–ç•Œåº§æ¨™ã‚’å–å¾—
         Vector3 needlePivotWorldPos = needlePivot.position;
 
-        // ƒƒCƒ„[‚ÌŒ©‚½–Ú‚ğ•`‰æ
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ã‚’æç”»
         DrawLine(needlePivotWorldPos);
 
-        // DistanceJoint2D ‚ğƒZƒbƒgƒAƒbƒviÀ•WÚ‘±j
-        distanceJoint.enabled = false; // ˆÀ‘S‚Ì‚½‚ßˆê’U–³Œø‰»
-        distanceJoint.connectedBody = null; // Body ‚Å‚Í‚È‚­À•WÚ‘±
-        distanceJoint.connectedAnchor = needlePivotWorldPos; // jEˆÊ’u‚ğƒZƒbƒg
-        distanceJoint.maxDistanceOnly = true; // Å‘å‹——£‚Ì‚İ—LŒø
-        distanceJoint.distance = FIXED_WIRE_LENGTH; // ‹——£‚ğŒÅ’è
-        distanceJoint.enabled = true; // Ä“x—LŒø‰»
+        // DistanceJoint2D ã‚’ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ï¼ˆåº§æ¨™æ¥ç¶šï¼‰
+        distanceJoint.enabled = false; // å®‰å…¨ã®ãŸã‚ä¸€æ—¦ç„¡åŠ¹åŒ–
+        distanceJoint.connectedBody = null; // Body ã§ã¯ãªãåº§æ¨™æ¥ç¶š
+        distanceJoint.connectedAnchor = needlePivotWorldPos; // é‡å­”ä½ç½®ã‚’ã‚»ãƒƒãƒˆ
+        distanceJoint.maxDistanceOnly = true; // æœ€å¤§è·é›¢ã®ã¿æœ‰åŠ¹
+        distanceJoint.distance = FIXED_WIRE_LENGTH; // è·é›¢ã‚’å›ºå®š
+        distanceJoint.enabled = true; // å†åº¦æœ‰åŠ¹åŒ–
 
-        // ƒvƒŒƒCƒ„[‚Ì Rigidbody İ’è•ÏXi‹ó‹C’ïR‚È‚Ç’²®j
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã® Rigidbody è¨­å®šå¤‰æ›´ï¼ˆç©ºæ°—æŠµæŠ—ãªã©èª¿æ•´ï¼‰
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = PLAYER_GRAVITY_SCALE;
         rb.linearDamping = RIGIDBODY_LINEAR_DAMPING;
         rb.angularDamping = RIGIDBODY_ANGULAR_DAMPING;
 
-        // ƒXƒCƒ“ƒO‰‘¬‚ğ‰Á‚¦‚é
-        // Ú‘±•ûŒü‚Ì–@üi‚’¼•ûŒüj‚ğŒvZ‚µA‚»‚Ì•ûŒü‚É—Í‚ğ‰Á‚¦‚é‚±‚Æ‚ÅƒXƒCƒ“ƒO‚ğŠJn
+        // ã‚¹ã‚¤ãƒ³ã‚°åˆé€Ÿã‚’åŠ ãˆã‚‹
+        // æ¥ç¶šæ–¹å‘ã®æ³•ç·šï¼ˆå‚ç›´æ–¹å‘ï¼‰ã‚’è¨ˆç®—ã—ã€ãã®æ–¹å‘ã«åŠ›ã‚’åŠ ãˆã‚‹ã“ã¨ã§ã‚¹ã‚¤ãƒ³ã‚°ã‚’é–‹å§‹
         Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
-        Vector2 tangent = new Vector2(-dir.y, dir.x); // Ú‘±ü‚É‘Î‚·‚é‚’¼ƒxƒNƒgƒ‹
+        Vector2 tangent = new Vector2(-dir.y, dir.x); // æ¥ç¶šç·šã«å¯¾ã™ã‚‹å‚ç›´ãƒ™ã‚¯ãƒˆãƒ«
         rb.AddForce(tangent * SWING_FORCE);
     }
 
     /// <summary>
-    /// ƒƒCƒ„[‚ÌŒ©‚½–Ú‚ğ LineRenderer ‚Å•`‰æB
+    /// ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®è¦‹ãŸç›®ã‚’ LineRenderer ã§æç”»ã€‚
     /// </summary>
     private void DrawLine(Vector3 lineEndPos)
     {
-        if (targetObject == null) return; // Ú‘±‘ÎÛ‚ª–³‚¯‚ê‚Î•`‰æ‚µ‚È‚¢
+        if (targetObject == null) return; // æ¥ç¶šå¯¾è±¡ãŒç„¡ã‘ã‚Œã°æç”»ã—ãªã„
 
-        // LineRenderer ‚Ì“_”‚ğƒZƒbƒg
+        // LineRenderer ã®ç‚¹æ•°ã‚’ã‚»ãƒƒãƒˆ
         lineRenderer.positionCount = LINE_RENDERER_POINT_COUNT;
 
-        // n“_‚ÍƒvƒŒƒCƒ„[
+        // å§‹ç‚¹ã¯ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼
         lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
 
-        // I“_‚Íƒ^[ƒQƒbƒgƒIƒuƒWƒFƒNƒg‚ÌˆÊ’u
-        lineRenderer.SetPosition(LINE_END_INDEX, lineEndPos);  // jE‚ÌˆÊ’u‚É‡‚í‚¹‚é
+        // çµ‚ç‚¹ã¯ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½ç½®
+        lineRenderer.SetPosition(LINE_END_INDEX, lineEndPos);  // é‡å­”ã®ä½ç½®ã«åˆã‚ã›ã‚‹
     }
 
     /// <summary>
-    /// ƒ}ƒEƒXˆÊ’u‚ğƒ[ƒ‹ƒhÀ•W‚Åæ“¾B
+    /// ãƒã‚¦ã‚¹ä½ç½®ã‚’ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã§å–å¾—ã€‚
     /// </summary>
     private Vector3 GetMouseWorldPosition()
     {
-        // ƒ}ƒEƒXÀ•W‚ğƒXƒNƒŠ[ƒ“À•W‚©‚çæ“¾
+        // ãƒã‚¦ã‚¹åº§æ¨™ã‚’ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åº§æ¨™ã‹ã‚‰å–å¾—
         Vector3 mousePosition = Input.mousePosition;
 
-        // ƒJƒƒ‰‚ÌˆÊ’u•â³i2DƒJƒƒ‰‚È‚Ì‚ÅZ²‚ğ’²®j
+        // ã‚«ãƒ¡ãƒ©ã®ä½ç½®è£œæ­£ï¼ˆ2Dã‚«ãƒ¡ãƒ©ãªã®ã§Zè»¸ã‚’èª¿æ•´ï¼‰
         mousePosition.z = -Camera.main.transform.position.z;
 
-        // ƒXƒNƒŠ[ƒ“À•W‚©‚çƒ[ƒ‹ƒhÀ•W‚É•ÏŠ·
+        // ã‚¹ã‚¯ãƒªãƒ¼ãƒ³åº§æ¨™ã‹ã‚‰ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã«å¤‰æ›
         return Camera.main.ScreenToWorldPoint(mousePosition);
     }
 }
