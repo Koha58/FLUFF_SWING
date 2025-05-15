@@ -10,6 +10,7 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class WireActionScript : MonoBehaviour
 {
+    [SerializeField] private Transform needlePivot;  // 針孔位置用の子オブジェクト
     [SerializeField] private GameObject needle;
 
     // 接続対象のオブジェクト
@@ -155,58 +156,62 @@ public class WireActionScript : MonoBehaviour
     /// </summary>
     private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
     {
-        // プレイヤー位置
-        Vector2 playerPosition = transform.position;
+        // 針の初期位置をプレイヤー位置にセット（針移動開始位置）
+        needle.transform.position = transform.position; // ← 追加
 
-        // プレイヤー → ターゲット 方向
-        Vector2 directionToTarget = (targetPosition - playerPosition).normalized;
-
-        // プレイヤーから見て反対方向（ターゲット方向の逆）
-        Vector2 directionOpposite = -directionToTarget;
-
-        // 針をプレイヤー位置にセット
-        needle.transform.position = playerPosition;
-
-        // 針をターゲットとは逆方向に一定距離離す（演出用、必要なら）
-        float initialOffset = 0.5f; // 任意の距離
-        needle.transform.position = playerPosition + directionOpposite * initialOffset;
-
-        // 針をターゲット方向に移動（見た目上は逆からターゲットに向かってくる）
         while (Vector2.Distance(needle.transform.position, targetPosition) > NEEDLE_STOP_DISTANCE)
         {
+            // 針の現在位置からターゲットへの単位ベクトルを計算
+            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
+
+            // 針の向きをターゲット方向に回転させる（デフォルト下向きの針画像に合わせて調整）
+            // ここで、針の「up」方向をターゲットの逆方向に向けることで
+            // 針の下向き（先端）がターゲット方向を向くようにしている
+            needle.transform.up = -direction; // ← ここを修正
+
+            // 針をターゲット方向に少しずつ移動
             needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NEEDLE_SPEED);
+
             yield return null;
         }
 
         // 針をぴったりターゲット位置に配置
         needle.transform.position = targetPosition;
 
-        // あとは従来通りワイヤー接続
+        // 接続対象オブジェクトを保持
         targetObject = hitObject;
-        DrawLine();
 
-        distanceJoint.enabled = false;
-        distanceJoint.connectedBody = null;
-        distanceJoint.connectedAnchor = targetPosition;
-        distanceJoint.maxDistanceOnly = true;
-        distanceJoint.distance = FIXED_WIRE_LENGTH;
-        distanceJoint.enabled = true;
+        // 針孔の世界座標を取得
+        Vector3 needlePivotWorldPos = needlePivot.position;
 
+        // ワイヤーの見た目を描画
+        DrawLine(needlePivotWorldPos);
+
+        // DistanceJoint2D をセットアップ（座標接続）
+        distanceJoint.enabled = false; // 安全のため一旦無効化
+        distanceJoint.connectedBody = null; // Body ではなく座標接続
+        distanceJoint.connectedAnchor = needlePivotWorldPos; // 針孔位置をセット
+        distanceJoint.maxDistanceOnly = true; // 最大距離のみ有効
+        distanceJoint.distance = FIXED_WIRE_LENGTH; // 距離を固定
+        distanceJoint.enabled = true; // 再度有効化
+
+        // プレイヤーの Rigidbody 設定変更（空気抵抗など調整）
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = PLAYER_GRAVITY_SCALE;
         rb.linearDamping = RIGIDBODY_LINEAR_DAMPING;
         rb.angularDamping = RIGIDBODY_ANGULAR_DAMPING;
 
-        Vector2 dir = (targetPosition - playerPosition).normalized;
-        Vector2 tangent = new Vector2(-dir.y, dir.x);
+        // スイング初速を加える
+        // 接続方向の法線（垂直方向）を計算し、その方向に力を加えることでスイングを開始
+        Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
+        Vector2 tangent = new Vector2(-dir.y, dir.x); // 接続線に対する垂直ベクトル
         rb.AddForce(tangent * SWING_FORCE);
     }
-
 
     /// <summary>
     /// ワイヤーの見た目を LineRenderer で描画。
     /// </summary>
-    private void DrawLine()
+    private void DrawLine(Vector3 lineEndPos)
     {
         if (targetObject == null) return; // 接続対象が無ければ描画しない
 
@@ -217,7 +222,7 @@ public class WireActionScript : MonoBehaviour
         lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
 
         // 終点はターゲットオブジェクトの位置
-        lineRenderer.SetPosition(LINE_END_INDEX, targetObject.transform.position);
+        lineRenderer.SetPosition(LINE_END_INDEX, lineEndPos);  // 針孔の位置に合わせる
     }
 
     /// <summary>
