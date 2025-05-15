@@ -409,7 +409,7 @@ DistanceJoint2D:
   m_AutoConfigureConnectedAnchor: 0
   m_Anchor: {x: 0, y: 0}
   m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 1
+  m_AutoConfigureDistance: 0
   m_Distance: 4.2209597
   m_MaxDistanceOnly: 0
 --- !u!1 &519420028

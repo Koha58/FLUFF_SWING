@@ -3,82 +3,75 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// プレイヤーがTilemap上のGroundタイルに対して、ワイヤー（LineRenderer + DistanceJoint2D）を使って接続・スイングできるアクションを制御するスクリプト。
-/// マウス左クリックで接続、右クリックでワイヤーを切断、針オブジェクトが目標地点へ移動してからワイヤーを張る。
+/// プレイヤーがワイヤーを使って地形（Tilemap）に接続し、スイング移動を行うアクションを制御するクラス。
+/// 左クリックで接続可能地点を指定し、針を飛ばして接続。
+/// 右クリックでワイヤーを切断。
+/// 接続中は固定長のワイヤーで物理的に接続され、接続直後にスイング開始の力が加わる。
 /// </summary>
 public class WireActionScript : MonoBehaviour
 {
-    [Header("ワイヤー先端に使う針オブジェクト")]
     [SerializeField] private GameObject needle;
 
+    // 接続対象のオブジェクト
     private GameObject targetObject = null;
 
-    // LineRenderer コンポーネント（ワイヤーの見た目用）
+    // ワイヤーの見た目を担当する LineRenderer コンポーネント
     private LineRenderer lineRenderer => GetComponent<LineRenderer>();
 
-    // DistanceJoint2D コンポーネント（物理的な接続）
+    // プレイヤーを接続する物理ジョイント（距離固定）
     private DistanceJoint2D distanceJoint => GetComponent<DistanceJoint2D>();
 
-    // 現在の針移動コルーチン
+    // 現在進行中の針移動コルーチン（複数同時に動かさないため管理）
     private Coroutine currentNeedleCoroutine;
 
-    // === 定数（マジックナンバー排除） ===
-
-    // ワイヤー接続時、現在地点からの距離に掛ける係数（90%）
-    private const float DISTANCE_ATTENUATION_RATIO = 0.9f; // 少し短くして安定性を上げる
-
-    // 距離差がこの値未満だと再接続を無視する（無駄な接続防止）
-    private const float RECONNECT_DISTANCE_THRESHOLD = 0.3f;
-
-    // 針が到達したと判定するしきい値（目的地との距離）
-    private const float NEEDLE_STOP_DISTANCE = 0.01f;
-
-    // 針が移動する速度（1フレームあたり）
-    private const float NEEDLE_SPEED = 0.2f;
-
-    // DistanceJoint2D に設定する距離の係数（少し余裕を持たせて揺れやすく）
-    private const float JOINT_DISTANCE_RATIO = 0.6f;
-
-    // プレイヤーに与えるスイング開始時の力
-    private const float SWING_FORCE = 300f;
-
-    // Rigidbody2D の重力倍率（スイングの挙動に影響）
-    private const float PLAYER_GRAVITY_SCALE = 3f;
-
-    // スイング中の減速を抑える設定
-    private const float RIGIDBODY_LINEAR_DAMPING = 0f;
-    private const float RIGIDBODY_ANGULAR_DAMPING = 0f;
-
-    // LineRendererの頂点数（常に始点と終点の2つ）
-    private const int LINE_RENDERER_POINT_COUNT = 2;
-
-    // 固定ワイヤー長さ（ワイヤーの長さを一定に保つ）
-    private const float FIXED_WIRE_LENGTH = 5f; // ワイヤーの長さを5に固定
+    #region 定数
+    private const float NEEDLE_STOP_DISTANCE = 0.01f;  // 針停止の判定距離
+    private const float NEEDLE_SPEED = 0.2f;           // 針の移動速度
+    private const float SWING_FORCE = 300f;            // スイング開始時に加える力
+    private const float PLAYER_GRAVITY_SCALE = 3f;     // 接続時の重力スケール
+    private const float RIGIDBODY_LINEAR_DAMPING = 0f; // 空気抵抗
+    private const float RIGIDBODY_ANGULAR_DAMPING = 0f;// 回転減衰
+    private const int LINE_RENDERER_POINT_COUNT = 2;   // ラインの点数
+    private const float FIXED_WIRE_LENGTH = 3.5f;      // ワイヤーの固定長さ
+    private const int LINE_START_INDEX = 0;            // ラインの始点インデックス
+    private const int LINE_END_INDEX = 1;              // ラインの終点インデックス
+    private const int LINE_POINT_NONE = 0;             // ライン非表示時の点数
+    #endregion
 
     void Update()
     {
-        HandleLeftClick();   // 接続処理
-        HandleRightClick();  // 切断処理
-        UpdateLine();        // 線の見た目更新
+        HandleLeftClick();   // 左クリック：接続処理
+        HandleRightClick();  // 右クリック：切断処理
+        UpdateLine();        // 常にワイヤーの見た目を更新
     }
 
     /// <summary>
-    /// マウス左クリック時の処理。対象がGroundタイルであればワイヤーを接続。
+    /// 左クリック時の接続処理。
+    /// クリック位置が Ground タイルであれば、ワイヤーを接続する。
     /// </summary>
     private void HandleLeftClick()
     {
+        // 左クリックが押されていなければ何もしない
         if (!Input.GetMouseButtonDown(0)) return;
 
+        // マウスのワールド座標を取得
         Vector3 mouseWorldPos = GetMouseWorldPosition();
+
+        // マウス座標で2Dレイキャスト（その座標にオブジェクトが存在するか確認）
         RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-        if (hit.collider == null) return;
+        if (hit.collider == null) return; // ヒットしなければ何もしない
 
+        // ヒットしたオブジェクトから Tilemap を取得（TilemapCollider2D の場合も想定し親も確認）
         Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
-        if (tilemap == null) return;
+        if (tilemap == null) return; // Tilemap でなければ何もしない
 
+        // ヒットした位置のタイル座標を取得
         Vector3Int cellPos = tilemap.WorldToCell(hit.point);
+
+        // 該当のタイルを取得
         TileBase tile = tilemap.GetTile(cellPos);
 
+        // Ground タイプのカスタムタイルなら接続処理を行う
         if (tile is CustomTile customTile && customTile.tileType == CustomTile.TileType.Ground)
         {
             TryConnectWire(hit.point, hit.collider.gameObject);
@@ -86,10 +79,11 @@ public class WireActionScript : MonoBehaviour
     }
 
     /// <summary>
-    /// マウス右クリックでワイヤーを切断する
+    /// 右クリック時、ワイヤーを切断する。
     /// </summary>
     private void HandleRightClick()
     {
+        // 右クリックが押されたらワイヤーを切断
         if (Input.GetMouseButtonDown(1))
         {
             CutWire();
@@ -97,113 +91,147 @@ public class WireActionScript : MonoBehaviour
     }
 
     /// <summary>
-    /// LineRendererの位置をプレイヤーと接続先に合わせて更新
+    /// ワイヤーの見た目（LineRenderer）を更新する。
     /// </summary>
     private void UpdateLine()
     {
+        // ジョイントが有効かつ LineRenderer が最低限の点数を持っている場合のみ更新
         if (distanceJoint.enabled && lineRenderer.positionCount >= LINE_RENDERER_POINT_COUNT)
         {
-            lineRenderer.SetPosition(0, transform.position);                          // プレイヤーの位置
-            lineRenderer.SetPosition(1, distanceJoint.connectedAnchor);              // 接続先
+            // 始点はプレイヤー（自分）
+            lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
+
+            // 終点はジョイントの接続アンカー（接続座標）
+            lineRenderer.SetPosition(LINE_END_INDEX, distanceJoint.connectedAnchor);
         }
     }
 
     /// <summary>
-    /// ワイヤーを接続する処理。一定距離以上離れていないと再接続しない。
+    /// ワイヤー接続要求。
+    /// 同じ地点に接続済みの場合は処理をスキップ。
+    /// 針を飛ばすコルーチンを開始。
     /// </summary>
     private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
     {
-        // 固定の距離を設定して再接続を防止
-        float newDistance = FIXED_WIRE_LENGTH;
-
-        // 既存の接続距離と新しい距離が近すぎる場合は再接続を防止
+        // 既に接続中なら同じターゲットか確認
         if (distanceJoint.enabled && distanceJoint.connectedAnchor != Vector2.zero)
         {
-            float currentDistance = Vector2.Distance(transform.position, distanceJoint.connectedAnchor);
-            if (Mathf.Abs(newDistance - currentDistance) < RECONNECT_DISTANCE_THRESHOLD)
+            bool isSameTarget = (Vector2.Distance(distanceJoint.connectedAnchor, targetPos) < 0.01f);
+            if (isSameTarget)
             {
-                Debug.Log("距離が近いため再接続をスキップ");
+                // 同じ場所ならスキップ（無駄な接続を避ける）
+                Debug.Log("同じ場所に既に接続中のためスキップ");
                 return;
             }
         }
 
-        // 既存の針コルーチンを止める
+        // 既存の針コルーチンを停止（複数同時起動防止）
         if (currentNeedleCoroutine != null)
             StopCoroutine(currentNeedleCoroutine);
 
-        // 新しい針の発射処理開始
+        // 新しい針を飛ばすコルーチンを開始
         currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
     }
 
     /// <summary>
-    /// ワイヤーを解除し、LineRendererを非表示にする。
+    /// ワイヤーを切断。
     /// </summary>
     private void CutWire()
     {
+        // ジョイントを無効化
         distanceJoint.enabled = false;
-        lineRenderer.positionCount = 0;
+
+        // ワイヤーの見た目も非表示
+        lineRenderer.positionCount = LINE_POINT_NONE;
+
+        // 接続対象もリセット
         targetObject = null;
+
         Debug.Log("ワイヤーを切断しました");
     }
 
     /// <summary>
-    /// 針を目的地に飛ばし、ワイヤーを張るコルーチン。
+    /// 針をターゲット位置まで移動し、到達したらワイヤー接続を行うコルーチン。
     /// </summary>
     private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
     {
-        // 針を目的地に向かって移動させる
+        // プレイヤー位置
+        Vector2 playerPosition = transform.position;
+
+        // プレイヤー → ターゲット 方向
+        Vector2 directionToTarget = (targetPosition - playerPosition).normalized;
+
+        // プレイヤーから見て反対方向（ターゲット方向の逆）
+        Vector2 directionOpposite = -directionToTarget;
+
+        // 針をプレイヤー位置にセット
+        needle.transform.position = playerPosition;
+
+        // 針をターゲットとは逆方向に一定距離離す（演出用、必要なら）
+        float initialOffset = 0.5f; // 任意の距離
+        needle.transform.position = playerPosition + directionOpposite * initialOffset;
+
+        // 針をターゲット方向に移動（見た目上は逆からターゲットに向かってくる）
         while (Vector2.Distance(needle.transform.position, targetPosition) > NEEDLE_STOP_DISTANCE)
         {
             needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NEEDLE_SPEED);
             yield return null;
         }
 
-        // 針到達後の処理
+        // 針をぴったりターゲット位置に配置
         needle.transform.position = targetPosition;
-        targetObject = hitObject;
 
+        // あとは従来通りワイヤー接続
+        targetObject = hitObject;
         DrawLine();
 
-        // 固定の距離を設定
-        distanceJoint.distance = FIXED_WIRE_LENGTH;
-
-        // 最大距離のみを制限する設定を有効化
-        distanceJoint.maxDistanceOnly = true;
-        distanceJoint.connectedAnchor = targetPosition;
+        distanceJoint.enabled = false;
         distanceJoint.connectedBody = null;
+        distanceJoint.connectedAnchor = targetPosition;
+        distanceJoint.maxDistanceOnly = true;
+        distanceJoint.distance = FIXED_WIRE_LENGTH;
         distanceJoint.enabled = true;
 
-        // スイング開始時の初速を設定
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = PLAYER_GRAVITY_SCALE;
         rb.linearDamping = RIGIDBODY_LINEAR_DAMPING;
         rb.angularDamping = RIGIDBODY_ANGULAR_DAMPING;
 
-        // 接続点に向かって横方向に初速を与える（揺れ始めのきっかけ）
-        Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
-        Vector2 tangent = new Vector2(-dir.y, dir.x); // 接続方向に垂直な方向
+        Vector2 dir = (targetPosition - playerPosition).normalized;
+        Vector2 tangent = new Vector2(-dir.y, dir.x);
         rb.AddForce(tangent * SWING_FORCE);
     }
 
+
     /// <summary>
-    /// LineRenderer の線を引く（針が対象に到達したタイミングで）
+    /// ワイヤーの見た目を LineRenderer で描画。
     /// </summary>
     private void DrawLine()
     {
-        if (targetObject == null) return;
+        if (targetObject == null) return; // 接続対象が無ければ描画しない
 
+        // LineRenderer の点数をセット
         lineRenderer.positionCount = LINE_RENDERER_POINT_COUNT;
-        lineRenderer.SetPosition(0, transform.position);                  // プレイヤー位置
-        lineRenderer.SetPosition(1, targetObject.transform.position);     // 針の位置
+
+        // 始点はプレイヤー
+        lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
+
+        // 終点はターゲットオブジェクトの位置
+        lineRenderer.SetPosition(LINE_END_INDEX, targetObject.transform.position);
     }
 
     /// <summary>
-    /// カメラを考慮してマウス位置をワールド座標に変換
+    /// マウス位置をワールド座標で取得。
     /// </summary>
     private Vector3 GetMouseWorldPosition()
     {
+        // マウス座標をスクリーン座標から取得
         Vector3 mousePosition = Input.mousePosition;
+
+        // カメラの位置補正（2DカメラなのでZ軸を調整）
         mousePosition.z = -Camera.main.transform.position.z;
+
+        // スクリーン座標からワールド座標に変換
         return Camera.main.ScreenToWorldPoint(mousePosition);
     }
 }
