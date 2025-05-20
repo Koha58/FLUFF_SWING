@@ -73,6 +73,7 @@ public class WireActionScript : MonoBehaviour
     /// </summary>
     private void HandleLeftClick()
     {
+        //distanceJoint.enabled = false;
         // 左クリックが押されていなければ何もしない
         if (!Input.GetMouseButtonDown(0)) return;
 
