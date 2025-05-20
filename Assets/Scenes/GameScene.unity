@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 205568431}
   - component: {fileID: 205568435}
   - component: {fileID: 205568434}
+  - component: {fileID: 205568438}
   - component: {fileID: 205568433}
   - component: {fileID: 205568436}
   - component: {fileID: 205568437}
@@ -413,6 +414,18 @@ DistanceJoint2D:
   m_AutoConfigureDistance: 0
   m_Distance: 4.2209597
   m_MaxDistanceOnly: 0
+--- !u!114 &205568438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 205568430}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d5a6903edf555c4f894779afd1f1cf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
