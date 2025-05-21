@@ -18,6 +18,9 @@ public class PlayerMove : MonoBehaviour
     // ワイヤーアクションの状態（接続されているかどうか）を管理するスクリプト
     [SerializeField] private WireActionScript wireActionScript;
 
+    // アニメーション を管理するスクリプト
+    [SerializeField] private PlayerAnimatorController animatorController;
+
     // 物理挙動を制御する Rigidbody2D
     private Rigidbody2D rb;
 
@@ -68,6 +71,9 @@ public class PlayerMove : MonoBehaviour
 
         // 接地判定を実施
         isGrounded = CheckGrounded();
+
+        // アニメーションに状態を通知
+        animatorController?.UpdateMoveAnimation(moveInput);
     }
 
     /// <summary>

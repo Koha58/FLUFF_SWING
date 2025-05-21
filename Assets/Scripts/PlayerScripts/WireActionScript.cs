@@ -11,7 +11,10 @@ using UnityEngine.Tilemaps;
 public class WireActionScript : MonoBehaviour
 {
     [SerializeField] private Transform needlePivot;  // 針孔位置用の子オブジェクト
-    [SerializeField] private GameObject needle;
+    [SerializeField] private GameObject needle;      // 針オブジェクト
+
+    // アニメーション を管理するスクリプト
+    [SerializeField] private PlayerAnimatorController animatorController;
 
     // needleの表示制御用Rendererをキャッシュ
     private Renderer needleRenderer;
@@ -250,6 +253,8 @@ public class WireActionScript : MonoBehaviour
 
         SetNeedleVisible(false);
 
+        animatorController.StopSwingAnimation();
+
         Debug.Log("ワイヤーを切断しました");
     }
 
@@ -310,6 +315,8 @@ public class WireActionScript : MonoBehaviour
         Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
         Vector2 tangent = new Vector2(-dir.y, dir.x); // 接続線に対する垂直ベクトル
         rb.AddForce(tangent * SWING_FORCE);
+
+        animatorController.PlayGrappleSwingAnimation();
     }
 
     /// <summary>
