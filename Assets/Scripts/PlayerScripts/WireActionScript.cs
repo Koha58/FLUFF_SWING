@@ -28,6 +28,8 @@ public class WireActionScript : MonoBehaviour
     // 現在進行中の針移動コルーチン（複数同時に動かさないため管理）
     private Coroutine currentNeedleCoroutine;
 
+    public bool IsConnected => distanceJoint.enabled; // 接続状態を外部から確認できるようにする
+
     #region 定数
     private const float NEEDLE_STOP_DISTANCE = 0.01f;  // 針停止の判定距離
     private const float NEEDLE_SPEED = 0.15f;           // 針の移動速度
@@ -49,6 +51,9 @@ public class WireActionScript : MonoBehaviour
 
         // 初期はneedleを非表示にしておく
         SetNeedleVisible(false);
+
+        // 初動はワイヤーを接続しない
+        CutWire();
     }
 
     void Update()
@@ -256,7 +261,7 @@ public class WireActionScript : MonoBehaviour
         SetNeedleVisible(true);
 
         // 針の初期位置をプレイヤー位置にセット（針移動開始位置）
-        needle.transform.position = transform.position; // ← 追加
+        needle.transform.position = transform.position;
 
         while (Vector2.Distance(needle.transform.position, targetPosition) > NEEDLE_STOP_DISTANCE)
         {
