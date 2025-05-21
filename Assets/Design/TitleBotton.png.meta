@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: d3a05e93aacdb7b40aa197d591968c42
+guid: bbd36583a52e2a24289e46c88168e490
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2575351370231595190
-    second: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_0"
-  - first:
-      213: 5513281554589379023
-    second: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_1"
-  - first:
-      213: -9053478098888714615
-    second: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_2"
+      213: 6834884151607214014
+    second: TitleBotton_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -145,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_0"
+      name: TitleBotton_0
       rect:
         serializedVersion: 2
-        x: 31
-        y: 229
-        width: 336
-        height: 215
+        x: 35
+        y: 44
+        width: 650
+        height: 290
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -160,52 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6b0487a2d6c7db320800000000000000
-      internalID: 2575351370231595190
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_1"
-      rect:
-        serializedVersion: 2
-        x: 360
-        y: 230
-        width: 488
-        height: 214
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fc963000d5c138c40800000000000000
-      internalID: 5513281554589379023
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_2"
-      rect:
-        serializedVersion: 2
-        x: 72
-        y: 26
-        width: 741
-        height: 202
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 98695fde2a59b5280800000000000000
-      internalID: -9053478098888714615
+      spriteID: ebfbe715ce26ade50800000000000000
+      internalID: 6834884151607214014
       vertices: []
       indices: 
       edges: []
@@ -214,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -223,10 +173,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_0": 2575351370231595190
-      "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_1": 5513281554589379023
-      "\u30BF\u30A4\u30C8\u30EB\u753B\u50CF_2": -9053478098888714615
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
