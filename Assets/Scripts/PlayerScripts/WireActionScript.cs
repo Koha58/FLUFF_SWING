@@ -34,18 +34,33 @@ public class WireActionScript : MonoBehaviour
     public bool IsConnected => distanceJoint.enabled; // 接続状態を外部から確認できるようにする
 
     #region 定数
-    private const float NEEDLE_STOP_DISTANCE = 0.01f;  // 針停止の判定距離
-    private const float NEEDLE_SPEED = 0.15f;           // 針の移動速度
-    private const float SWING_FORCE = 300f;            // スイング開始時に加える力
-    private const float PLAYER_GRAVITY_SCALE = 3f;     // 接続時の重力スケール
-    private const float RIGIDBODY_LINEAR_DAMPING = 0f; // 空気抵抗
-    private const float RIGIDBODY_ANGULAR_DAMPING = 0f;// 回転減衰
-    private const int LINE_RENDERER_POINT_COUNT = 2;   // ラインの点数
-    private const float FIXED_WIRE_LENGTH = 3.5f;      // ワイヤーの固定長さ
-    private const int LINE_START_INDEX = 0;            // ラインの始点インデックス
-    private const int LINE_END_INDEX = 1;              // ラインの終点インデックス
-    private const int LINE_POINT_NONE = 0;             // ライン非表示時の点数
+
+    // --- ワイヤーの動作に関する定数 ---
+
+    private const float NeedleStopDistance = 0.01f;      // 針が目的地に到達したと判定する距離
+    private const float NeedleSpeed = 0.15f;              // 針の飛ぶ速度
+    private const float FixedWireLength = 3.5f;          // ワイヤーの長さ（固定）
+
+    // --- プレイヤー挙動関連 ---
+
+    private const float SwingForce = 300f;                // スイング開始時にプレイヤーへ加える力
+    private const float PlayerGravityScale = 3f;         // ワイヤー接続時のプレイヤーの重力スケール
+    private const float RigidbodyLinearDamping = 0f;     // プレイヤーの空気抵抗（直線減衰）
+    private const float RigidbodyAngularDamping = 0f;    // プレイヤーの回転減衰
+
+    // --- ライン描画関連 ---
+
+    private const int LineRendererPointCount = 2;       // ラインレンダラーが使用する頂点数（開始点と終了点）
+    private const int LinePointNone = 0;                 // ラインを非表示にする際の頂点数
+    private const int LineStartIndex = 0;                // ラインの始点インデックス
+    private const int LineEndIndex = 1;                  // ラインの終点インデックス
+
+    // --- 内部状態保持 ---
+
+    private float lastSwingDirectionX = 0f;                // 最後にスイングした方向（X軸）を記録
+
     #endregion
+
 
     private void Awake()
     {
@@ -55,8 +70,14 @@ public class WireActionScript : MonoBehaviour
         // 初期はneedleを非表示にしておく
         SetNeedleVisible(false);
 
+        // AnimatorControllerを取得
+        animatorController = GetComponent<PlayerAnimatorController>();
+    }
+
+    private void Start()
+    {
         // 初動はワイヤーを接続しない
-        CutWire();
+        CutWire(); // AnimatorControllerの取得が確実に終わってから呼ぶ
     }
 
     void Update()
@@ -131,13 +152,13 @@ public class WireActionScript : MonoBehaviour
     private void UpdateLine()
     {
         // ジョイントが有効かつ LineRenderer が最低限の点数を持っている場合のみ更新
-        if (distanceJoint.enabled && lineRenderer.positionCount >= LINE_RENDERER_POINT_COUNT)
+        if (distanceJoint.enabled && lineRenderer.positionCount >= LineRendererPointCount)
         {
             // 始点はプレイヤー（自分）
-            lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
+            lineRenderer.SetPosition(LineStartIndex, transform.position);
 
             // 終点はジョイントの接続アンカー（接続座標）
-            lineRenderer.SetPosition(LINE_END_INDEX, distanceJoint.connectedAnchor);
+            lineRenderer.SetPosition(LineEndIndex, distanceJoint.connectedAnchor);
         }
     }
 
@@ -242,19 +263,22 @@ public class WireActionScript : MonoBehaviour
     /// </summary>
     private void CutWire()
     {
-        // ジョイントを無効化
+        // DistanceJoint2D を無効化してワイヤー接続を解除
         distanceJoint.enabled = false;
 
-        // ワイヤーの見た目も非表示
-        lineRenderer.positionCount = LINE_POINT_NONE;
+        // LineRenderer の点数を 0 にしてワイヤーの見た目を消す
+        lineRenderer.positionCount = LinePointNone;
 
-        // 接続対象もリセット
+        // ワイヤーの接続先（ターゲット）をリセット
         targetObject = null;
 
+        // 針（needle）の見た目も非表示にする
         SetNeedleVisible(false);
 
-        animatorController.StopSwingAnimation();
+        // 最後に記録されたスイング方向（X成分）を使ってアニメーション停止処理を行う
+        animatorController.StopSwingAnimation(lastSwingDirectionX);
 
+        // デバッグログ出力
         Debug.Log("ワイヤーを切断しました");
     }
 
@@ -268,7 +292,7 @@ public class WireActionScript : MonoBehaviour
         // 針の初期位置をプレイヤー位置にセット（針移動開始位置）
         needle.transform.position = transform.position;
 
-        while (Vector2.Distance(needle.transform.position, targetPosition) > NEEDLE_STOP_DISTANCE)
+        while (Vector2.Distance(needle.transform.position, targetPosition) > NeedleStopDistance)
         {
             // 針の現在位置からターゲットへの単位ベクトルを計算
             Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
@@ -279,7 +303,7 @@ public class WireActionScript : MonoBehaviour
             needle.transform.up = -direction; // ← ここを修正
 
             // 針をターゲット方向に少しずつ移動
-            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NEEDLE_SPEED);
+            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NeedleSpeed);
 
             yield return null;
         }
@@ -301,22 +325,26 @@ public class WireActionScript : MonoBehaviour
         distanceJoint.connectedBody = null; // Body ではなく座標接続
         distanceJoint.connectedAnchor = needlePivotWorldPos; // 針孔位置をセット
         distanceJoint.maxDistanceOnly = true; // 最大距離のみ有効
-        distanceJoint.distance = FIXED_WIRE_LENGTH; // 距離を固定
+        distanceJoint.distance = FixedWireLength; // 距離を固定
         distanceJoint.enabled = true; // 再度有効化
 
         // プレイヤーの Rigidbody 設定変更（空気抵抗など調整）
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = PLAYER_GRAVITY_SCALE;
-        rb.linearDamping = RIGIDBODY_LINEAR_DAMPING;
-        rb.angularDamping = RIGIDBODY_ANGULAR_DAMPING;
+        rb.gravityScale = PlayerGravityScale;
+        rb.linearDamping = RigidbodyLinearDamping;
+        rb.angularDamping = RigidbodyAngularDamping;
 
         // スイング初速を加える
         // 接続方向の法線（垂直方向）を計算し、その方向に力を加えることでスイングを開始
         Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
         Vector2 tangent = new Vector2(-dir.y, dir.x); // 接続線に対する垂直ベクトル
-        rb.AddForce(tangent * SWING_FORCE);
+        rb.AddForce(tangent * SwingForce);
 
-        animatorController.PlayGrappleSwingAnimation();
+        // 現在のワイヤーの発射方向（X軸）を記録しておく（スイング終了時のアニメーション制御用）
+        lastSwingDirectionX = dir.x;
+
+        // スイング用アニメーションを発射方向に応じて再生
+        animatorController.PlayGrappleSwingAnimation(dir.x);
     }
 
     /// <summary>
@@ -327,13 +355,13 @@ public class WireActionScript : MonoBehaviour
         if (targetObject == null) return; // 接続対象が無ければ描画しない
 
         // LineRenderer の点数をセット
-        lineRenderer.positionCount = LINE_RENDERER_POINT_COUNT;
+        lineRenderer.positionCount = LineRendererPointCount;
 
         // 始点はプレイヤー
-        lineRenderer.SetPosition(LINE_START_INDEX, transform.position);
+        lineRenderer.SetPosition(LineStartIndex, transform.position);
 
         // 終点はターゲットオブジェクトの位置
-        lineRenderer.SetPosition(LINE_END_INDEX, lineEndPos);  // 針孔の位置に合わせる
+        lineRenderer.SetPosition(LineEndIndex, lineEndPos);  // 針孔の位置に合わせる
     }
 
     /// <summary>
