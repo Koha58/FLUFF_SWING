@@ -89,6 +89,10 @@ public class PlayerAnimatorController : MonoBehaviour
 
         // プレイヤースプライトの向きを入力に合わせて反転
         FlipSprite(moveInput);
+
+        // 実際の移動速度に応じてアニメーション再生速度を調整（スムーズに見せる）
+        float normalizedSpeed = Mathf.Abs(moveInput); // -1〜1 → 0〜1
+        _animator.speed = Mathf.Lerp(0.5f, 1.3f, normalizedSpeed); // 調整の幅は好みに応じて
     }
 
     /// <summary>
