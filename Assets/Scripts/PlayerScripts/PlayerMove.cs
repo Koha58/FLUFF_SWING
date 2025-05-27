@@ -32,7 +32,7 @@ public class PlayerMove : MonoBehaviour
     // --------------------
 
     // 接地時の左右移動スピード
-    private float moveSpeed = 5f;
+    private float moveSpeed = 1.5f;
 
     // 入力による左右移動の値（-1 ～ 1）
     private float moveInput;
@@ -54,6 +54,9 @@ public class PlayerMove : MonoBehaviour
     // 現在プレイヤーが地面に接地しているかどうか
     private bool isGrounded;
 
+    // 前のフレームの接地状態
+    private bool wasGrounded = false;
+
 
     private void Awake()
     {
@@ -71,6 +74,13 @@ public class PlayerMove : MonoBehaviour
 
         // 接地判定を実施
         isGrounded = CheckGrounded();
+
+        // 接地状態の変化をログ出力
+        if (isGrounded != wasGrounded)
+        {
+            Debug.Log("接地状態が変化: isGrounded = " + isGrounded);
+            wasGrounded = isGrounded;
+        }
 
         // アニメーションに状態を通知
         animatorController?.UpdateMoveAnimation(moveInput);
@@ -103,5 +113,12 @@ public class PlayerMove : MonoBehaviour
             // 左右移動を反映（Y方向の速度は保持）
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
         }
+
+        if (!isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f && moveInput != 0)
+        {
+            // 角にハマってるようなときに自動で小ジャンプ
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, 3f);
+        }
+
     }
 }
