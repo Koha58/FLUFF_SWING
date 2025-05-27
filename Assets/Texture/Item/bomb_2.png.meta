@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 3f1c2099775e14049b54fe3ff82976f8
+guid: d51bf10937c5e9647b32808263e95430
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3297650188656544483
-    second: attack_1_0
+      213: 4064235555364670734
+    second: bomb_2_0
+  - first:
+      213: -2203843739070058529
+    second: bomb_2_1
+  - first:
+      213: 1219624032658917560
+    second: bomb_2_2
+  - first:
+      213: 6341394163711653327
+    second: bomb_2_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +55,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -139,13 +148,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: attack_1_0
+      name: bomb_2_0
       rect:
         serializedVersion: 2
-        x: 81
-        y: 34
-        width: 367
-        height: 432
+        x: 235
+        y: 395
+        width: 20
+        height: 20
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +163,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d1570a700a46c32d0800000000000000
-      internalID: -3297650188656544483
+      spriteID: e0d060154b0176830800000000000000
+      internalID: 4064235555364670734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bomb_2_1
+      rect:
+        serializedVersion: 2
+        x: 255
+        y: 415
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdfa248bbcf5a61e0800000000000000
+      internalID: -2203843739070058529
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bomb_2_2
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 405
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b80a2a8899fce010800000000000000
+      internalID: 1219624032658917560
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bomb_2_3
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 65
+        width: 300
+        height: 340
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc5b4ccc468210850800000000000000
+      internalID: 6341394163711653327
       vertices: []
       indices: 
       edges: []
@@ -164,7 +239,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +249,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      attack_1_0: -3297650188656544483
+      bomb_2_0: 4064235555364670734
+      bomb_2_1: -2203843739070058529
+      bomb_2_2: 1219624032658917560
+      bomb_2_3: 6341394163711653327
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
