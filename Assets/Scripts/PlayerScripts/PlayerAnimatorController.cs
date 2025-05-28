@@ -18,6 +18,17 @@ public class PlayerAnimatorController : MonoBehaviour
         public const string IsSwinging = "isSwinging";     // 振り子のようにぶら下がっている状態（ワイヤーでのスイング）
         public const string IsStaying = "isStaying";       // 静止状態
         public const string JustGrappled = "justGrappled"; // ワイヤーに掴まった直後の演出状態
+        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション速度制御用
+    }
+
+    // --- アニメーション速度設定定数 ---
+    private static class AnimatorSpeeds
+    {
+        public const float RunMin = 0.5f;      // 走りアニメーションの最低速度
+        public const float RunMax = 3.0f;      // 走りアニメーションの最高速度
+        public const float Swing = 1.5f;       // スイング中の再生速度
+        public const float Grapple = 1.5f;     // 掴まり直後の演出速度
+        public const float Idle = 1.0f;        // 静止時の再生速度
     }
 
     // --- 定数 ---
@@ -28,7 +39,7 @@ public class PlayerAnimatorController : MonoBehaviour
 
     // --- 移動状態管理 ---
     private bool _isMoving = false;     // プレイヤーが移動中かどうかの状態
-    private float _moveStopTimer = 0f; // 移動停止を判定するためのタイマー
+    private float _moveStopTimer = 0f;  // 移動停止を判定するためのタイマー
 
     // --- ワイヤー掴まり状態管理 ---
     private bool _justGrappled = false; // ワイヤーに掴まった直後かどうかのフラグ
@@ -91,8 +102,16 @@ public class PlayerAnimatorController : MonoBehaviour
         FlipSprite(moveInput);
 
         // 実際の移動速度に応じてアニメーション再生速度を調整（スムーズに見せる）
-        float normalizedSpeed = Mathf.Abs(moveInput); // -1〜1 → 0〜1
-        _animator.speed = Mathf.Lerp(0.5f, 1.3f, normalizedSpeed); // 調整の幅は好みに応じて
+        if (_isMoving)
+        {
+            float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(moveInput)); // -1〜1 → 0〜1
+            float moveSpeed = Mathf.Lerp(AnimatorSpeeds.RunMin, AnimatorSpeeds.RunMax, normalizedSpeed);
+            _animator.SetFloat(AnimatorParams.SpeedMultiplier, moveSpeed);
+        }
+        else
+        {
+            _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+        }
     }
 
     /// <summary>
@@ -114,6 +133,9 @@ public class PlayerAnimatorController : MonoBehaviour
         // ワイヤーに掴まった直後の演出フラグをAnimatorにセット
         _animator.SetBool(AnimatorParams.JustGrappled, true);
 
+        // 掴まり直後の演出速度を設定
+        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Grapple);
+
         // プレイヤースプライトの向きをスイング方向に合わせる
         FlipSprite(swingDirection);
     }
@@ -133,9 +155,33 @@ public class PlayerAnimatorController : MonoBehaviour
         // ジャンプ状態を解除
         _animator.SetBool(AnimatorParams.IsJumping, false);
 
+        // スイング終了後は通常速度に戻す
+        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+
         // プレイヤースプライトの向きを最後のスイング方向に合わせる
         FlipSprite(swingDirection);
     }
+
+    /// <summary>
+    /// ワイヤー接続時に移動アニメーションを強制的に停止させる。
+    /// </summary>
+    public void ResetMoveAnimation()
+    {
+        _isMoving = false;
+        _moveStopTimer = 0f;
+        _animator.SetBool(AnimatorParams.IsRunning, false);
+        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+    }
+
+    /// <summary>
+    /// ワイヤー接続からすぐに切断された際、ジャンプアニメーションが意図せずループするのを防ぐため、
+    /// 手動でジャンプ状態（IsJumping）をリセットする。
+    /// </summary>
+    public void UpdateJumpState()
+    {
+        _animator.SetBool(AnimatorParams.IsJumping, false);
+    }
+
 
     /// <summary>
     /// プレイヤーのスプライトを入力方向に合わせて左右反転する。

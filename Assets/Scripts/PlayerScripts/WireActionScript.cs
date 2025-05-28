@@ -12,6 +12,7 @@ public class WireActionScript : MonoBehaviour
 {
     [SerializeField] private Transform needlePivot;  // 針孔位置用の子オブジェクト
     [SerializeField] private GameObject needle;      // 針オブジェクト
+    [SerializeField] private Transform rightHandTransform; // プレイヤーの右手など
 
     // アニメーション を管理するスクリプト
     [SerializeField] private PlayerAnimatorController animatorController;
@@ -24,6 +25,9 @@ public class WireActionScript : MonoBehaviour
 
     // ワイヤーの見た目を担当する LineRenderer コンポーネント
     private LineRenderer lineRenderer => GetComponent<LineRenderer>();
+
+    // 予測線（点線用）
+    [SerializeField] private LineRenderer previewLineRenderer;
 
     // プレイヤーを接続する物理ジョイント（距離固定）
     private DistanceJoint2D distanceJoint => GetComponent<DistanceJoint2D>();
@@ -85,7 +89,49 @@ public class WireActionScript : MonoBehaviour
         HandleLeftClick();   // 左クリック：接続処理
         HandleRightClick();  // 右クリック：切断処理
         UpdateLine();        // 常にワイヤーの見た目を更新
+        UpdatePreviewLine(); // 接続前にプレイヤーからマウス位置までの予測ラインを表示 
     }
+
+    /// <summary>
+    /// ワイヤーの予測ラインを更新するメソッド。
+    /// マウスカーソルの位置に地形がある場合、プレイヤーからその地点までのラインを描画。
+    /// 針（needleRenderer）が表示中は、ラインを非表示にする。
+    /// </summary>
+    private void UpdatePreviewLine()
+    {
+        // 針（needle）が表示されている場合は、予測ラインを非表示にして処理を中断
+        if (needleRenderer.enabled == true)
+        {
+            previewLineRenderer.enabled = false;
+            return;
+        }
+
+        // マウスカーソルのワールド座標を取得
+        Vector3 mouseWorldPos = GetMouseWorldPosition();
+
+        // マウス位置に地面レイヤー（"Ground"）が存在するか調べる
+        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f, LayerMask.GetMask("Ground"));
+
+        if (hit.collider != null)
+        {
+            // プレイヤーの方向に合わせて補正された地形の表面座標を取得
+            Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+
+            // ラインの始点と終点を設定（プレイヤー → 対象地点）
+            previewLineRenderer.positionCount = 2;
+            previewLineRenderer.SetPosition(0, transform.position);
+            previewLineRenderer.SetPosition(1, adjustedTarget);
+
+            // ライン表示を有効化
+            previewLineRenderer.enabled = true;
+        }
+        else
+        {
+            // 地面が見つからなかった場合、ライン非表示
+            previewLineRenderer.enabled = false;
+        }
+    }
+
 
     /// <summary>
     /// needleの表示/非表示切り替え（Rendererのenabled制御）
@@ -102,7 +148,6 @@ public class WireActionScript : MonoBehaviour
     /// </summary>
     private void HandleLeftClick()
     {
-        //distanceJoint.enabled = false;
         // 左クリックが押されていなければ何もしない
         if (!Input.GetMouseButtonDown(0)) return;
 
@@ -155,7 +200,7 @@ public class WireActionScript : MonoBehaviour
         if (distanceJoint.enabled && lineRenderer.positionCount >= LineRendererPointCount)
         {
             // 始点はプレイヤー（自分）
-            lineRenderer.SetPosition(LineStartIndex, transform.position);
+            lineRenderer.SetPosition(LineStartIndex, rightHandTransform.position);
 
             // 終点はジョイントの接続アンカー（接続座標）
             lineRenderer.SetPosition(LineEndIndex, distanceJoint.connectedAnchor);
@@ -164,22 +209,14 @@ public class WireActionScript : MonoBehaviour
 
     /// <summary>
     /// ワイヤー接続要求。
-    /// 同じ地点に接続済みの場合は処理をスキップ。
+    /// 接続中またはクールタイム中は処理をスキップ。
     /// 針を飛ばすコルーチンを開始。
     /// </summary>
     private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
     {
-        // 既に接続中なら同じターゲットか確認
-        if (distanceJoint.enabled && distanceJoint.connectedAnchor != Vector2.zero)
-        {
-            bool isSameTarget = (Vector2.Distance(distanceJoint.connectedAnchor, targetPos) < 0.01f);
-            if (isSameTarget)
-            {
-                // 同じ場所ならスキップ（無駄な接続を避ける）
-                Debug.Log("同じ場所に既に接続中のためスキップ");
-                return;
-            }
-        }
+        // 接続中 or クールタイム中は無視
+        if (IsConnected)
+            return;
 
         // 既存の針コルーチンを停止（複数同時起動防止）
         if (currentNeedleCoroutine != null)
@@ -189,6 +226,8 @@ public class WireActionScript : MonoBehaviour
 
         // 新しい針を飛ばすコルーチンを開始
         currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
+
+
     }
 
     /// <summary>
@@ -278,6 +317,10 @@ public class WireActionScript : MonoBehaviour
         // 最後に記録されたスイング方向（X成分）を使ってアニメーション停止処理を行う
         animatorController.StopSwingAnimation(lastSwingDirectionX);
 
+        // ワイヤー接続後、即時にワイヤーが切断された場合にJumpアニメーションをループさせないため
+        // Jumpアニメーションの停止処理を行う
+        animatorController?.UpdateJumpState();
+
         // デバッグログ出力
         Debug.Log("ワイヤーを切断しました");
     }
@@ -336,9 +379,20 @@ public class WireActionScript : MonoBehaviour
 
         // スイング初速を加える
         // 接続方向の法線（垂直方向）を計算し、その方向に力を加えることでスイングを開始
+        // 接続点からプレイヤーの方向ベクトル
         Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
-        Vector2 tangent = new Vector2(-dir.y, dir.x); // 接続線に対する垂直ベクトル
-        rb.AddForce(tangent * SwingForce);
+
+        // 振幅として一定の大きさ（速度または力）を定義
+        float swingInitialSpeed = 10f; // 任意の値に調整
+
+        // スイングの接線方向を計算（ワイヤーに対して垂直）
+        Vector2 tangent = new Vector2(-dir.y, dir.x);
+
+        // 常に右向きか左向きに揺らしたい場合は
+        tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent;
+
+        // プレイヤーの Rigidbody に速度を直接セット（または力を加える）
+        rb.linearVelocity = tangent * swingInitialSpeed;
 
         // 現在のワイヤーの発射方向（X軸）を記録しておく（スイング終了時のアニメーション制御用）
         lastSwingDirectionX = dir.x;
