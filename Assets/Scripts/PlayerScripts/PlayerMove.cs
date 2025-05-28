@@ -32,7 +32,7 @@ public class PlayerMove : MonoBehaviour
     // --------------------
 
     // 接地時の左右移動スピード
-    private float moveSpeed = 1.5f;
+    private float moveSpeed = 3.5f;
 
     // 入力による左右移動の値（-1 ～ 1）
     private float moveInput;
@@ -56,6 +56,9 @@ public class PlayerMove : MonoBehaviour
 
     // 前のフレームの接地状態
     private bool wasGrounded = false;
+
+    // 角にハマってるようなときに自動でジャンプする力
+    private float jumpPower = 3.0f;
 
 
     private void Awake()
@@ -82,8 +85,15 @@ public class PlayerMove : MonoBehaviour
             wasGrounded = isGrounded;
         }
 
-        // アニメーションに状態を通知
-        animatorController?.UpdateMoveAnimation(moveInput);
+        // ワイヤーに接続中は移動アニメーション停止
+        if (wireActionScript.IsConnected)
+        {
+            animatorController?.ResetMoveAnimation();
+        }
+        else
+        {
+            animatorController?.UpdateMoveAnimation(moveInput);
+        }
     }
 
     /// <summary>
@@ -107,6 +117,12 @@ public class PlayerMove : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
+        // ワイヤーに接続中は一切の移動を無効にする
+        if (wireActionScript.IsConnected)
+        {
+            return;
+        }
+
         // 接地していて、かつワイヤーに接続されていないときのみ移動可能
         if (isGrounded && !wireActionScript.IsConnected)
         {
@@ -117,7 +133,7 @@ public class PlayerMove : MonoBehaviour
         if (!isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f && moveInput != 0)
         {
             // 角にハマってるようなときに自動で小ジャンプ
-            rb.linearVelocity = new Vector2(moveInput * moveSpeed, 3f);
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, jumpPower);
         }
 
     }
