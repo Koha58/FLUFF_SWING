@@ -8,42 +8,73 @@
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimatorController : MonoBehaviour
 {
+    #region アニメーター本体
+
+    // アニメーター本体（Animatorコンポーネント）
     private Animator _animator;
 
-    // --- Animatorパラメータ名 ---
+    #endregion
+
+
+    #region アニメーターパラメータ名
+
+    // Animator パラメータ名の定義クラス
     private static class AnimatorParams
     {
-        public const string IsRunning = "isRunning";       // 走っている状態
-        public const string IsJumping = "isJumping";       // ジャンプ中状態
-        public const string IsSwinging = "isSwinging";     // 振り子のようにぶら下がっている状態（ワイヤーでのスイング）
-        public const string IsStaying = "isStaying";       // 静止状態
-        public const string JustGrappled = "justGrappled"; // ワイヤーに掴まった直後の演出状態
-        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション速度制御用
+        public const string IsRunning = "isRunning";             // 走っている状態
+        public const string IsJumping = "isJumping";             // ジャンプ中状態
+        public const string IsSwinging = "isSwinging";           // スイング中状態（ワイヤー）
+        public const string IsStaying = "isStaying";             // 静止状態
+        public const string JustGrappled = "justGrappled";       // ワイヤーに掴まった直後
+        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション速度調整
     }
 
-    // --- アニメーション速度設定定数 ---
+    #endregion
+
+
+    #region アニメーション再生速度定数
+
+    // 各状態に対応するアニメーション速度設定
     private static class AnimatorSpeeds
     {
-        public const float RunMin = 0.5f;      // 走りアニメーションの最低速度
-        public const float RunMax = 3.0f;      // 走りアニメーションの最高速度
-        public const float Swing = 1.5f;       // スイング中の再生速度
-        public const float Grapple = 1.5f;     // 掴まり直後の演出速度
-        public const float Idle = 1.0f;        // 静止時の再生速度
+        public const float RunMin = 0.5f;    // 走りアニメの最低速度
+        public const float RunMax = 3.0f;    // 走りアニメの最大速度
+        public const float Swing = 1.5f;     // スイング中の再生速度
+        public const float Grapple = 1.5f;   // 掴まり直後の再生速度
+        public const float Idle = 1.0f;      // 静止時の再生速度
     }
 
-    // --- 定数 ---
-    private const float MoveThreshold = 0.05f;             // 微小な入力を無視するための閾値
-    private const float MoveDelayTime = 0.1f;              // 停止とみなすまでの待機時間
-    private const float GrappleTransitionTime = 0.3f;      // ワイヤーに掴まった状態を維持する時間
-    private const float FlipThreshold = 0.01f;             // 向きを変える最低入力値
+    #endregion
 
-    // --- 移動状態管理 ---
-    private bool _isMoving = false;     // プレイヤーが移動中かどうかの状態
-    private float _moveStopTimer = 0f;  // 移動停止を判定するためのタイマー
 
-    // --- ワイヤー掴まり状態管理 ---
-    private bool _justGrappled = false; // ワイヤーに掴まった直後かどうかのフラグ
-    private float _grappleTimer = 0f;   // ワイヤー掴まり演出の時間管理タイマー
+    #region Constants
+
+    // 動作検出や演出に使う閾値やタイミング
+    private const float MoveThreshold = 0.05f;        // 微小入力を無視するしきい値
+    private const float MoveDelayTime = 0.1f;         // 停止とみなすまでの時間
+    private const float GrappleTransitionTime = 0.3f; // 掴まり演出の維持時間
+    private const float FlipThreshold = 0.01f;        // 向きを反転するための最小入力値
+
+    #endregion
+
+
+    #region プレイヤー移動状態管理
+
+    // プレイヤーの移動状態管理
+    private bool _isMoving = false;     // プレイヤーが移動中かどうか
+    private float _moveStopTimer = 0f;  // 停止判定用タイマー
+
+    #endregion
+
+
+    #region ワイヤー掴まり状態管理
+
+    // ワイヤー掴まり直後の状態管理
+    private bool _justGrappled = false; // 掴まった直後かどうか
+    private float _grappleTimer = 0f;   // 掴まり状態の残り演出時間
+
+    #endregion
+
 
     private void Awake()
     {
