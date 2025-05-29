@@ -11,54 +11,57 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(Rigidbody2D))] // Rigidbody2D がアタッチされていない場合、自動で追加される
 public class PlayerMove : MonoBehaviour
 {
-    // --------------------
-    // 依存スクリプト・構成要素
-    // --------------------
+    #region 依存スクリプト・構成要素
 
-    // ワイヤーアクションの状態（接続されているかどうか）を管理するスクリプト
+    // ワイヤーアクションの状態（接続状態など）を管理するスクリプト
     [SerializeField] private WireActionScript wireActionScript;
 
-    // アニメーション を管理するスクリプト
+    // アニメーション制御スクリプト
     [SerializeField] private PlayerAnimatorController animatorController;
 
-    // 物理挙動を制御する Rigidbody2D
+    // プレイヤーの物理挙動を制御する Rigidbody2D
     private Rigidbody2D rb;
 
-    // プレイヤーの入力アクション（"Move"）
+    // 入力アクション（"Move"）
     private InputAction moveAction;
 
-    // --------------------
-    // 移動関連
-    // --------------------
+    #endregion
 
-    // 接地時の左右移動スピード
+
+    #region 移動関連
+
+    // 地上での左右移動スピード
     private float moveSpeed = 3.5f;
 
-    // 入力による左右移動の値（-1 ～ 1）
+    // プレイヤーの左右入力値（-1 ～ 1）
     private float moveInput;
 
-    // --------------------
-    // 接地判定関連
-    // --------------------
+    #endregion
+
+
+    #region 接地判定関連
 
     [Header("Ground Check Settings")]
-    // 地面チェック用の基準点（足元）
+
+    // 地面チェック用の基準点（プレイヤー足元）
     [SerializeField] private Transform groundCheck;
 
-    // 地面と判定するレイヤー
+    // 地面と判定するレイヤー（LayerMask）
     [SerializeField] private LayerMask groundLayer;
 
-    // 接地判定に使用する円の半径（Raycastの距離）
+    // 接地判定に使用する円の半径（OverlapCircle用）
     private float groundCheckRadius = 0.5f;
 
     // 現在プレイヤーが地面に接地しているかどうか
     private bool isGrounded;
 
-    // 前のフレームの接地状態
+    // 前のフレームでの接地状態
     private bool wasGrounded = false;
 
-    // 角にハマってるようなときに自動でジャンプする力
+    // 角にハマった際に自動ジャンプするための上方向力
     private float jumpPower = 3.0f;
+
+    #endregion
 
 
     private void Awake()
