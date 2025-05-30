@@ -244,10 +244,10 @@ GameObject:
   - component: {fileID: 205568438}
   - component: {fileID: 205568433}
   - component: {fileID: 205568441}
+  - component: {fileID: 205568443}
   - component: {fileID: 205568436}
   - component: {fileID: 205568437}
   - component: {fileID: 205568439}
-  - component: {fileID: 205568442}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -341,7 +341,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needlePivot: {fileID: 1640637055}
   needle: {fileID: 773048170}
-  curvedWireRenderer: {fileID: 205568442}
+  curvedWireRenderer: {fileID: 205568443}
   rightHandTransform: {fileID: 505817359}
   animatorController: {fileID: 205568441}
   previewLineRenderer: {fileID: 873909673}
@@ -586,7 +586,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3c2dc00b1eb0864a9f042ef8641d9f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &205568442
+--- !u!114 &205568443
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -595,7 +595,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 205568430}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78997411436d9554dbff7a667bead0ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 9e21a0dcb360cc246af84b000e7cc3ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   segmentCount: 10

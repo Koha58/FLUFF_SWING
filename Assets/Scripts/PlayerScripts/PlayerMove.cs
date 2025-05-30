@@ -68,6 +68,8 @@ public class PlayerMove : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
+        wireActionScript.enabled = true;
+
         // Input System から "Move" アクションを取得
         moveAction = InputSystem.actions.FindAction("Move");
         moveAction?.Enable(); // 入力受付を有効化
