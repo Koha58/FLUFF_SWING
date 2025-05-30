@@ -25,7 +25,6 @@ public class PlayerAnimatorController : MonoBehaviour
         public const string IsJumping = "isJumping";             // ジャンプ中状態
         public const string IsSwinging = "isSwinging";           // スイング中状態（ワイヤー）
         public const string IsStaying = "isStaying";             // 静止状態
-        public const string JustGrappled = "justGrappled";       // ワイヤーに掴まった直後
         public const string SpeedMultiplier = "speedMultiplier"; // アニメーション速度調整
     }
 
@@ -94,7 +93,7 @@ public class PlayerAnimatorController : MonoBehaviour
             if (_grappleTimer <= 0f)
             {
                 _justGrappled = false;
-                _animator.SetBool(AnimatorParams.JustGrappled, false);
+                _animator.SetBool(AnimatorParams.IsJumping, false);
             }
         }
     }
@@ -160,9 +159,6 @@ public class PlayerAnimatorController : MonoBehaviour
         // ジャンプ・スイングアニメーションに遷移
         _animator.SetBool(AnimatorParams.IsJumping, true);
         _animator.SetBool(AnimatorParams.IsSwinging, true);
-
-        // ワイヤーに掴まった直後の演出フラグをAnimatorにセット
-        _animator.SetBool(AnimatorParams.JustGrappled, true);
 
         // 掴まり直後の演出速度を設定
         _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Grapple);
