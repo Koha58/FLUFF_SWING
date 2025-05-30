@@ -22,7 +22,7 @@ public class CurvedWireRenderer : MonoBehaviour
 
     private void Awake()
     {
-        // LineRenderer の取得と初期設定
+        // LineRenderer の初期設定
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.positionCount = segmentCount;
     }
@@ -63,6 +63,11 @@ public class CurvedWireRenderer : MonoBehaviour
     /// <param name="visible">trueで表示、falseで非表示</param>
     public void SetVisible(bool visible)
     {
+        if (lineRenderer == null)
+        {
+            Debug.LogError("lineRenderer is null!");
+            return;
+        }
         lineRenderer.enabled = visible;
     }
 }

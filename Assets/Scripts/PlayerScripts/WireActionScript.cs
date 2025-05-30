@@ -112,17 +112,19 @@ public class WireActionScript : MonoBehaviour
         // カーブしたワイヤーの描画用コンポーネントを取得（同一GameObjectにアタッチされている想定）
         curvedWireRenderer = GetComponent<CurvedWireRenderer>();
 
-        // カーブワイヤー描画が存在する場合は、初期状態で非表示にしておく
-        if (curvedWireRenderer != null)
-        {
-            curvedWireRenderer.SetVisible(false);
-        }
+
     }
 
     private void Start()
     {
         // 初動はワイヤーを接続しない
         CutWire(); // AnimatorControllerの取得が確実に終わってから呼ぶ
+
+        // カーブワイヤー描画が存在する場合は、初期状態で非表示にしておく
+        if (curvedWireRenderer != null)
+        {
+            curvedWireRenderer.SetVisible(false);
+        }
     }
 
     void Update()
