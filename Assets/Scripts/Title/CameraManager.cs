@@ -2,35 +2,17 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    /*GameObject playerObj;
-    PlayerMove  player;
-    Transform playerTransform;
-    */
-
-    private Transform target;
-    public GameObject Player; //Inspectorから取得してください
-
-
+    [SerializeField] GameObject player;
     void Start()
     {
-       /* playerObj = GameObject.FindGameObjectWithTag("Player");
-        player = playerObj.GetComponent<PlayerMove>();
-        playerTransform = playerObj.transform;
-       */
-
-        //変数にPlayerオブジェクトのtransformコンポーネントを代入
-        target = Player.transform;
+        Debug.Log(player.transform.position);
     }
-    void LateUpdate()
-    {
-        //MoveCamera();
 
-        //カメラのx座標をPlayerオブジェクトのx座標から取得y座標とz座標は現在の状態を維持
-        transform.position = new Vector3(target.position.x, transform.position.y, transform.position.z);
-    }
-    /*void MoveCamera()
+    void Update()
     {
-        //横方向だけ追従
-        transform.position = new Vector3(playerTransform.position.x, transform.position.y, transform.position.z);
-    }*/
+        if (player.transform.position.x > 8f && player.transform.position.x < 32.9f)
+        {
+            transform.position = new Vector3(player.transform.position.x, 0.08f, -10);
+        }
+    }
 }
