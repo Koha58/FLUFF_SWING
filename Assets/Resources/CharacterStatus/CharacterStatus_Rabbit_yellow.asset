@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 2
   characterName: Rabbit_yellow
-  maxHP: 1
-  attack: 10
   moveSpeed: 2
+  maxHP: 1
+  attack: 1

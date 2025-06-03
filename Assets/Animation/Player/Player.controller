@@ -61,7 +61,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PlayerAttack1
+  m_Name: PlayerClose-RangeAttack
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -347,28 +347,28 @@ AnimatorStateMachine:
     m_Position: {x: 110, y: 120, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7328315501430610930}
-    m_Position: {x: 480, y: -220, z: 0}
+    m_Position: {x: 350, y: -280, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4516388393494651442}
-    m_Position: {x: 550, y: -50, z: 0}
+    m_Position: {x: 540, y: -170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7633008248237109260}
-    m_Position: {x: 630, y: 50, z: 0}
+    m_Position: {x: 560, y: -30, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8573975616571686734}
-    m_Position: {x: 910, y: 120, z: 0}
+    m_Position: {x: 470, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7906521364468919920}
-    m_Position: {x: 560, y: 230, z: 0}
+    m_Position: {x: 480, y: 460, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 434219326930042518}
     m_Position: {x: 110, y: -180, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -7148656837896250169}
-    m_Position: {x: 320, y: 230, z: 0}
+    m_Position: {x: 330, y: 390, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5241052264802756005}
-    m_Position: {x: 320, y: 300, z: 0}
+    m_Position: {x: 100, y: 340, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -411,7 +411,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PlayerAttack2
+  m_Name: PlayerLong-RangeAttack
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []

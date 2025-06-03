@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5760060be6c232f46b7ab3faa84acf5d, type: 3}
-  m_Name: CharacterStatus_Player
+  m_Name: CharacterStatus_bird
   m_EditorClassIdentifier: 
-  id: 1
-  characterName: Player
-  moveSpeed: 3.5
-  maxHP: 5
+  id: 5
+  characterName: bird
+  moveSpeed: 2
+  maxHP: 2
   attack: 1
