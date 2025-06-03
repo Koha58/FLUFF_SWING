@@ -19,6 +19,9 @@ public class PlayerMove : MonoBehaviour
     // アニメーション制御スクリプト
     [SerializeField] private PlayerAnimatorController animatorController;
 
+    // ステータス管理スクリプト
+    [SerializeField] private CharacterBase characterData;
+
     // プレイヤーの物理挙動を制御する Rigidbody2D
     private Rigidbody2D rb;
 
@@ -31,7 +34,7 @@ public class PlayerMove : MonoBehaviour
     #region 移動関連
 
     // 地上での左右移動スピード
-    private float moveSpeed = 3.5f;
+    private float moveSpeed;
 
     // プレイヤーの左右入力値（-1 ～ 1）
     private float moveInput;
@@ -71,6 +74,9 @@ public class PlayerMove : MonoBehaviour
         // Input System から "Move" アクションを取得
         moveAction = InputSystem.actions.FindAction("Move");
         moveAction?.Enable(); // 入力受付を有効化
+
+        // characterData から moveSpeedを取得
+        moveSpeed = characterData.moveSpeed;
     }
 
     private void Update()

@@ -1,34 +1,34 @@
 fileFormatVersion: 2
-guid: 56b5313b487bf624e96f4da85aab8742
+guid: 6bd0e878b481d0f4da222759dd5cdde1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -857270020218531044
-    second: Cursor 1_0
+      213: -4750761433519615375
+    second: Cursor_0
   - first:
-      213: -8455972242612403161
-    second: Cursor 1_1
+      213: -3340349168363038409
+    second: Cursor_1
   - first:
-      213: 6494991218663545492
-    second: Cursor 1_2
+      213: -8894989074114120652
+    second: Cursor_2
   - first:
-      213: -6112173431101609114
-    second: Cursor 1_3
+      213: 8084253176091754095
+    second: Cursor_3
   - first:
-      213: 3394224308310127646
-    second: Cursor 1_4
+      213: -3647630677443473183
+    second: Cursor_4
   - first:
-      213: -5423168739056146807
-    second: Cursor 1_5
+      213: 2926769648525297287
+    second: Cursor_5
   - first:
-      213: -887588458576971150
-    second: Cursor 1_6
+      213: -7967919159556622880
+    second: Cursor_6
   - first:
-      213: -6030671703095118875
-    second: Cursor 1_7
+      213: 1347301497552378782
+    second: Cursor_7
   - first:
-      213: -1004703849213344175
-    second: Cursor 1_8
+      213: 7577801734594071765
+    second: Cursor_8
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 200
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -163,13 +163,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cursor 1_0
+      name: Cursor_0
       rect:
         serializedVersion: 2
-        x: 109
-        y: 208
-        width: 37
-        height: 37
+        x: 101
+        y: 200
+        width: 53
+        height: 53
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -178,20 +178,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c135848657d5a14f0800000000000000
-      internalID: -857270020218531044
+      spriteID: 172107695a7e11eb0800000000000000
+      internalID: -4750761433519615375
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_1
+      name: Cursor_1
       rect:
         serializedVersion: 2
         x: 130
         y: 229
         width: 94
-        height: 62
+        height: 69
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,20 +200,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 72446880c0a56aa80800000000000000
-      internalID: -8455972242612403161
+      spriteID: 73913f91122b4a1d0800000000000000
+      internalID: -3340349168363038409
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_2
+      name: Cursor_2
       rect:
         serializedVersion: 2
-        x: 208
-        y: 208
-        width: 37
-        height: 37
+        x: 204
+        y: 204
+        width: 45
+        height: 45
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -222,19 +222,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 49ad8b7f918d22a50800000000000000
-      internalID: 6494991218663545492
+      spriteID: 43472749096ae8480800000000000000
+      internalID: -8894989074114120652
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_3
+      name: Cursor_3
       rect:
         serializedVersion: 2
-        x: 70
+        x: 63
         y: 130
-        width: 55
+        width: 62
         height: 94
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -244,20 +244,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66bab99e5a23d2ba0800000000000000
-      internalID: -6112173431101609114
+      spriteID: f6eb5437e69013070800000000000000
+      internalID: 8084253176091754095
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_4
+      name: Cursor_4
       rect:
         serializedVersion: 2
-        x: 162
-        y: 162
-        width: 30
-        height: 30
+        x: 155
+        y: 155
+        width: 44
+        height: 44
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -266,19 +266,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e1432d86605ba1f20800000000000000
-      internalID: 3394224308310127646
+      spriteID: 1e01a2f8933016dc0800000000000000
+      internalID: -3647630677443473183
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_5
+      name: Cursor_5
       rect:
         serializedVersion: 2
         x: 229
         y: 130
-        width: 55
+        width: 62
         height: 94
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -288,20 +288,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9862e87d3c80db4b0800000000000000
-      internalID: -5423168739056146807
+      spriteID: 786ceb71d79fd9820800000000000000
+      internalID: 2926769648525297287
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_6
+      name: Cursor_6
       rect:
         serializedVersion: 2
-        x: 109
-        y: 109
-        width: 37
-        height: 37
+        x: 101
+        y: 101
+        width: 53
+        height: 53
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -310,20 +310,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 27a78c3eff6aea3f0800000000000000
-      internalID: -887588458576971150
+      spriteID: 0e5399f7db34c6190800000000000000
+      internalID: -7967919159556622880
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_7
+      name: Cursor_7
       rect:
         serializedVersion: 2
         x: 130
-        y: 63
+        y: 56
         width: 94
-        height: 62
+        height: 69
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -332,20 +332,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5e3f304b900ce4ca0800000000000000
-      internalID: -6030671703095118875
+      spriteID: e9b16fed29392b210800000000000000
+      internalID: 1347301497552378782
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor 1_8
+      name: Cursor_8
       rect:
         serializedVersion: 2
-        x: 208
-        y: 109
-        width: 37
-        height: 37
+        x: 200
+        y: 101
+        width: 53
+        height: 53
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -354,8 +354,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 156cb2b1c239e02f0800000000000000
-      internalID: -1004703849213344175
+      spriteID: 5dc81d85782c92960800000000000000
+      internalID: 7577801734594071765
       vertices: []
       indices: 
       edges: []
@@ -374,15 +374,15 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cursor 1_0: -857270020218531044
-      Cursor 1_1: -8455972242612403161
-      Cursor 1_2: 6494991218663545492
-      Cursor 1_3: -6112173431101609114
-      Cursor 1_4: 3394224308310127646
-      Cursor 1_5: -5423168739056146807
-      Cursor 1_6: -887588458576971150
-      Cursor 1_7: -6030671703095118875
-      Cursor 1_8: -1004703849213344175
+      Cursor_0: -4750761433519615375
+      Cursor_1: -3340349168363038409
+      Cursor_2: -8894989074114120652
+      Cursor_3: 8084253176091754095
+      Cursor_4: -3647630677443473183
+      Cursor_5: 2926769648525297287
+      Cursor_6: -7967919159556622880
+      Cursor_7: 1347301497552378782
+      Cursor_8: 7577801734594071765
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
