@@ -68,6 +68,10 @@ public class WireActionScript : MonoBehaviour
 
     #region 内部状態保持・定数
 
+    // プレイヤーのワイヤー関連の設定をまとめた設定データ
+    // インスペクターから調整可能
+    [SerializeField] private PlayerWireConfig config;
+
     // 最後にスイングした方向（X軸）を記録
     private float lastSwingDirectionX = 0f;
 
@@ -75,25 +79,25 @@ public class WireActionScript : MonoBehaviour
     private const float NeedleStopDistance = 0.01f;
 
     // 針の飛ぶ速度
-    private const float NeedleSpeed = 0.15f;
+    private float needleSpeed;
 
     // ワイヤーの長さ（固定）
-    private const float FixedWireLength = 3.5f;
+    private float fixedWireLength;
 
     // ワイヤー接続時のプレイヤーの重力スケール
-    private const float PlayerGravityScale = 3f;
+    private float playerGravityScale;
 
     // 空気抵抗（直線減衰）
-    private const float RigidbodyLinearDamping = 0f;
+    private float rigidbodyLinearDamping;
 
     // 回転減衰
-    private const float RigidbodyAngularDamping = 0f;
+    private float rigidbodyAngularDamping;
 
     // ラインを非表示にする際の頂点数
     private const int LinePointNone = 0;
 
     // スイング開始時の初速
-    private const float SwingInitialSpeed = 10f;
+    private float swingInitialSpeed;
 
     #endregion
 
@@ -112,7 +116,13 @@ public class WireActionScript : MonoBehaviour
         // カーブしたワイヤーの描画用コンポーネントを取得（同一GameObjectにアタッチされている想定）
         curvedWireRenderer = GetComponent<CurvedWireRenderer>();
 
-
+        // configから各種ワイヤー関連パラメータを取得して初期化
+        needleSpeed = config.needleSpeed;                   // 針の飛ぶ速度
+        fixedWireLength = config.fixedWireLength;           // ワイヤーの固定長さ
+        playerGravityScale = config.playerGravityScale;     // ワイヤー接続時のプレイヤー重力スケール
+        rigidbodyLinearDamping = config.linearDamping;      // 空気抵抗（直線減衰）
+        rigidbodyAngularDamping = config.angularDamping;    // 回転減衰
+        swingInitialSpeed = config.swingInitialSpeed;       // スイング開始時の初速
     }
 
     private void Start()
@@ -264,7 +274,7 @@ public class WireActionScript : MonoBehaviour
             needle.transform.up = -direction;
 
             // 一定速度で針を移動
-            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, NeedleSpeed);
+            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed);
 
             yield return null; // 次フレームまで待機
         }
@@ -284,20 +294,20 @@ public class WireActionScript : MonoBehaviour
         distanceJoint.connectedBody = null; // 静的な位置接続にするためBodyは指定しない
         distanceJoint.connectedAnchor = needlePivotWorldPos; // 接続先のワールド座標
         distanceJoint.maxDistanceOnly = true; // 最大距離を超えないように制限（バネ的に伸びない）
-        distanceJoint.distance = FixedWireLength; // 固定の長さに設定
+        distanceJoint.distance = fixedWireLength; // 固定の長さに設定
         distanceJoint.enabled = true; // 接続を有効化
 
         // プレイヤーの物理挙動を調整
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = PlayerGravityScale;
-        rb.linearDamping = RigidbodyLinearDamping;
-        rb.angularDamping = RigidbodyAngularDamping;
+        rb.gravityScale = playerGravityScale;
+        rb.linearDamping = rigidbodyLinearDamping;
+        rb.angularDamping = rigidbodyAngularDamping;
 
         // 初速を与えてスイング開始（接線方向に加速）
         Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
         Vector2 tangent = new Vector2(-dir.y, dir.x); // 接線ベクトルを計算
         tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent; // 前回のスイング方向に応じて反転
-        rb.linearVelocity = tangent * SwingInitialSpeed;
+        rb.linearVelocity = tangent * swingInitialSpeed;
 
         // 現在のスイング方向（左右）を記録
         lastSwingDirectionX = dir.x;
