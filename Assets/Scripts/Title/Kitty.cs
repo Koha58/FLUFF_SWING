@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Kitty : MonoBehaviour
 {
-    private float SPEED = 0.1f;
+    public float SPEED = 0.1f;
     private float JUMP = 2f;
     private int Ground = 0;
     void Update()
