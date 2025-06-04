@@ -97,7 +97,7 @@ public class PlayerMove : MonoBehaviour
         // ワイヤーに接続中は移動アニメーション停止
         if (wireActionScript.IsConnected)
         {
-            animatorController?.ResetMoveAnimation();
+            animatorController?.ResetMoveAnimation(moveInput);
         }
         else
         {

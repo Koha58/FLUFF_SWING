@@ -4,6 +4,7 @@ public enum PlayerState
     Run,
     Jump,
     Wire,
+    Landing,
     Attack,
     Damage,
     Dead

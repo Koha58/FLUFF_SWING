@@ -247,7 +247,7 @@ public class WireActionScript : MonoBehaviour
 
         // ワイヤー接続後、即時にワイヤーが切断された場合にJumpアニメーションをループさせないため
         // Jumpアニメーションの停止処理を行う
-        animatorController?.UpdateJumpState();
+        animatorController?.UpdateJumpState(lastSwingDirectionX);
 
         // デバッグログ出力
         Debug.Log("ワイヤーを切断しました");

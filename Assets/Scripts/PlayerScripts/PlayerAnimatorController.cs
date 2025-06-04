@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 /// <summary>
 /// プレイヤーのアニメーションを制御するクラス。
@@ -18,14 +20,79 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region アニメーターパラメータ名
 
-    // Animator パラメータ名の定義クラス
+    // Animatorパラメータ名の定義
     private static class AnimatorParams
     {
-        public const string IsRunning = "isRunning";             // 走っている状態
-        public const string IsJumping = "isJumping";             // ジャンプ中状態
-        public const string IsSwinging = "isSwinging";           // スイング中状態（ワイヤー）
-        public const string IsStaying = "isStaying";             // 静止状態
-        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション速度調整
+        public const string State = "State";
+        public const string SpeedMultiplier = "speedMultiplier";
+    }
+
+    /// <summary>
+    /// プレイヤーの状態を表すEnum。AnimatorのStateパラメータと連動。
+    /// </summary>
+    public enum PlayerState
+    {
+        Idle = 0,
+        Run = 1,
+        Jump = 2,
+        Wire = 3,
+        Landing = 4,
+    }
+
+
+    /// <summary>
+    /// 現在のステート（状態）
+    /// </summary>
+    private PlayerState _currentState = PlayerState.Idle;
+
+    /// <summary>
+    /// 指定されたプレイヤーステートに応じてAnimatorを制御する。
+    /// 状態遷移は基本的に Run → Jump → Wire → Landing → Idle の流れを想定。
+    /// </summary>
+    /// <param name="newState">遷移先の状態</param>
+    /// <param name="direction">プレイヤーの向き（-1〜1）</param>
+    /// <param name="speed">移動速度（0〜1の正規化値）</param>
+    public void SetPlayerState(PlayerState newState, float direction = 0f, float speed = 0f, bool force = false)
+    {
+        if (!force && _currentState == newState)
+            return;
+
+        var oldState = _currentState;
+        _currentState = newState;
+        Debug.Log($"[SetPlayerState] Transitioning from {oldState} to {newState}");
+
+        // Animatorにステートを整数で渡す
+        _animator.SetInteger(AnimatorParams.State, (int)newState);
+
+        // 向き反転も反映
+        FlipSprite(direction);
+
+        // 状態ごとの速度設定（必要に応じて）
+        switch (newState)
+        {
+            case PlayerState.Run:
+                // 移動速度に応じてアニメーション再生速度をリニア補間
+                float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(speed));
+                float moveSpeed = Mathf.Lerp(AnimatorSpeeds.RunMin, AnimatorSpeeds.RunMax, normalizedSpeed);
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, moveSpeed);
+                break;
+
+            case PlayerState.Jump:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Grapple);
+                break;
+
+            case PlayerState.Wire:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Swing);
+                break;
+
+            case PlayerState.Landing:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Landing);
+                break;
+
+            default:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+                break;
+        }
     }
 
     #endregion
@@ -40,6 +107,7 @@ public class PlayerAnimatorController : MonoBehaviour
         public const float RunMax = 3.0f;    // 走りアニメの最大速度
         public const float Swing = 1.5f;     // スイング中の再生速度
         public const float Grapple = 1.5f;   // 掴まり直後の再生速度
+        public const float Landing = 1.0f;   // 着地時の再生速度
         public const float Idle = 1.0f;      // 静止時の再生速度
     }
 
@@ -62,6 +130,9 @@ public class PlayerAnimatorController : MonoBehaviour
     // プレイヤーの移動状態管理
     private bool _isMoving = false;     // プレイヤーが移動中かどうか
     private float _moveStopTimer = 0f;  // 停止判定用タイマー
+
+    private bool _pendingWireTransition = false; // Wireに遷移待ちかどうか
+    private float _wireDirection = 0f;           // Wire遷移時の向きを保持
 
     #endregion
 
@@ -93,7 +164,16 @@ public class PlayerAnimatorController : MonoBehaviour
             if (_grappleTimer <= 0f)
             {
                 _justGrappled = false;
-                _animator.SetBool(AnimatorParams.IsJumping, false);
+                //SetPlayerState(PlayerState.Idle, 1.0f, 0f);
+
+                if (_pendingWireTransition)
+                {
+                    // Wire状態に遷移
+                    Debug.Log($"Animator State Set: {_currentState} ");
+                    SetPlayerState(PlayerState.Wire, _wireDirection, 0f, true);
+                    Debug.Log("Wire SpeedMultiplier: " + AnimatorSpeeds.Swing);
+                    _pendingWireTransition = false;
+                }
             }
         }
     }
@@ -105,6 +185,7 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="moveInput">入力された水平移動値（-1〜1）</param>
     public void UpdateMoveAnimation(float moveInput)
     {
+        if (_pendingWireTransition) return; // Wire遷移保留中はアニメを更新しない
         if (Mathf.Abs(moveInput) > MoveThreshold)
         {
             // 入力が閾値を超えている＝移動中と判定
@@ -125,22 +206,20 @@ public class PlayerAnimatorController : MonoBehaviour
             }
         }
 
-        // Animatorに移動状態を反映
-        _animator.SetBool(AnimatorParams.IsRunning, _isMoving);
-
         // プレイヤースプライトの向きを入力に合わせて反転
         FlipSprite(moveInput);
 
         // 実際の移動速度に応じてアニメーション再生速度を調整（スムーズに見せる）
         if (_isMoving)
         {
-            float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(moveInput)); // -1〜1 → 0〜1
-            float moveSpeed = Mathf.Lerp(AnimatorSpeeds.RunMin, AnimatorSpeeds.RunMax, normalizedSpeed);
-            _animator.SetFloat(AnimatorParams.SpeedMultiplier, moveSpeed);
+            SetPlayerState(PlayerState.Run, moveInput, Mathf.Abs(moveInput));
         }
         else
         {
-            _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+            if (_currentState != PlayerState.Landing && _currentState != PlayerState.Wire)
+            {
+                SetPlayerState(PlayerState.Idle, moveInput, 0f);
+            }
         }
     }
 
@@ -156,15 +235,11 @@ public class PlayerAnimatorController : MonoBehaviour
         _justGrappled = true;
         _grappleTimer = GrappleTransitionTime;
 
-        // ジャンプ・スイングアニメーションに遷移
-        _animator.SetBool(AnimatorParams.IsJumping, true);
-        _animator.SetBool(AnimatorParams.IsSwinging, true);
+        SetPlayerState(PlayerState.Jump, swingDirection);
 
-        // 掴まり直後の演出速度を設定
-        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Grapple);
-
-        // プレイヤースプライトの向きをスイング方向に合わせる
-        FlipSprite(swingDirection);
+        // Wire への遷移を保留
+        _pendingWireTransition = true;
+        _wireDirection = swingDirection;
     }
 
     /// <summary>
@@ -173,42 +248,42 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="swingDirection">最後のスイング方向。向きの維持に使用。</param>
     public void StopSwingAnimation(float swingDirection)
     {
-        // スイングアニメーションを終了
-        _animator.SetBool(AnimatorParams.IsSwinging, false);
+        // まず Landing に遷移
+        SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
 
-        // 静止状態に遷移
-        _animator.SetBool(AnimatorParams.IsStaying, true);
+        // 一定時間後に Idle に遷移する処理をここに加える（Coroutineを使うのが理想）
+        StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
+    }
 
-        // ジャンプ状態を解除
-        _animator.SetBool(AnimatorParams.IsJumping, false);
-
-        // スイング終了後は通常速度に戻す
-        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
-
-        // プレイヤースプライトの向きを最後のスイング方向に合わせる
-        FlipSprite(swingDirection);
+    private IEnumerator TransitionToIdleAfterLanding(float direction)
+    {
+        yield return new WaitForSeconds(0.2f); // 着地演出の時間を調整
+        SetPlayerState(PlayerState.Idle, direction);
     }
 
     /// <summary>
     /// ワイヤー接続時に移動アニメーションを強制的に停止させる。
     /// </summary>
-    public void ResetMoveAnimation()
+    public void ResetMoveAnimation(float swingDirection)
     {
-        _isMoving = false;
         _moveStopTimer = 0f;
-        _animator.SetBool(AnimatorParams.IsRunning, false);
-        _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+
+        // ワイヤー中はIdleに戻さない
+        if (_currentState == PlayerState.Wire)
+            return;
+
+        SetPlayerState(PlayerState.Idle, swingDirection);
     }
 
     /// <summary>
     /// ワイヤー接続からすぐに切断された際、ジャンプアニメーションが意図せずループするのを防ぐため、
     /// 手動でジャンプ状態（IsJumping）をリセットする。
     /// </summary>
-    public void UpdateJumpState()
+    public void UpdateJumpState(float swingDirection)
     {
-        _animator.SetBool(AnimatorParams.IsJumping, false);
+        Debug.Log("UpdateJumpState called");
+        SetPlayerState(PlayerState.Landing, 0f, 0f, true);
     }
-
 
     /// <summary>
     /// プレイヤーのスプライトを入力方向に合わせて左右反転する。
