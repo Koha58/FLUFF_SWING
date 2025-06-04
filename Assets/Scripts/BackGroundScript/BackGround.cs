@@ -1,3 +1,6 @@
+ï»¿//ãƒ¯ã‚¤ãƒ¤ãƒ¼åˆ‡æ–­å¾Œã®èƒŒæ™¯ç§»å‹•ã¯
+//ãƒ¯ã‚¤ãƒ¤ãƒ¼è¨­ç½®å‰ã®ä½ç½®ã‹ã‚‰å†é–‹ã™ã‚‹
+
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -8,7 +11,7 @@ public class BackGroundMover : MonoBehaviour
     private const float k_maxLength = 1f;
     private const string k_propName = "_MainTex";
 
-    // ƒƒCƒ„[ƒAƒNƒVƒ‡ƒ“‚Ìó‘ÔiÚ‘±ó‘Ô‚È‚Çj‚ğŠÇ—‚·‚éƒXƒNƒŠƒvƒg
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã®çŠ¶æ…‹ï¼ˆæ¥ç¶šçŠ¶æ…‹ãªã©ï¼‰ã‚’ç®¡ç†ã™ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
     [SerializeField]
     private WireActionScript wireActionScript;
 
@@ -16,18 +19,23 @@ public class BackGroundMover : MonoBehaviour
     private Vector2 m_offsetSpeed;
 
     [SerializeField]
-    private Transform playerTransform; // ƒvƒŒƒCƒ„[‚ÌTransform
+    private Transform playerTransform; // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®Transform
 
     private Material m_copiedMaterial;
+
+    // ãƒ¯ã‚¤ãƒ¤ãƒ¼é–‹å§‹æ™‚ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼åº§æ¨™
+    private Vector2 m_wireStartPosition;
+    // ç›´å‰ã®ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šçŠ¶æ…‹
+    private bool m_wasConnected = false;
 
     private void Start()
     {
         var image = GetComponent<Image>();
-        // ƒ}ƒeƒŠƒAƒ‹‚Ì•¡»‚ğì¬‚µ‚Äg—p
+        // ãƒãƒ†ãƒªã‚¢ãƒ«ã®è¤‡è£½ã‚’ä½œæˆã—ã¦ä½¿ç”¨
         m_copiedMaterial = new Material(image.material);
         image.material = m_copiedMaterial;
 
-        // ƒ}ƒeƒŠƒAƒ‹‚ªnull‚¾‚Á‚½‚ç—áŠO‚ªo‚Ü‚·B
+        // ãƒãƒ†ãƒªã‚¢ãƒ«ãŒnullã ã£ãŸã‚‰ä¾‹å¤–ãŒå‡ºã¾ã™ã€‚
         Assert.IsNotNull(m_copiedMaterial);
         Assert.IsNotNull(playerTransform);
     }
@@ -39,23 +47,35 @@ public class BackGroundMover : MonoBehaviour
             return;
         }
 
-        // x‚Æy‚Ì’l‚ª0 ` 1‚ÅƒŠƒs[ƒg‚·‚é‚æ‚¤‚É‚·‚é
-        var x = Mathf.Repeat(playerTransform.position.x * m_offsetSpeed.x, k_maxLength);
-        var y = Mathf.Repeat(playerTransform.position.y * m_offsetSpeed.y, k_maxLength);
+        bool isConnected = wireActionScript.IsConnected;
 
-        // ƒvƒŒƒCƒ„[‚ÌˆÚ“®‚É‡‚í‚¹‚é
-        // ƒvƒŒƒCƒ„[‚ªƒƒCƒ„[ˆÚ“®’†‚Í”wŒi‚Í“®‚©‚³‚È‚¢
-        // ƒƒCƒ„[Ø’fŒã‚ÌÀ•W‚É”wŒi‚ªˆø‚Á’£‚ç‚ê‚é‚Ì‚ğ‰ü‘P‚·‚é
-        if (!wireActionScript.IsConnected)
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒæ–°ãŸã«æ¥ç¶šã•ã‚ŒãŸç¬é–“ã«ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½ç½®ã‚’è¨˜éŒ²ã™ã‚‹
+        if (isConnected && !m_wasConnected)
         {
+            m_wireStartPosition = playerTransform.position;
+        }
+
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒæ¥ç¶šã•ã‚Œã¦ã„ãªã„ã¨ãã«èƒŒæ™¯ã‚’å‹•ã‹ã™
+        if (!isConnected)
+        {
+            // å·®åˆ†ã‚’è¨ˆç®—ï¼ˆç¾åœ¨ä½ç½® - ãƒ¯ã‚¤ãƒ¤ãƒ¼é–‹å§‹æ™‚ã®ä½ç½®ï¼‰
+            Vector2 delta = (Vector2)playerTransform.position - m_wireStartPosition;
+
+            // å·®åˆ†ã«ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚¹ãƒ”ãƒ¼ãƒ‰ã‚’æ›ã‘ã¦ãƒªãƒ”ãƒ¼ãƒˆï¼ˆ0ã€œ1ï¼‰
+            float x = Mathf.Repeat(delta.x * m_offsetSpeed.x, k_maxLength);
+            float y = Mathf.Repeat(delta.y * m_offsetSpeed.y, k_maxLength);
+
             var offset = new Vector2(x, y);
             m_copiedMaterial.SetTextureOffset(k_propName, offset);
         }
+
+        // æ¬¡ãƒ•ãƒ¬ãƒ¼ãƒ ç”¨ã«æ¥ç¶šçŠ¶æ…‹ã‚’ä¿æŒ
+        m_wasConnected = isConnected;
     }
 
     private void OnDestroy()
     {
-        // ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg”j‰ó‚Éƒ}ƒeƒŠƒAƒ‹‚ÌƒRƒs[‚àÁ‚µ‚Ä‚¨‚­
+        // ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç ´å£Šæ™‚ã«ãƒãƒ†ãƒªã‚¢ãƒ«ã®ã‚³ãƒ”ãƒ¼ã‚‚æ¶ˆã—ã¦ãŠã
         Destroy(m_copiedMaterial);
         m_copiedMaterial = null;
     }
