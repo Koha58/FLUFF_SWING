@@ -2,17 +2,24 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    [SerializeField] GameObject player;
+    private Vector3 _initPos;
+
+    private GameObject player;
     void Start()
     {
-        Debug.Log(player.transform.position);
+        _initPos = transform.position;
+        player = GameObject.Find("player_0");
+
     }
 
     void Update()
     {
-        if (player.transform.position.x > 8f && player.transform.position.x < 32.9f)
-        {
-            transform.position = new Vector3(player.transform.position.x, 0.08f, -10);
-        }
+        _FollowPlayer();
+    }
+     private void _FollowPlayer()
+    {
+        float playerX = player.transform.position.x;
+        float Clampedx = Mathf.Clamp(playerX, _initPos.x, playerX);
+        transform.position = new Vector3(Clampedx, transform.position.y, transform.position.z);
     }
 }
