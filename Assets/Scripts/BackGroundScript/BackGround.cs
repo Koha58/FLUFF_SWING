@@ -23,7 +23,9 @@ public class BackGroundMover : MonoBehaviour
     private void Start()
     {
         var image = GetComponent<Image>();
-        m_copiedMaterial = image.material;
+        // マテリアルの複製を作成して使用
+        m_copiedMaterial = new Material(image.material);
+        image.material = m_copiedMaterial;
 
         // マテリアルがnullだったら例外が出ます。
         Assert.IsNotNull(m_copiedMaterial);
