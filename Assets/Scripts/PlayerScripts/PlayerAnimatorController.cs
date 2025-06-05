@@ -121,6 +121,7 @@ public class PlayerAnimatorController : MonoBehaviour
     private const float MoveDelayTime = 0.1f;         // 停止とみなすまでの時間
     private const float GrappleTransitionTime = 0.3f; // 掴まり演出の維持時間
     private const float FlipThreshold = 0.01f;        // 向きを反転するための最小入力値
+    private const float LandingToIdleDelay = 0.2f;    // 着地アニメーション後Idleに遷移するまでの遅延時間
 
     #endregion
 
@@ -224,6 +225,20 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
+    /// ワイヤー接続時に移動アニメーションを強制的に停止させる。
+    /// </summary>
+    public void ResetMoveAnimation(float swingDirection)
+    {
+        _moveStopTimer = 0f;
+
+        // ワイヤー中はIdleに戻さない
+        if (_currentState == PlayerState.Wire)
+            return;
+
+        SetPlayerState(PlayerState.Idle, swingDirection);
+    }
+
+    /// <summary>
     /// ワイヤーに掴まった時のアニメーション制御。
     /// スイング状態への遷移とジャンプ状態への設定を行う。
     /// プレイヤーの向きも変更。
@@ -248,6 +263,11 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="swingDirection">最後のスイング方向。向きの維持に使用。</param>
     public void StopSwingAnimation(float swingDirection)
     {
+        Debug.Log("[StopSwingAnimation] called. CurrentState: " + _currentState);
+
+        // Wire遷移保留をクリアする
+        _pendingWireTransition = false;
+        _justGrappled = false;
         // まず Landing に遷移
         SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
 
@@ -255,24 +275,15 @@ public class PlayerAnimatorController : MonoBehaviour
         StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
     }
 
+    /// <summary>
+    /// 着地アニメーション後、一定時間待ってからIdle状態に遷移させるコルーチン。
+    /// 着地演出の時間を確保しつつ、自然な状態遷移を実現する。
+    /// </summary>
+    /// <param name="direction">プレイヤーの向き（X方向）。Idle状態でも向きを維持するために使用。</param>
     private IEnumerator TransitionToIdleAfterLanding(float direction)
     {
-        yield return new WaitForSeconds(0.2f); // 着地演出の時間を調整
+        yield return new WaitForSeconds(LandingToIdleDelay); // 着地演出の時間を調整
         SetPlayerState(PlayerState.Idle, direction);
-    }
-
-    /// <summary>
-    /// ワイヤー接続時に移動アニメーションを強制的に停止させる。
-    /// </summary>
-    public void ResetMoveAnimation(float swingDirection)
-    {
-        _moveStopTimer = 0f;
-
-        // ワイヤー中はIdleに戻さない
-        if (_currentState == PlayerState.Wire)
-            return;
-
-        SetPlayerState(PlayerState.Idle, swingDirection);
     }
 
     /// <summary>
@@ -282,7 +293,8 @@ public class PlayerAnimatorController : MonoBehaviour
     public void UpdateJumpState(float swingDirection)
     {
         Debug.Log("UpdateJumpState called");
-        SetPlayerState(PlayerState.Landing, 0f, 0f, true);
+        SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
+        Debug.Log("Animator current state int: " + _animator.GetInteger(AnimatorParams.State));
     }
 
     /// <summary>
@@ -305,4 +317,5 @@ public class PlayerAnimatorController : MonoBehaviour
             transform.localScale = scale;
         }
     }
+
 }
