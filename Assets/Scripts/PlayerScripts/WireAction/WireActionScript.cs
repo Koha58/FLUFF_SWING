@@ -50,6 +50,17 @@ public class WireActionScript : MonoBehaviour
     // アニメーション制御スクリプト
     [SerializeField] private PlayerAnimatorController animatorController;
 
+    // スイングアニメーション停止までの遅延時間（秒）
+    private const float SwingAnimationStopDelay = 0.2f; 
+
+    // スイングアニメーション遅延停止コルーチン
+    private IEnumerator DelayedStopSwingAnimation(float directionX)
+    {
+        // 0.2秒待ってからアニメーション停止
+        yield return new WaitForSeconds(SwingAnimationStopDelay);
+        animatorController.StopSwingAnimation(directionX);
+    }
+
     #endregion
 
     #region ライン描画・予測線
@@ -243,7 +254,7 @@ public class WireActionScript : MonoBehaviour
         curvedWireRenderer.SetVisible(false);
 
         // 最後に記録されたスイング方向（X成分）を使ってアニメーション停止処理を行う
-        animatorController.StopSwingAnimation(lastSwingDirectionX);
+        animatorController.StartCoroutine(DelayedStopSwingAnimation(lastSwingDirectionX));
 
         // ワイヤー接続後、即時にワイヤーが切断された場合にJumpアニメーションをループさせないため
         // Jumpアニメーションの停止処理を行う
@@ -477,12 +488,12 @@ public class WireActionScript : MonoBehaviour
 
         if (foundSurface)
         {
-            Debug.Log($"Tilemap表面検出:{lastInsidePosition}");
+            //Debug.Log($"Tilemap表面検出:{lastInsidePosition}");
             return lastInsidePosition;
         }
         else
         {
-            Debug.Log($"Tilemap表面見つからず:{clickPosition}");
+            //Debug.Log($"Tilemap表面見つからず:{clickPosition}");
             return clickPosition;
         }
     }
