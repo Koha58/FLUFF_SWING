@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraFollow2D : MonoBehaviour
+public class CameraFollowScript : MonoBehaviour
 {
     public Transform player;
 
