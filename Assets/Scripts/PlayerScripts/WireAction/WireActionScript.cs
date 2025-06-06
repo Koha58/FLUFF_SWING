@@ -27,6 +27,10 @@ public class WireActionScript : MonoBehaviour
     // 針のRendererキャッシュ（表示切り替え用）
     private Renderer needleRenderer;
 
+    // 針が刺さった位置（外部から読み取り専用）
+    private Vector2 _hookedPosition;
+    public Vector2 HookedPosition => _hookedPosition;
+
     #endregion
 
     #region 接続・物理関連
@@ -293,6 +297,9 @@ public class WireActionScript : MonoBehaviour
         // 到達したら位置を最終確定し、接続対象を記録
         needle.transform.position = targetPosition;
         targetObject = hitObject;
+
+        // ここで刺さった位置を保存
+        _hookedPosition = targetPosition;
 
         // ワイヤーの見た目（カーブ線）を表示する
         curvedWireRenderer.SetVisible(true);

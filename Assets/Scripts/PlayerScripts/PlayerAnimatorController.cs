@@ -283,7 +283,11 @@ public class PlayerAnimatorController : MonoBehaviour
     private IEnumerator TransitionToIdleAfterLanding(float direction)
     {
         yield return new WaitForSeconds(LandingToIdleDelay); // 着地演出の時間を調整
-        SetPlayerState(PlayerState.Idle, direction);
+        // まだLanding中で、Wire遷移待ちなどがなければIdleへ
+        if (_currentState == PlayerState.Landing && !_pendingWireTransition && !_justGrappled)
+        {
+            SetPlayerState(PlayerState.Idle, direction);
+        }
     }
 
     /// <summary>
