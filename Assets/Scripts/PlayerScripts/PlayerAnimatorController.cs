@@ -250,6 +250,10 @@ public class PlayerAnimatorController : MonoBehaviour
         _justGrappled = true;
         _grappleTimer = GrappleTransitionTime;
 
+
+        // Idleに遷移中だった場合も、強制的に中断してJump → Wire の流れへ
+        StopAllCoroutines(); // ← Idle 遷移用コルーチンを止める
+
         SetPlayerState(PlayerState.Jump, swingDirection);
 
         // Wire への遷移を保留
@@ -283,8 +287,14 @@ public class PlayerAnimatorController : MonoBehaviour
     private IEnumerator TransitionToIdleAfterLanding(float direction)
     {
         yield return new WaitForSeconds(LandingToIdleDelay); // 着地演出の時間を調整
-        // まだLanding中で、Wire遷移待ちなどがなければIdleへ
-        if (_currentState == PlayerState.Landing && !_pendingWireTransition && !_justGrappled)
+         // Idle遷移前にWire遷移がまだ未処理なら、Idleには行かない
+        if (_pendingWireTransition || _justGrappled)
+        {
+            Debug.Log("[TransitionToIdleAfterLanding] Skipped Idle due to pending Wire transition.");
+            yield break;
+        }
+
+        if (_currentState == PlayerState.Landing)
         {
             SetPlayerState(PlayerState.Idle, direction);
         }
