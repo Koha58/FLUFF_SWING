@@ -871,7 +871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 382275816}
-  horizontalOffset: 3
+  horizontalOffset: 0
   wireActionScript: {fileID: 382275811}
 --- !u!1 &619394800
 GameObject:
