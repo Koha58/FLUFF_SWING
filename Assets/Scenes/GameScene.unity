@@ -871,8 +871,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 382275816}
-  horizontalOffset: 0
+  horizontalOffset: 3
   wireActionScript: {fileID: 382275811}
+  smoothTime: 0.5
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1008,7 +1009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 382275811}
-  m_offsetSpeed: {x: 0.001, y: 0}
+  m_offsetSpeed: {x: 0.03, y: 0}
   playerTransform: {fileID: 382275816}
 --- !u!114 &702635633
 MonoBehaviour:
@@ -2883,7 +2884,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -10
   m_TargetDisplay: 0
 --- !u!224 &1917272714
 RectTransform:
