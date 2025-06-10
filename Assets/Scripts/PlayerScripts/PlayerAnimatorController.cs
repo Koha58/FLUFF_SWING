@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 
 /// <summary>
 /// プレイヤーのアニメーションを制御するクラス。
@@ -39,7 +38,6 @@ public class PlayerAnimatorController : MonoBehaviour
         Landing = 4,
     }
 
-
     /// <summary>
     /// 現在のステート（状態）
     /// </summary>
@@ -48,12 +46,18 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <summary>
     /// 指定されたプレイヤーステートに応じてAnimatorを制御する。
     /// 状態遷移は基本的に Run → Jump → Wire → Landing → Idle の流れを想定。
+    /// <br/>
+    /// 【force引数について】
+    /// forceがtrueの場合は、現在の状態と同じステートでも強制的に状態遷移を行う。
+    /// 通常は同じ状態への遷移は無視されるため、再アニメーション再生やパラメータ更新を明示的に行いたい場合に使用する。
     /// </summary>
     /// <param name="newState">遷移先の状態</param>
     /// <param name="direction">プレイヤーの向き（-1〜1）</param>
     /// <param name="speed">移動速度（0〜1の正規化値）</param>
+    /// <param name="force">同じ状態でも強制的に遷移処理を行うかどうか</param>
     public void SetPlayerState(PlayerState newState, float direction = 0f, float speed = 0f, bool force = false)
     {
+        // 現在の状態と同じ場合、forceがfalseなら処理を抜ける
         if (!force && _currentState == newState)
             return;
 
@@ -131,6 +135,9 @@ public class PlayerAnimatorController : MonoBehaviour
     // プレイヤーの移動状態管理
     private bool _isMoving = false;     // プレイヤーが移動中かどうか
     private float _moveStopTimer = 0f;  // 停止判定用タイマー
+
+    // 着地後のIdle遷移を一時キャンセルするフラグ
+    private bool _cancelIdleTransition = false;
 
     private bool _pendingWireTransition = false; // Wireに遷移待ちかどうか
     private float _wireDirection = 0f;           // Wire遷移時の向きを保持
@@ -250,7 +257,6 @@ public class PlayerAnimatorController : MonoBehaviour
         _justGrappled = true;
         _grappleTimer = GrappleTransitionTime;
 
-
         // Idleに遷移中だった場合も、強制的に中断してJump → Wire の流れへ
         StopAllCoroutines(); // ← Idle 遷移用コルーチンを止める
 
@@ -280,24 +286,14 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 着地アニメーション後、一定時間待ってからIdle状態に遷移させるコルーチン。
-    /// 着地演出の時間を確保しつつ、自然な状態遷移を実現する。
+    /// 着地後のIdle遷移を外部からキャンセルするためのメソッド。
+    /// 例えば、ワイヤーに再接続して再ジャンプするなどの割り込み処理が発生した場合に呼び出す。
+    /// このフラグが立つと、Idleへの遷移を一時的に止め、自然な状態遷移を妨げないようにする。
     /// </summary>
-    /// <param name="direction">プレイヤーの向き（X方向）。Idle状態でも向きを維持するために使用。</param>
-    private IEnumerator TransitionToIdleAfterLanding(float direction)
+    public void CancelPendingIdleTransition()
     {
-        yield return new WaitForSeconds(LandingToIdleDelay); // 着地演出の時間を調整
-         // Idle遷移前にWire遷移がまだ未処理なら、Idleには行かない
-        if (_pendingWireTransition || _justGrappled)
-        {
-            Debug.Log("[TransitionToIdleAfterLanding] Skipped Idle due to pending Wire transition.");
-            yield break;
-        }
-
-        if (_currentState == PlayerState.Landing)
-        {
-            SetPlayerState(PlayerState.Idle, direction);
-        }
+        _cancelIdleTransition = true;
+        Debug.Log("[PlayerAnimatorController] Idle遷移をキャンセルしました");
     }
 
     /// <summary>
@@ -309,6 +305,54 @@ public class PlayerAnimatorController : MonoBehaviour
         Debug.Log("UpdateJumpState called");
         SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
         Debug.Log("Animator current state int: " + _animator.GetInteger(AnimatorParams.State));
+    }
+
+    /// <summary>
+    /// 着地アニメーション後、一定時間待ってからIdle状態に遷移させるコルーチン。
+    /// 着地演出の時間を確保しつつ、自然な状態遷移を実現する。
+    /// 特殊な遷移（ワイヤー再接続など）が割り込んだ場合は、Idle遷移を一度キャンセルし、
+    /// 少し待ってから再度Idle遷移を試みる。
+    /// </summary>
+    /// <param name="direction">プレイヤーの向き（X方向）。Idle状態でも向きを維持するために使用。</param>
+    private IEnumerator TransitionToIdleAfterLanding(float direction)
+    {
+        // 着地演出の猶予時間。これにより地面に降りた直後にすぐIdleに入らず、自然な演出になる
+        yield return new WaitForSeconds(LandingToIdleDelay);
+
+        // もし外部からIdle遷移がキャンセルされていた場合（例：ワイヤーで再ジャンプ）
+        if (_cancelIdleTransition)
+        {
+            Debug.Log("[TransitionToIdleAfterLanding] Idle遷移がキャンセルされました");
+
+            _cancelIdleTransition = false; // フラグは1回の遷移キャンセルのみ有効とする
+
+            // 一度キャンセルしたあと、さらに一定時間待ってから再度Idle遷移を試みる。
+            // これにより「一瞬の割り込み（ワイヤー接続）後に再度落下してLanding中」のケースをカバー
+            yield return new WaitForSeconds(LandingToIdleDelay);
+
+            // 現在の状態がまだLandingであれば、再度Idleに遷移する
+            if (_currentState == PlayerState.Landing)
+            {
+                SetPlayerState(PlayerState.Idle, direction);
+            }
+
+            // Idle遷移を試みたのでコルーチン終了
+            yield break;
+        }
+
+        // Idle遷移前にワイヤー遷移フラグが立っている場合、
+        // ワイヤー接続により他の状態へ移行予定とみなし、Idle遷移はスキップする
+        if (_pendingWireTransition || _justGrappled)
+        {
+            Debug.Log("[TransitionToIdleAfterLanding] Skipped Idle due to pending Wire transition.");
+            yield break;
+        }
+
+        // 通常通りIdleへ遷移させる（この部分がまだ未実装なので必要に応じて追加する）
+        if (_currentState == PlayerState.Landing)
+        {
+            SetPlayerState(PlayerState.Idle, direction);
+        }
     }
 
     /// <summary>

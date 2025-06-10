@@ -257,6 +257,9 @@ public class WireActionScript : MonoBehaviour
         // ワイヤーの可視化をOFFにする
         curvedWireRenderer.SetVisible(false);
 
+        // Idle状態への遷移をキャンセルする（着地後すぐにIdleに戻らないようにする）
+        animatorController.CancelPendingIdleTransition();
+
         // 最後に記録されたスイング方向（X成分）を使ってアニメーション停止処理を行う
         animatorController.StartCoroutine(DelayedStopSwingAnimation(lastSwingDirectionX));
 
