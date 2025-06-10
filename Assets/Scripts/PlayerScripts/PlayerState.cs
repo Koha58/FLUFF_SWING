@@ -5,7 +5,8 @@ public enum PlayerState
     Jump,
     Wire,
     Landing,
-    Attack,
+    MeleeAttack,
+    RangedAttack,
     Damage,
     Dead
 }
