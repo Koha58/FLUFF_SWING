@@ -14,6 +14,7 @@ public class BackGroundMover : MonoBehaviour
 
     private Vector2 currentOffset = Vector2.zero;
 
+    // 背景をスクロールさせる速さ
     [SerializeField]
     private Vector2 m_offsetSpeed;
 

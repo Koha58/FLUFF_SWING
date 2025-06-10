@@ -1009,7 +1009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 382275811}
-  m_offsetSpeed: {x: 0.01, y: 0}
+  m_offsetSpeed: {x: 0.005, y: 0}
   playerTransform: {fileID: 382275816}
 --- !u!114 &702635633
 MonoBehaviour:
