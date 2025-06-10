@@ -1,24 +1,40 @@
-using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.UI;
 
-public class BackGroundScripts : MonoBehaviour
+[RequireComponent(typeof(Image))]
+public class BackGroundScript : MonoBehaviour
 {
-    public float scrollSpeedX = 0.1f;
-    public float scrollSpeedY = 0f;
+    private const float k_maxLength = 1f;
+    private const string k_propName = "_MainTex";
 
-    private Renderer rend;
-    private Vector2 offset;
+    // マテリアル複製用
+    private Material m_copiedMaterial;
 
-    void Start()
+    private void Start()
     {
-        rend = GetComponent<Renderer>();
+        var image = GetComponent<Image>();
+        // マテリアルの複製を作成して使用
+        m_copiedMaterial = new Material(image.material);
+        image.material = m_copiedMaterial;
+
+        // マテリアルがnullだったら例外が出る
+        Assert.IsNotNull(m_copiedMaterial);
     }
 
-    void Update()
+    private void Update()
     {
-        offset.x += scrollSpeedX * Time.deltaTime;
-        offset.y += scrollSpeedY * Time.deltaTime;
-        rend.material.mainTextureOffset = offset;
+        if (Time.timeScale == 0f)
+        {
+            return;
+        }
+
     }
-    
+
+    private void OnDestroy()
+    {
+        // ゲームオブジェクト破壊時にマテリアルのコピーも消しておく
+        Destroy(m_copiedMaterial);
+        m_copiedMaterial = null;
+    }
 }
