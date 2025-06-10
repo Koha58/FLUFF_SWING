@@ -64,6 +64,11 @@ public class PlayerMove : MonoBehaviour
     // 角にハマった際に自動ジャンプするための上方向力
     private float jumpPower = 3.0f;
 
+    /// <summary>
+    /// プレイヤーが現在地面に接しているかを取得（外部読み取り専用）
+    /// </summary>
+    public bool IsGrounded => isGrounded;
+
     #endregion
 
 
