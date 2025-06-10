@@ -5,13 +5,13 @@ public class CameraFollowScript : MonoBehaviour
     public Transform player;
 
     // プレイヤーからの横方向のオフセット
-    public float horizontalOffset = 3f;
+    public float horizontalOffset = 2f;
 
     [SerializeField]
     private WireActionScript wireActionScript;
 
     // スムージングの時間(数が大きいほどゆっくり移動)
-    public float smoothTime = 0.5f;
+    public float smoothTime = 0.3f;
 
     // SmoothDamp用
     private Vector3 velocity = Vector3.zero;
@@ -32,17 +32,18 @@ public class CameraFollowScript : MonoBehaviour
         if (isConnected)
         {
             targetX = wirePos.x;
+
+            // 現在のカメラ位置を基にターゲット位置へスムーズに移動
+            Vector3 currentPos = transform.position;
+            Vector3 targetPos = new Vector3(targetX, currentPos.y, currentPos.z);
+
+            transform.position = Vector3.SmoothDamp(currentPos, targetPos, ref velocity, smoothTime);
         }
         // ワイヤー不使用時
         else
         {
             targetX = player.position.x + horizontalOffset;
+            transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
         }
-
-        // 現在のカメラ位置を基にターゲット位置へスムーズに移動
-        Vector3 currentPos = transform.position;
-        Vector3 targetPos = new Vector3(targetX, currentPos.y, currentPos.z);
-
-        transform.position = Vector3.SmoothDamp(currentPos, targetPos, ref velocity, smoothTime);
     }
 }
