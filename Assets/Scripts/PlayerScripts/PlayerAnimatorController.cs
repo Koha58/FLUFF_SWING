@@ -36,6 +36,10 @@ public class PlayerAnimatorController : MonoBehaviour
         Jump = 2,
         Wire = 3,
         Landing = 4,
+        MeleeAttack = 5,
+        RangedAttack = 6,
+        Damage = 7,
+        Goal = 8
     }
 
     /// <summary>
@@ -65,6 +69,9 @@ public class PlayerAnimatorController : MonoBehaviour
         _currentState = newState;
         Debug.Log($"[SetPlayerState] Transitioning from {oldState} to {newState}");
 
+        // 攻撃中フラグ設定
+        _isAttacking = (newState == PlayerState.MeleeAttack);
+
         // Animatorにステートを整数で渡す
         _animator.SetInteger(AnimatorParams.State, (int)newState);
 
@@ -93,6 +100,22 @@ public class PlayerAnimatorController : MonoBehaviour
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Landing);
                 break;
 
+            case PlayerState.MeleeAttack:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.MeleeAttack);
+                break;
+
+            case PlayerState.RangedAttack:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.RangedAttack);
+                break;
+
+            case PlayerState.Damage:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Damage);
+                break;
+
+            case PlayerState.Goal:
+                _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Goal);
+                break;
+
             default:
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
                 break;
@@ -107,12 +130,35 @@ public class PlayerAnimatorController : MonoBehaviour
     // 各状態に対応するアニメーション速度設定
     private static class AnimatorSpeeds
     {
-        public const float RunMin = 0.5f;    // 走りアニメの最低速度
-        public const float RunMax = 3.0f;    // 走りアニメの最大速度
-        public const float Swing = 1.5f;     // スイング中の再生速度
-        public const float Grapple = 1.5f;   // 掴まり直後の再生速度
-        public const float Landing = 1.0f;   // 着地時の再生速度
-        public const float Idle = 1.0f;      // 静止時の再生速度
+        // 走りアニメの最低速度
+        public const float RunMin = 0.5f;
+
+        // 走りアニメの最大速度
+        public const float RunMax = 3.0f;
+
+        // スイング中の再生速度
+        public const float Swing = 1.5f;
+
+        // 掴まり直後の再生速度
+        public const float Grapple = 1.5f;
+
+        // 着地時の再生速度
+        public const float Landing = 1.0f;
+
+        // 近距離攻撃の再生速度
+        public const float MeleeAttack = 1.0f;
+
+        // 遠距離攻撃の再生速度
+        public const float RangedAttack = 1.0f;
+
+        // 被弾時の再生速度
+        public const float Damage = 1.0f;
+
+        // クリアアニメ時の再生速度
+        public const float Goal = 1.0f;
+
+        // 静止時の再生速度
+        public const float Idle = 1.0f;　　　　　　
     }
 
     #endregion
@@ -132,17 +178,30 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region プレイヤー移動状態管理
 
-    // プレイヤーの移動状態管理
-    private bool _isMoving = false;     // プレイヤーが移動中かどうか
-    private float _moveStopTimer = 0f;  // 停止判定用タイマー
+    // プレイヤーが現在移動しているかどうかを示すフラグ（左右入力により移動している状態）
+    private bool _isMoving = false;
 
-    // 着地後のIdle遷移を一時キャンセルするフラグ
+    // 移動を停止してから経過した時間を記録するタイマー（Idle遷移判定などに使用）
+    private float _moveStopTimer = 0f;
+
+    // 着地後に自動的にIdle状態へ遷移する処理を一時的にキャンセルするためのフラグ
+    // ワイヤーなどのアクション中はIdleに戻らないようにする
     private bool _cancelIdleTransition = false;
 
-    private bool _pendingWireTransition = false; // Wireに遷移待ちかどうか
-    private float _wireDirection = 0f;           // Wire遷移時の向きを保持
+    // プレイヤーがワイヤーアクション状態へ遷移するのを保留しているかどうか
+    // 攻撃中や着地中など、他の状態が完了するのを待ってから遷移させるために使用
+    private bool _pendingWireTransition = false;
+
+    // ワイヤーアクションに遷移する際の移動方向（1:右、-1:左）を保持
+    // 遷移時にプレイヤーの向きや初速などに利用される
+    private float _wireDirection = 0f;
+
+    // プレイヤーが現在攻撃中かどうかを示すフラグ
+    // 攻撃中は他の行動（移動やジャンプなど）を制限するために使用
+    private bool _isAttacking = false;
 
     #endregion
+
 
 
     #region ワイヤー掴まり状態管理
@@ -194,6 +253,11 @@ public class PlayerAnimatorController : MonoBehaviour
     public void UpdateMoveAnimation(float moveInput)
     {
         if (_pendingWireTransition) return; // Wire遷移保留中はアニメを更新しない
+
+        //if (_currentState == PlayerState.MeleeAttack) return; // 攻撃中なのでステート更新禁止
+
+        if (_isAttacking) return;
+
         if (Mathf.Abs(moveInput) > MoveThreshold)
         {
             // 入力が閾値を超えている＝移動中と判定
@@ -305,6 +369,38 @@ public class PlayerAnimatorController : MonoBehaviour
         Debug.Log("UpdateJumpState called");
         SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
         Debug.Log("Animator current state int: " + _animator.GetInteger(AnimatorParams.State));
+    }
+
+    /// <summary>
+    /// 近距離攻撃のアニメーション制御。
+    /// プレイヤーの向きも変更。
+    /// </summary>
+    /// <param name="direction">プレイヤーの向き（X方向）</param>
+    public void PlayMeleeAttackAnimation(float direction)
+    {
+        if (_animator == null)
+        {
+            Debug.LogError("animatorController is NULL!");
+        }
+        Debug.Log("PlayMeleeAttackAnimation called");
+        SetPlayerState(PlayerState.MeleeAttack, direction);
+    }
+
+    /// <summary>
+    /// 近接攻撃アニメーションの終了時にアニメーションイベントから呼ばれるメソッド。
+    /// 攻撃状態フラグを解除し、プレイヤーの状態をIdleに戻す。
+    /// </summary>
+    public void OnMeleeAttackAnimationEnd()
+    {
+        // アニメーションイベントから呼ばれたことをデバッグログに出力
+        Debug.Log("[AnimationEvent] MeleeAttack animation finished.");
+
+        // 攻撃中フラグを解除。これにより他の行動が可能になる。
+        _isAttacking = false;
+
+        // プレイヤーの状態をIdleに戻す。
+        // 引数: PlayerState.Idle（状態）、0f（横速度）、0f（縦速度）、true（強制的に状態を変更する）
+        SetPlayerState(PlayerState.Idle, 0f, 0f, true);
     }
 
     /// <summary>

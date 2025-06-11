@@ -8,5 +8,5 @@ public enum PlayerState
     MeleeAttack,
     RangedAttack,
     Damage,
-    Dead
+    Goal
 }

@@ -7,16 +7,13 @@ using UnityEngine;
 /// </summary>
 public class PlayerAttack : MonoBehaviour, IDamageable
 {
-    // キャラクターのステータス情報（攻撃力や最大HPなど）
+    /// <summary>キャラクターのステータス情報（攻撃力やHP、攻撃範囲など）</summary>
     [SerializeField] private CharacterStatus status;
 
-    // 近距離攻撃が可能な範囲（単位：ワールド単位）
-    [SerializeField] private float meleeRange = 1.5f;
+    // アニメーション制御スクリプト
+    [SerializeField] private PlayerAnimatorController animatorController;
 
-    // 攻撃可能な最大範囲（この範囲内の敵をターゲットにする）
-    [SerializeField] private float attackRadius = 5f;
-
-    // 現在のHP
+    /// <summary>現在のHP</summary>
     private int currentHP;
 
     private void Start()
@@ -31,21 +28,30 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     public void PerformAutoAttack()
     {
         var target = FindNearestEnemy();
-        if (target == null) return;
 
-        // 敵のTransformを取得
-        Transform targetTransform = ((MonoBehaviour)target).transform;
-        float distance = Vector2.Distance(transform.position, targetTransform.position);
+        if (target != null)
+        {
+            Transform targetTransform = ((MonoBehaviour)target).transform;
+            float distance = Vector2.Distance(transform.position, targetTransform.position);
 
-        // 距離によって攻撃方法を切り替える
-        if (distance <= meleeRange)
-        {
-            MeleeAttack(target);
+            if (status.meleeRange > 0f && distance <= status.meleeRange)
+            {
+                Debug.Log("Executing MeleeAttack()");
+                MeleeAttack(target);
+                return;
+            }
+            else if (status.attackRadius > 0f && distance <= status.attackRadius)
+            {
+                RangedAttack(target);
+                return;
+            }
+
+            Debug.Log("Target is out of attack range.");
         }
-        else
-        {
-            RangedAttack(target);
-        }
+
+        // 敵がいない、または範囲外だった場合でも空振り近接攻撃
+        Debug.Log("No valid target. Executing empty MeleeAttack.");
+        MeleeAttack(null);
     }
 
     /// <summary>
@@ -61,10 +67,14 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         foreach (var enemy in enemies)
         {
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
-            if (dist < minDist && dist <= attackRadius)
+            if (dist < minDist && dist <= status.attackRadius)
             {
-                nearest = enemy.GetComponent<IDamageable>();
-                minDist = dist;
+                var damageable = enemy.GetComponent<IDamageable>();
+                if (damageable != null)
+                {
+                    nearest = damageable;
+                    minDist = dist;
+                }
             }
         }
 
@@ -74,17 +84,34 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// <summary>
     /// 近距離攻撃を実行する
     /// </summary>
-    /// <param name="target">攻撃対象</param>
     private void MeleeAttack(IDamageable target)
     {
-        target.TakeDamage(status.attack);
-        Debug.Log("Performed melee attack.");
+        // ターゲットがいれば方向を計算、いなければ右向きで仮定（または現在の向き）
+        float direction = 1f;
+        if (target != null)
+        {
+            Vector2 targetDir = ((MonoBehaviour)target).transform.position - transform.position;
+            direction = Mathf.Sign(targetDir.x);
+        }
+
+        // アニメーション再生
+        animatorController?.PlayMeleeAttackAnimation(direction);
+
+        // 攻撃が当たる対象がいる場合のみダメージ処理
+        if (target != null)
+        {
+            target.TakeDamage(status.attack);
+            Debug.Log("Performed melee attack on target.");
+        }
+        else
+        {
+            Debug.Log("Performed empty melee attack.");
+        }
     }
 
     /// <summary>
     /// 遠距離攻撃を実行する
     /// </summary>
-    /// <param name="target">攻撃対象</param>
     private void RangedAttack(IDamageable target)
     {
         target.TakeDamage(status.attack);
@@ -94,7 +121,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// <summary>
     /// ダメージを受ける処理（IDamageableインターフェース実装）
     /// </summary>
-    /// <param name="damage">受けるダメージ量</param>
     public void TakeDamage(int damage)
     {
         currentHP -= damage;
@@ -112,6 +138,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     private void OnDead()
     {
         Debug.Log("Player died.");
-        // ゲームオーバー処理など追加可能
+        // ゲームオーバー処理など
     }
 }

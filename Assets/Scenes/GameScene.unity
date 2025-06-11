@@ -349,6 +349,8 @@ GameObject:
   - component: {fileID: 382275810}
   - component: {fileID: 382275809}
   - component: {fileID: 382275817}
+  - component: {fileID: 382275819}
+  - component: {fileID: 382275818}
   - component: {fileID: 382275808}
   - component: {fileID: 382275807}
   - component: {fileID: 382275806}
@@ -720,6 +722,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cursorImage: {fileID: 1538072999}
   offset: {x: 0, y: 0}
+--- !u!114 &382275818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382275805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39050f8624cb4e7428d7c063bf7ba6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  status: {fileID: 11400000, guid: 8cb664153ee7f7647a46dd93c8d286f7, type: 2}
+  animatorController: {fileID: 382275810}
+--- !u!114 &382275819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382275805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aca31886bc076449ad2c4141c4c6fe2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerAttack: {fileID: 382275818}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1429,7 +1458,7 @@ GameObject:
   - component: {fileID: 1109058380}
   - component: {fileID: 1109058379}
   m_Layer: 0
-  m_Name: Enemy2
+  m_Name: BlueRabbit
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2459,7 +2488,7 @@ GameObject:
   - component: {fileID: 1491331119}
   - component: {fileID: 1491331118}
   m_Layer: 0
-  m_Name: Enemy2_2
+  m_Name: YellowRabbit
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2705,8 +2734,10 @@ GameObject:
   - component: {fileID: 1911957416}
   - component: {fileID: 1911957415}
   - component: {fileID: 1911957414}
+  - component: {fileID: 1911957417}
+  - component: {fileID: 1911957418}
   m_Layer: 0
-  m_Name: Enemy1
+  m_Name: Mole
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2798,12 +2829,62 @@ Transform:
   m_GameObject: {fileID: 1911957413}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: -2, z: 0}
+  m_LocalPosition: {x: -4.68, y: -2, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1911957417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911957413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f220ffbf565e0f34694087306a3ebd42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  status: {fileID: 11400000, guid: 86940459306e8384393ad2ea371abbf1, type: 2}
+--- !u!70 &1911957418
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1911957413}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 1.24}
+  m_Size: {x: 3.47, y: 0.1}
+  m_Direction: 0
 --- !u!1 &1917272710
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,3 +17,5 @@ MonoBehaviour:
   moveSpeed: 1.5
   maxHP: 1
   attack: 1
+  meleeRange: 0
+  attackRadius: 0
