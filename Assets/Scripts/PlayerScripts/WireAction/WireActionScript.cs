@@ -209,8 +209,8 @@ public class WireActionScript : MonoBehaviour
     /// </summary>
     private void HandleRightClick()
     {
-        // 右クリックが押されたらワイヤーを切断
-        if (Input.GetMouseButtonDown(1))
+        // ワイヤーが接続中かつ右クリックされた場合にのみ切断
+        if (Input.GetMouseButtonDown(1) && IsConnected)
         {
             CutWire();
         }

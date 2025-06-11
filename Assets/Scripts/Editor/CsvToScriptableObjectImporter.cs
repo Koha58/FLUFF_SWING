@@ -52,6 +52,8 @@ public class CsvToScriptableObjectImporter : EditorWindow
             status.attack = int.Parse(values[3]);
             // floatのパースはカルチャー依存しないようInvariantCultureを指定
             status.moveSpeed = float.Parse(values[4], CultureInfo.InvariantCulture);
+            status.meleeRange = float.Parse(values[5], CultureInfo.InvariantCulture);
+            status.attackRadius = float.Parse(values[6], CultureInfo.InvariantCulture);
 
             // 保存するファイル名をキャラクター名に基づいて作成
             string name = $"CharacterStatus_{status.characterName}";

@@ -13,4 +13,10 @@ public class CharacterStatus : CharacterBase
 
     /// <summary>攻撃力</summary>
     public int attack;
+
+    /// <summary>近距離攻撃可能な範囲（使わない場合は0）</summary>
+    public float meleeRange;
+
+    /// <summary>遠距離攻撃可能な最大範囲（使わない場合は0）</summary>
+    public float attackRadius;
 }
