@@ -1,40 +1,52 @@
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.UI;
+using System.Collections.Generic;
 
-[RequireComponent(typeof(Image))]
-public class BackGroundScript : MonoBehaviour
+public class BackgroundManager : MonoBehaviour
 {
-    private const float k_maxLength = 1f;
-    private const string k_propName = "_MainTex";
+    public GameObject backgroundPrefab;     // 背景プレハブ
+    public Transform player;                // プレイヤー（右に進む）
+    public float backgroundWidth = 20f;     // 背景画像の横幅（Unity単位）
+    public int preloadCount = 3;            // 初期に表示しておく枚数
+    public float deleteDistance = 30f;      // カメラからこれ以上離れたら削除
 
-    // マテリアル複製用
-    private Material m_copiedMaterial;
+    private List<GameObject> backgrounds = new List<GameObject>();
+    private float nextSpawnX = 0f;
 
-    private void Start()
+    void Start()
     {
-        var image = GetComponent<Image>();
-        // マテリアルの複製を作成して使用
-        m_copiedMaterial = new Material(image.material);
-        image.material = m_copiedMaterial;
-
-        // マテリアルがnullだったら例外が出る
-        Assert.IsNotNull(m_copiedMaterial);
+        for (int i = 0; i < preloadCount; i++)
+        {
+            SpawnBackground();
+        }
     }
 
-    private void Update()
+    void Update()
     {
-        if (Time.timeScale == 0f)
+        // プレイヤーが次の背景位置に近づいたら追加
+        if (player.position.x + backgroundWidth * preloadCount > nextSpawnX)
         {
-            return;
+            SpawnBackground();
         }
 
+        // 背景削除処理
+        for (int i = backgrounds.Count - 1; i >= 0; i--)
+        {
+            if (player.position.x - backgrounds[i].transform.position.x > deleteDistance)
+            {
+                Destroy(backgrounds[i]);
+                backgrounds.RemoveAt(i);
+            }
+        }
     }
 
-    private void OnDestroy()
+    void SpawnBackground()
     {
-        // ゲームオブジェクト破壊時にマテリアルのコピーも消しておく
-        Destroy(m_copiedMaterial);
-        m_copiedMaterial = null;
+        // プレハブと同じY座標を使うために、最初の背景の高さを記録して使うのがベスト
+        float backgroundY = backgroundPrefab.transform.position.y;  // ← ここが重要！
+
+        Vector3 spawnPos = new Vector3(nextSpawnX, backgroundY, 0f);
+        GameObject bg = Instantiate(backgroundPrefab, spawnPos, Quaternion.identity);
+        backgrounds.Add(bg);
+        nextSpawnX += backgroundWidth;
     }
 }

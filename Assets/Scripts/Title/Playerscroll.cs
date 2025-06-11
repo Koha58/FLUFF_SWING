@@ -1,28 +1,36 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody))]
+
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
+
 public class Plyerscrool : MonoBehaviour
 {
     public float runSpeed = 5f;
 
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     private Animator animator;
+    private SpriteRenderer spriteRenderer;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
     }
 
     void FixedUpdate()
     {
-        // 前方向に自動移動
-        Vector3 move = transform.right * runSpeed;
-        rb.linearVelocity = new Vector3(move.x, rb.linearVelocity.y, 0f);
+        // 常に右に走る
+        rb.linearVelocity = new Vector2(runSpeed, rb.linearVelocity.y);
 
-        // 横方向の速さをアニメーターに反映
-        float horizontalSpeed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
+        // アニメーターに速度を渡す
+        float horizontalSpeed = Mathf.Abs(rb.linearVelocity.x);
         animator.SetFloat("scroll", horizontalSpeed);
+
+        // スプライト反転（元の絵が左向きだから右に進むときはflipX = true）
+        spriteRenderer.flipX = rb.linearVelocity.x > 0;
+
     }
 }
