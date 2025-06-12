@@ -13,6 +13,9 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     // アニメーション制御スクリプト
     [SerializeField] private PlayerAnimatorController animatorController;
 
+    [SerializeField] private GameObject bombPrefab;   // 爆弾のPrefab（Inspectorでセット）
+    private float throwForce = 10f;  // 爆弾の投げる力
+
     /// <summary>現在のHP</summary>
     private int currentHP;
 
@@ -42,6 +45,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             }
             else if (status.attackRadius > 0f && distance <= status.attackRadius)
             {
+                Debug.Log("Executing RangedAttack()");
                 RangedAttack(target);
                 return;
             }
@@ -114,8 +118,29 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// </summary>
     private void RangedAttack(IDamageable target)
     {
-        target.TakeDamage(status.attack);
-        Debug.Log("Performed ranged attack.");
+        // ターゲットがいれば方向を計算、いなければ右向きで仮定（または現在の向き）
+        float direction = 1f;
+        if (target != null)
+        {
+            Vector2 targetDir = ((MonoBehaviour)target).transform.position - transform.position;
+            direction = Mathf.Sign(targetDir.x);
+        }
+
+        // アニメーション再生
+        animatorController?.PlayRangedAttackAnimation(direction);
+    }
+
+    public void ThrowBomb(float direction)
+    {
+        if (bombPrefab == null) return;
+
+        GameObject bombObject = Instantiate(bombPrefab, transform.position, Quaternion.identity);
+        Bomb bomb = bombObject.GetComponent<Bomb>();
+
+        if (bomb != null)
+        {
+            bomb.Launch(direction, throwForce, status.attack);  // 攻撃力も渡す
+        }
     }
 
     /// <summary>

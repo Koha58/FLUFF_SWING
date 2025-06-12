@@ -70,7 +70,7 @@ public class PlayerAnimatorController : MonoBehaviour
         Debug.Log($"[SetPlayerState] Transitioning from {oldState} to {newState}");
 
         // 攻撃中フラグ設定
-        _isAttacking = (newState == PlayerState.MeleeAttack);
+        _isAttacking = (newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack);
 
         // Animatorにステートを整数で渡す
         _animator.SetInteger(AnimatorParams.State, (int)newState);
@@ -200,6 +200,14 @@ public class PlayerAnimatorController : MonoBehaviour
     // 攻撃中は他の行動（移動やジャンプなど）を制限するために使用
     private bool _isAttacking = false;
 
+    [SerializeField] private PlayerAttack playerAttack;
+
+    public void ThrowBombEvent()
+    {
+        float direction = transform.localScale.x > 0 ? 1f : -1f;
+        playerAttack?.ThrowBomb(direction);
+    }
+
     #endregion
 
 
@@ -253,8 +261,6 @@ public class PlayerAnimatorController : MonoBehaviour
     public void UpdateMoveAnimation(float moveInput)
     {
         if (_pendingWireTransition) return; // Wire遷移保留中はアニメを更新しない
-
-        //if (_currentState == PlayerState.MeleeAttack) return; // 攻撃中なのでステート更新禁止
 
         if (_isAttacking) return;
 
@@ -394,6 +400,38 @@ public class PlayerAnimatorController : MonoBehaviour
     {
         // アニメーションイベントから呼ばれたことをデバッグログに出力
         Debug.Log("[AnimationEvent] MeleeAttack animation finished.");
+
+        // 攻撃中フラグを解除。これにより他の行動が可能になる。
+        _isAttacking = false;
+
+        // プレイヤーの状態をIdleに戻す。
+        // 引数: PlayerState.Idle（状態）、0f（横速度）、0f（縦速度）、true（強制的に状態を変更する）
+        SetPlayerState(PlayerState.Idle, 0f, 0f, true);
+    }
+
+    /// <summary>
+    /// 遠距離攻撃のアニメーション制御。
+    /// プレイヤーの向きも変更。
+    /// </summary>
+    /// <param name="direction">プレイヤーの向き（X方向）</param>
+    public void PlayRangedAttackAnimation(float direction)
+    {
+        if (_animator == null)
+        {
+            Debug.LogError("animatorController is NULL!");
+        }
+        Debug.Log("PlayRangedAttackAnimation called");
+        SetPlayerState(PlayerState.RangedAttack, direction);
+    }
+
+    /// <summary>
+    /// 遠距離攻撃アニメーションの終了時にアニメーションイベントから呼ばれるメソッド。
+    /// 攻撃状態フラグを解除し、プレイヤーの状態をIdleに戻す。
+    /// </summary>
+    public void OnRangedAttackAnimationEnd()
+    {
+        // アニメーションイベントから呼ばれたことをデバッグログに出力
+        Debug.Log("[AnimationEvent] RangedAttack animation finished.");
 
         // 攻撃中フラグを解除。これにより他の行動が可能になる。
         _isAttacking = false;

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 5
   characterName: Bird
   moveSpeed: 2
-  maxHP: 2
+  maxHP: 1
   attack: 1
   meleeRange: 0
   attackRadius: 0

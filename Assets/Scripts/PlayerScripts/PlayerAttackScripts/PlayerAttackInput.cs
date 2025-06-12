@@ -26,5 +26,9 @@ public class PlayerAttackInput : MonoBehaviour
             // “ü—ÍŽó•t‚ð—LŒø‰»
             attackAction.Enable();
         }
+        else
+        {
+            Debug.LogWarning("playerAttack is null");
+        }
     }
 }

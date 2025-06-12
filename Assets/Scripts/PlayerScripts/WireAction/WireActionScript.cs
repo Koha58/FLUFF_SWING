@@ -48,6 +48,8 @@ public class WireActionScript : MonoBehaviour
 
     #region プレイヤー・アニメーション関連
 
+    [SerializeField] private WireInputHandler inputHandler;
+
     // プレイヤーの右手位置
     [SerializeField] private Transform rightHandTransform;
 
@@ -154,12 +156,6 @@ public class WireActionScript : MonoBehaviour
 
     void Update()
     {
-        // 左クリック入力を処理（針を飛ばして接続）
-        HandleLeftClick();
-
-        // 右クリック入力を処理（接続を解除）
-        HandleRightClick();
-
         // 接続前にプレイヤーからマウス位置までの予測ライン（点線）を描画
         UpdatePreviewLine();
 
@@ -168,14 +164,37 @@ public class WireActionScript : MonoBehaviour
     }
 
     /// <summary>
+    /// オブジェクトが有効になったときに入力イベントを登録する。
+    /// これにより、プレイヤーのクリック操作（接続・切断）に応じて処理を呼び出すことができる。
+    /// </summary>
+    private void OnEnable()
+    {
+        // 左クリック時の処理（ワイヤー接続）をイベントに登録
+        inputHandler.OnLeftClick += HandleLeftClick;
+
+        // 右クリック時の処理（ワイヤー切断）をイベントに登録
+        inputHandler.OnRightClick += HandleRightClick;
+    }
+
+    /// <summary>
+    /// オブジェクトが無効になったときに入力イベントを解除する。
+    /// これにより、無効化された状態でイベントが呼ばれてしまうことを防ぎ、メモリリークやエラーを回避する。
+    /// </summary>
+    private void OnDisable()
+    {
+        // イベントから左クリック処理（ワイヤー接続）を解除
+        inputHandler.OnLeftClick -= HandleLeftClick;
+
+        // イベントから右クリック処理（ワイヤー切断）を解除
+        inputHandler.OnRightClick -= HandleRightClick;
+    }
+
+    /// <summary>
     /// 左クリック時の接続処理。
     /// クリック位置が Ground タイルであれば、ワイヤーを接続する。
     /// </summary>
     private void HandleLeftClick()
     {
-        // 左クリックが押されていなければ何もしない
-        if (!Input.GetMouseButtonDown(0)) return;
-
         // マウスのワールド座標を取得
         Vector3 mouseWorldPos = GetMouseWorldPosition();
 
@@ -210,7 +229,7 @@ public class WireActionScript : MonoBehaviour
     private void HandleRightClick()
     {
         // ワイヤーが接続中かつ右クリックされた場合にのみ切断
-        if (Input.GetMouseButtonDown(1) && IsConnected)
+        if (IsConnected)
         {
             CutWire();
         }
