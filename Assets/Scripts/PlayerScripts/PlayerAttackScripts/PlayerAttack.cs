@@ -1,32 +1,32 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚ÌUŒ‚ˆ—‚¨‚æ‚Ñ”íƒ_ƒ[ƒWˆ—‚ğŠÇ—‚·‚éƒNƒ‰ƒXB
-/// - Å‚à‹ß‚¢“G‚ğ©“®‚Å”»’è‚µA‹ß‹——£‚©‰“‹——£‚©‚ÅUŒ‚•û–@‚ğØ‚è‘Ö‚¦‚éB
-/// - IDamageableƒCƒ“ƒ^[ƒtƒF[ƒX‚ğÀ‘•‚µAUŒ‚‚ğó‚¯‚é‘¤‚Ìˆ—‚às‚¤B
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æ”»æ’ƒå‡¦ç†ãŠã‚ˆã³è¢«ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
+/// - æœ€ã‚‚è¿‘ã„æ•µã‚’è‡ªå‹•ã§åˆ¤å®šã—ã€è¿‘è·é›¢ã‹é è·é›¢ã‹ã§æ”»æ’ƒæ–¹æ³•ã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹ã€‚
+/// - IDamageableã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã‚’å®Ÿè£…ã—ã€æ”»æ’ƒã‚’å—ã‘ã‚‹å´ã®å‡¦ç†ã‚‚è¡Œã†ã€‚
 /// </summary>
 public class PlayerAttack : MonoBehaviour, IDamageable
 {
-    /// <summary>ƒLƒƒƒ‰ƒNƒ^[‚ÌƒXƒe[ƒ^ƒXî•ñiUŒ‚—Í‚âHPAUŒ‚”ÍˆÍ‚È‚Çj</summary>
+    /// <summary>ã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æƒ…å ±ï¼ˆæ”»æ’ƒåŠ›ã‚„HPã€æ”»æ’ƒç¯„å›²ãªã©ï¼‰</summary>
     [SerializeField] private CharacterStatus status;
 
-    // ƒAƒjƒ[ƒVƒ‡ƒ“§ŒäƒXƒNƒŠƒvƒg
+    // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³åˆ¶å¾¡ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
     [SerializeField] private PlayerAnimatorController animatorController;
 
-    [SerializeField] private GameObject bombPrefab;   // ”š’e‚ÌPrefabiInspector‚ÅƒZƒbƒgj
-    private float throwForce = 10f;  // ”š’e‚Ì“Š‚°‚é—Í
+    [SerializeField] private GameObject bombPrefab;   // çˆ†å¼¾ã®Prefabï¼ˆInspectorã§ã‚»ãƒƒãƒˆï¼‰
+    private float throwForce = 7f;  // çˆ†å¼¾ã®æŠ•ã’ã‚‹åŠ›
 
-    /// <summary>Œ»İ‚ÌHP</summary>
+    /// <summary>ç¾åœ¨ã®HP</summary>
     private int currentHP;
 
     private void Start()
     {
-        // ‰ŠúHP‚ğƒXƒe[ƒ^ƒX‚ÌÅ‘åHP‚Å‰Šú‰»
+        // åˆæœŸHPã‚’ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã®æœ€å¤§HPã§åˆæœŸåŒ–
         currentHP = status.maxHP;
     }
 
     /// <summary>
-    /// Å‚à‹ß‚¢“G‚ğ’T‚µA©“®‚Å‹ß‹——£‚©‰“‹——£UŒ‚‚ğ‘I‘ğ‚µ‚ÄÀs‚·‚é
+    /// æœ€ã‚‚è¿‘ã„æ•µã‚’æ¢ã—ã€è‡ªå‹•ã§è¿‘è·é›¢ã‹é è·é›¢æ”»æ’ƒã‚’é¸æŠã—ã¦å®Ÿè¡Œã™ã‚‹
     /// </summary>
     public void PerformAutoAttack()
     {
@@ -53,15 +53,15 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             Debug.Log("Target is out of attack range.");
         }
 
-        // “G‚ª‚¢‚È‚¢A‚Ü‚½‚Í”ÍˆÍŠO‚¾‚Á‚½ê‡‚Å‚à‹óU‚è‹ßÚUŒ‚
+        // æ•µãŒã„ãªã„ã€ã¾ãŸã¯ç¯„å›²å¤–ã ã£ãŸå ´åˆã§ã‚‚ç©ºæŒ¯ã‚Šè¿‘æ¥æ”»æ’ƒ
         Debug.Log("No valid target. Executing empty MeleeAttack.");
         MeleeAttack(null);
     }
 
     /// <summary>
-    /// UŒ‚‰Â”\”ÍˆÍ“à‚ÅÅ‚à‹ß‚¢“G‚ğŒŸõ‚µ‚Ä•Ô‚·
+    /// æ”»æ’ƒå¯èƒ½ç¯„å›²å†…ã§æœ€ã‚‚è¿‘ã„æ•µã‚’æ¤œç´¢ã—ã¦è¿”ã™
     /// </summary>
-    /// <returns>Å‚à‹ß‚¢“G‚ÌIDamageableƒRƒ“ƒ|[ƒlƒ“ƒgA“G‚ª‚¢‚È‚¯‚ê‚Înull</returns>
+    /// <returns>æœ€ã‚‚è¿‘ã„æ•µã®IDamageableã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã€æ•µãŒã„ãªã‘ã‚Œã°null</returns>
     private IDamageable FindNearestEnemy()
     {
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -86,11 +86,11 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// ‹ß‹——£UŒ‚‚ğÀs‚·‚é
+    /// è¿‘è·é›¢æ”»æ’ƒã‚’å®Ÿè¡Œã™ã‚‹
     /// </summary>
     private void MeleeAttack(IDamageable target)
     {
-        // ƒ^[ƒQƒbƒg‚ª‚¢‚ê‚Î•ûŒü‚ğŒvZA‚¢‚È‚¯‚ê‚Î‰EŒü‚«‚Å‰¼’èi‚Ü‚½‚ÍŒ»İ‚ÌŒü‚«j
+        // ã‚¿ãƒ¼ã‚²ãƒƒãƒˆãŒã„ã‚Œã°æ–¹å‘ã‚’è¨ˆç®—ã€ã„ãªã‘ã‚Œã°å³å‘ãã§ä»®å®šï¼ˆã¾ãŸã¯ç¾åœ¨ã®å‘ãï¼‰
         float direction = 1f;
         if (target != null)
         {
@@ -98,10 +98,10 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             direction = Mathf.Sign(targetDir.x);
         }
 
-        // ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+        // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿ
         animatorController?.PlayMeleeAttackAnimation(direction);
 
-        // UŒ‚‚ª“–‚½‚é‘ÎÛ‚ª‚¢‚éê‡‚Ì‚İƒ_ƒ[ƒWˆ—
+        // æ”»æ’ƒãŒå½“ãŸã‚‹å¯¾è±¡ãŒã„ã‚‹å ´åˆã®ã¿ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†
         if (target != null)
         {
             target.TakeDamage(status.attack);
@@ -114,11 +114,11 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// ‰“‹——£UŒ‚‚ğÀs‚·‚é
+    /// é è·é›¢æ”»æ’ƒã‚’å®Ÿè¡Œã™ã‚‹ï¼ˆã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿã®ã¿ï¼‰
+    /// çˆ†å¼¾ç”Ÿæˆã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã§è¡Œã†ï¼
     /// </summary>
     private void RangedAttack(IDamageable target)
     {
-        // ƒ^[ƒQƒbƒg‚ª‚¢‚ê‚Î•ûŒü‚ğŒvZA‚¢‚È‚¯‚ê‚Î‰EŒü‚«‚Å‰¼’èi‚Ü‚½‚ÍŒ»İ‚ÌŒü‚«j
         float direction = 1f;
         if (target != null)
         {
@@ -126,9 +126,19 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             direction = Mathf.Sign(targetDir.x);
         }
 
-        // ƒAƒjƒ[ƒVƒ‡ƒ“Ä¶
+        // å‘ãã‚’æ±ºã‚ã‚‹
+        if (direction != Mathf.Sign(transform.localScale.x))
+        {
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‘ãã‚’å·¦å³åè»¢ã™ã‚‹å ´åˆ
+            Vector3 scale = transform.localScale;
+            scale.x = -scale.x;
+            transform.localScale = scale;
+        }
+
+        // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã ã‘å†ç”Ÿï¼ˆæŠ•æ“²ã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã§ï¼ï¼‰
         animatorController?.PlayRangedAttackAnimation(direction);
     }
+
 
     public void ThrowBomb(float direction)
     {
@@ -139,12 +149,14 @@ public class PlayerAttack : MonoBehaviour, IDamageable
 
         if (bomb != null)
         {
-            bomb.Launch(direction, throwForce, status.attack);  // UŒ‚—Í‚à“n‚·
+            // â— å·¦å‘ãçˆ†å¼¾ãªã‚‰æ–¹å‘ã‚’é€†ã«ã—ã¦é£›ã°ã™
+            bomb.Launch(-direction, throwForce, status.attack);
         }
     }
 
+
     /// <summary>
-    /// ƒ_ƒ[ƒW‚ğó‚¯‚éˆ—iIDamageableƒCƒ“ƒ^[ƒtƒF[ƒXÀ‘•j
+    /// ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ã‚‹å‡¦ç†ï¼ˆIDamageableã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹å®Ÿè£…ï¼‰
     /// </summary>
     public void TakeDamage(int damage)
     {
@@ -158,11 +170,11 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// HP‚ª0ˆÈ‰º‚É‚È‚Á‚½‚Ìˆ—
+    /// HPãŒ0ä»¥ä¸‹ã«ãªã£ãŸæ™‚ã®å‡¦ç†
     /// </summary>
     private void OnDead()
     {
         Debug.Log("Player died.");
-        // ƒQ[ƒ€ƒI[ƒo[ˆ—‚È‚Ç
+        // ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼å‡¦ç†ãªã©
     }
 }
