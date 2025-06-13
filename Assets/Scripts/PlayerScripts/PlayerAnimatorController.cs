@@ -205,7 +205,8 @@ public class PlayerAnimatorController : MonoBehaviour
     public void ThrowBombEvent()
     {
         float direction = transform.localScale.x > 0 ? 1f : -1f;
-        playerAttack?.ThrowBomb(direction);
+        playerAttack.ThrowBomb(direction);
+
     }
 
     #endregion

@@ -15,7 +15,7 @@ public class Bomb : MonoBehaviour
     [SerializeField] private GameObject explosionEffectPrefab;
 
     [Header("爆発設定")]
-    private float explosionRadius = 2f;    // 爆発範囲
+    private float explosionRadius = 1f;    // 爆発範囲
     private int explosionDamage;       // 爆発ダメージ
     [SerializeField] private LayerMask damageableLayers;     // ダメージ判定対象レイヤー
 
@@ -37,10 +37,12 @@ public class Bomb : MonoBehaviour
     /// </summary>
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (hasExploded) return;  // 既に爆発済みなら無視
+        Debug.Log($"Bomb collided with {collision.gameObject.name}");
+        if (hasExploded) return;
 
         Explode();
     }
+
 
     /// <summary>
     /// 爆発処理
@@ -52,13 +54,13 @@ public class Bomb : MonoBehaviour
     {
         hasExploded = true;
 
-        // 爆発エフェクトの生成
         if (explosionEffectPrefab != null)
         {
-            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            GameObject effect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(effect, 1.5f);
+            Destroy(gameObject);
         }
 
-        // 範囲内のダメージ判定
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius, damageableLayers);
         foreach (var hit in hits)
         {
@@ -66,12 +68,12 @@ public class Bomb : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(explosionDamage);
+                Debug.Log("Destroying bomb gameobject.");
             }
         }
-
-        // 自身の削除
-        Destroy(gameObject);
     }
+
+
 
     /// <summary>
     /// エディタ上で爆発範囲を可視化（Gizmo表示）
