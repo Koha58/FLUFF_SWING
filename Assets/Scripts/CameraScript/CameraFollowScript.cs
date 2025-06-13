@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class CameraFollowScript : MonoBehaviour
 {
+    // ワイヤーアクションの状態（接続状態など）を管理するスクリプト
+    [SerializeField]
+    private WireActionScript wireActionScript;
+
     public Transform player;
 
     // プレイヤーからの横方向のオフセット
     public float horizontalOffset = 2f;
-
-    [SerializeField]
-    private WireActionScript wireActionScript;
 
     // スムージングの時間(数が大きいほどゆっくり移動)
     public float smoothTime = 0.3f;

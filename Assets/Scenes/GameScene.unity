@@ -805,9 +805,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10a1435d7ad1e7741abdd34c083a11b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wireActionScript: {fileID: 382275811}
   player: {fileID: 382275816}
   horizontalOffset: 2
-  wireActionScript: {fileID: 382275811}
   smoothTime: 0.3
 --- !u!1 &619394800
 GameObject:
@@ -944,8 +944,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 382275811}
-  m_offsetSpeed: {x: 0.005, y: 0}
   playerTransform: {fileID: 382275816}
+  m_offsetSpeed: {x: 0.01, y: 0}
+  acceltionTime: 0.3
 --- !u!114 &702635633
 MonoBehaviour:
   m_ObjectHideFlags: 0
