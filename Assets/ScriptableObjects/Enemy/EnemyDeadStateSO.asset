@@ -9,13 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5760060be6c232f46b7ab3faa84acf5d, type: 3}
-  m_Name: CharacterStatus_Player
+  m_Script: {fileID: 11500000, guid: 72efe86786aa62f49bf90a75725b3957, type: 3}
+  m_Name: EnemyDeadStateSO
   m_EditorClassIdentifier: 
-  id: 1
-  characterName: Player
-  moveSpeed: 3.5
-  maxHP: 5
-  attack: 1
-  meleeRange: 2
-  attackRadius: 5

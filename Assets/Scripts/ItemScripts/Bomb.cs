@@ -57,7 +57,7 @@ public class Bomb : MonoBehaviour
         if (explosionEffectPrefab != null)
         {
             GameObject effect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-            Destroy(effect, 1.5f);
+            Destroy(effect, 1.0f);
             Destroy(gameObject);
         }
 
