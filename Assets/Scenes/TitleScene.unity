@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 472521618}
   - component: {fileID: 472521617}
   m_Layer: 0
-  m_Name: MoleSpawnerManager
+  m_Name: MoleSpawnerController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -189,10 +189,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49bd2fb876d14f54c964cdca229ffcc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  molePrefad: {fileID: 621476659}
+  molePrefab: {fileID: 0}
   spawnInterval: 5
-  tilemap: {fileID: 836749011}
-  moleSpawnTile: {fileID: 11400000, guid: 63207934ee70ca749acc238daa6f809b, type: 2}
+  cameraAheadOffset: 5
 --- !u!4 &472521618
 Transform:
   m_ObjectHideFlags: 0
@@ -208,16 +207,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &621476659 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 834085050011653278, guid: 3d414d84b07fd76469c5706280845807, type: 3}
-  m_PrefabInstance: {fileID: 4853782055677924825}
-  m_PrefabAsset: {fileID: 0}
---- !u!1839735485 &836749011 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 2613318304749526801, guid: c66340af9c495214490b3348de0791f8, type: 3}
-  m_PrefabInstance: {fileID: 4452990280698834907}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1047569221
 GameObject:
   m_ObjectHideFlags: 0
