@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 1020bddbbff9aff4bbfa8cd47c244f9c
+guid: 3e2759e18b045cc4f8bd9932c0fec39e
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 500
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -142,10 +142,10 @@ TextureImporter:
       name: shop_2_0
       rect:
         serializedVersion: 2
-        x: 16
-        y: 16
-        width: 468
-        height: 459
+        x: 75
+        y: 83
+        width: 3292
+        height: 3139
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

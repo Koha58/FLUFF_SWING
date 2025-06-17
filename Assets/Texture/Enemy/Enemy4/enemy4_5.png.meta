@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: dac58c2dc7bce2d42b6f62dd1eb8ce00
+guid: 70efa3c399b72ed4ca9202f83643739e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8140589327392860339
-    second: shop_3_0
+      213: -7859544038854914931
+    second: enemy4_5_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 500
+  spritePixelsToUnits: 350
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shop_3_0
+      name: enemy4_5_0
       rect:
         serializedVersion: 2
-        x: 75
-        y: 83
-        width: 3292
-        height: 3139
+        x: 144
+        y: 4
+        width: 492
+        height: 452
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3b86691dcde29f070800000000000000
-      internalID: 8140589327392860339
+      spriteID: d8c838b965a4de290800000000000000
+      internalID: -7859544038854914931
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      shop_3_0: 8140589327392860339
+      enemy4_5_0: -7859544038854914931
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
