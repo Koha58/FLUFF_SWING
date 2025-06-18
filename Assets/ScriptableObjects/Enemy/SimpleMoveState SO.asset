@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8d42b4995d314c4ba2041557e707aa6, type: 3}
-  m_Name: EnemyMoveStateSO
+  m_Script: {fileID: 11500000, guid: 2d4e486eace50f343a0e74f1a45f33cb, type: 3}
+  m_Name: SimpleMoveState SO
   m_EditorClassIdentifier: 

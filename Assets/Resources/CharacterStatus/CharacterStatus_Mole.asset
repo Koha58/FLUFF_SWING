@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 4
   characterName: Mole
-  moveSpeed: 2
+  moveSpeed: 0.5
   maxHP: 1
   attack: 1
   meleeRange: 0
