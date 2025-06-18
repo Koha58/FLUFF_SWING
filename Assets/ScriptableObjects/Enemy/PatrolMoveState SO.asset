@@ -9,13 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5760060be6c232f46b7ab3faa84acf5d, type: 3}
-  m_Name: CharacterStatus_Rabbit_yellow
+  m_Script: {fileID: 11500000, guid: a9ed14f99936e16458f8831442304cd2, type: 3}
+  m_Name: PatrolMoveState SO
   m_EditorClassIdentifier: 
-  id: 2
-  characterName: Rabbit_yellow
-  moveSpeed: 0.5
-  maxHP: 1
-  attack: 1
-  meleeRange: 0
-  attackRadius: 0
+  patrolRange: 3

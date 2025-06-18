@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 335c3c86d0b91924d93a0f7c3183adf8, type: 3}
-  m_Name: EnemyStateMachineSO
+  m_Name: RabbitStateMachineSO
   m_EditorClassIdentifier: 
   usesMove: 1
-  usesAttack: 1
-  usesDead: 1
-  moveState: {fileID: 11400000, guid: 7211724f60a063e438ee32766d311968, type: 2}
+  usesAttack: 0
+  usesDead: 0
+  moveState: {fileID: 11400000, guid: eda2b95509b1d5b4eaad95c4a08505dc, type: 2}
   attackState: {fileID: 11400000, guid: 16f694a6c5a9795499cc51e47647f18e, type: 2}
   deadState: {fileID: 11400000, guid: 99ab2032d1bd02940b55d386bc483223, type: 2}
