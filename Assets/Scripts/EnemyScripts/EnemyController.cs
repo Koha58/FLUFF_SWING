@@ -3,135 +3,237 @@ using UnityEngine;
 
 /// <summary>
 /// 敵キャラクターの制御クラス
-/// 敵の状態管理(StateMachine)やHP管理、ダメージ処理などを行う
+/// ・ステータス管理
+/// ・状態遷移(StateMachine)
+/// ・ダメージ処理
+/// ・プール返却
 /// </summary>
 public class EnemyController : MonoBehaviour, IDamageable
 {
-    // ステータス管理スクリプト
+    #region === SerializeFields ===
+
+    /// <summary>敵の種類</summary>
+    [SerializeField] private EnemyType enemyType;
+
+    /// <summary>ステータス参照元データ</summary>
     [SerializeField] private CharacterBase characterData;
-    [SerializeField] private CharacterStatus status;                         // 敵のステータス情報（HPなど）
-    [SerializeField] private EnemyAnimationController animationController;   // アニメーション制御用コンポーネント
-    [SerializeField] private EnemyStateMachineSO stateMachineSO;             // 敵の状態管理データ(ScriptableObject)
-    public EnemyStateMachineSO StateMachineSO => stateMachineSO;
-    [SerializeField] private bool hasDeadAnimation = true;                   // 死亡アニメーションの有無フラグ
 
-    private StateMachine<EnemyController> stateMachine;                      // 敵専用のステートマシン
-    private int currentHP;                                                    // 現在のHP
-    private float moveSpeed;                                                 // 地上での左右移動スピード
-    public float MoveSpeed => moveSpeed; // ← 追加
+    /// <summary>ステータス情報（HPなど）</summary>
+    [SerializeField] private CharacterStatus status;
 
+    /// <summary>アニメーション制御コンポーネント</summary>
+    [SerializeField] private EnemyAnimationController animationController;
+
+    /// <summary>ステートマシン設定データ</summary>
+    [SerializeField] private EnemyStateMachineSO stateMachineSO;
+
+    /// <summary>死亡アニメーションの有無</summary>
+    [SerializeField] private bool hasDeadAnimation = true;
+
+    #endregion
+
+    #region === Private Fields ===
+
+    /// <summary>敵専用のステートマシン</summary>
+    private StateMachine<EnemyController> stateMachine;
+
+    /// <summary>現在のHP</summary>
+    private int currentHP;
+
+    /// <summary>キャラクターの移動速度</summary>
+    private float moveSpeed;
+
+    /// <summary>パトロール開始位置X座標</summary>
     private float patrolStartX;
+
+    /// <summary>パトロール方向（1:右, -1:左）</summary>
     private int patrolDirection = -1;
 
-    public float PatrolStartX { get => patrolStartX; set => patrolStartX = value; }
-    public int PatrolDirection { get => patrolDirection; set => patrolDirection = value; }
+    #endregion
 
+    #region === Properties ===
+
+    /// <summary>敵の種類を外部に公開</summary>
+    public EnemyType Type => enemyType;
+
+    /// <summary>ステートマシン設定SOを外部に公開</summary>
+    public EnemyStateMachineSO StateMachineSO => stateMachineSO;
+
+    /// <summary>死亡アニメーションの有無</summary>
     public bool HasDeadAnimation => hasDeadAnimation;
 
-    /// <summary>
-    /// アニメーションイベント中は移動を無効化
-    /// </summary>
+    /// <summary>移動速度</summary>
+    public float MoveSpeed => moveSpeed;
+
+    /// <summary>パトロール開始位置X</summary>
+    public float PatrolStartX
+    {
+        get => patrolStartX;
+        set => patrolStartX = value;
+    }
+
+    /// <summary>パトロール方向</summary>
+    public int PatrolDirection
+    {
+        get => patrolDirection;
+        set => patrolDirection = value;
+    }
+
+    /// <summary>アニメーション中の移動無効化</summary>
     public bool IsMovementDisabledByAnimation { get; private set; }
 
+    #endregion
+
+    #region === Unity Callbacks ===
+
+    /// <summary>
+    /// ステートマシン初期化 & ステータス設定
+    /// </summary>
     private void Awake()
     {
-        // ステートマシンを初期化（自身を対象に）
+        // ステートマシンを自身を対象に初期化
         stateMachine = new StateMachine<EnemyController>(this);
 
-        // characterData から moveSpeedを取得
+        // キャラクターデータから移動速度を取得
         moveSpeed = characterData.moveSpeed;
     }
 
+    /// <summary>
+    /// 有効化時にHP初期化 & 開始ステートを設定
+    /// </summary>
     private void OnEnable()
     {
-        // HPを最大にリセット
+        // HPを最大値にリセット
         currentHP = status.maxHP;
 
-        // ステートマシンSOが設定されているかチェック
+        // ステートマシン設定がない場合はエラー
         if (stateMachineSO == null)
         {
-            Debug.LogError("stateMachineSOがセットされていません！");
+            Debug.LogError("StateMachineSOが設定されていません！");
             return;
         }
 
-        // 敵の種類によって開始ステートを切り替える
-        // Birdのように移動から開始する場合はmoveStateから開始
+        // 移動ステートを使う場合は移動ステートで開始
         if (stateMachineSO.usesMove && stateMachineSO.moveState != null)
         {
             stateMachine.ChangeState(stateMachineSO.moveState);
         }
-        // それ以外は攻撃状態から開始
+        // そうでなければ攻撃ステートで開始
         else if (stateMachineSO.attackState != null)
         {
             stateMachine.ChangeState(stateMachineSO.attackState);
         }
+        // 開始ステートが無ければエラー
         else
         {
-            Debug.LogError("開始Stateがセットされていません！");
+            Debug.LogError("開始ステートが設定されていません！");
         }
     }
 
+    /// <summary>
+    /// ステートマシン更新
+    /// </summary>
     private void Update()
     {
-        // 毎フレームステートマシンのUpdateを呼び出す（状態遷移や処理を実行）
+        // ステートマシンの毎フレーム更新を呼び出す
         stateMachine.Update(Time.deltaTime);
     }
 
+    #endregion
+
+    #region === Enemy Logic ===
+
     /// <summary>
-    /// ダメージを受ける処理
-    /// HPを減らし、0以下なら死亡ステートに遷移する
+    /// ダメージを受ける
+    /// Patrolタイプはアニメーション中は無敵
     /// </summary>
-    /// <param name="damage">受けるダメージ量</param>
     public void TakeDamage(int damage)
     {
+        Debug.Log($"TakeDamage called. Type={Type}, IsMovementDisabledByAnimation={IsMovementDisabledByAnimation}");
+
+        // Patrolタイプで、潜りアニメーション中でない場合はダメージ無効
+        if (Type == EnemyType.Patrol && !IsMovementDisabledByAnimation)
+            return;
+
+        // HPを減少
         currentHP -= damage;
         Debug.Log($"{gameObject.name} took {damage} damage. Current HP: {currentHP}");
 
+        // HPが0以下になったら死亡ステートへ遷移
         if (currentHP <= 0)
         {
-            // HP0以下で死亡ステートへ遷移
             stateMachine.ChangeState(stateMachineSO.deadState);
         }
     }
 
-    // 以下は敵の行動ロジック用のダミーメソッド
-    public void AttackIfPossible() { /* 攻撃ロジック */ }
+    /// <summary>
+    /// 攻撃可能なら攻撃を実行（未実装）
+    /// </summary>
+    public void AttackIfPossible()
+    {
+        // TODO: 攻撃ロジック実装予定
+    }
 
     /// <summary>
-    /// 死亡処理完了後に呼ばれるメソッド
-    /// プールに敵オブジェクトを返却する
+    /// 死亡後、プールへ返却
     /// </summary>
     public void HandleDead()
     {
+        // EnemyPoolに返却して非アクティブ化
         EnemyPool.Instance.ReturnToPool(this);
     }
 
+    #endregion
+
+    #region === Animation Events ===
+
     /// <summary>
-    /// AnimationEvent から呼び出す
+    /// アニメーションイベント：移動無効化ON
     /// </summary>
     public void DisableMovementByAnimation()
     {
+        // 移動無効フラグをON
         IsMovementDisabledByAnimation = true;
     }
 
+    /// <summary>
+    /// アニメーションイベント：移動無効化OFF
+    /// </summary>
     public void EnableMovementByAnimation()
     {
+        // 移動無効フラグをOFF
         IsMovementDisabledByAnimation = false;
     }
 
-    /// <summary>
-    /// アニメーション制御コンポーネントを取得する
-    /// </summary>
-    /// <returns>EnemyAnimationController</returns>
-    public EnemyAnimationController GetAnimationController() => animationController;
+    #endregion
+
+    #region === State Control ===
 
     /// <summary>
-    /// 攻撃状態に切り替える
+    /// アニメーション制御を取得
     /// </summary>
-    public void SwitchToAttack() => stateMachine.ChangeState(stateMachineSO.attackState);
+    public EnemyAnimationController GetAnimationController()
+    {
+        return animationController;
+    }
 
     /// <summary>
-    /// 移動状態に切り替える
+    /// 攻撃ステートに切り替え
     /// </summary>
-    public void SwitchToMove() => stateMachine.ChangeState(stateMachineSO.moveState);
+    public void SwitchToAttack()
+    {
+        // 攻撃ステートに遷移
+        stateMachine.ChangeState(stateMachineSO.attackState);
+    }
+
+    /// <summary>
+    /// 移動ステートに切り替え
+    /// </summary>
+    public void SwitchToMove()
+    {
+        // 移動ステートに遷移
+        stateMachine.ChangeState(stateMachineSO.moveState);
+    }
+
+    #endregion
 }

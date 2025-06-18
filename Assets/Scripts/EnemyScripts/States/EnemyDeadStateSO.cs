@@ -8,9 +8,9 @@ using UnityEngine;
 public class EnemyDeadStateSO : EnemyStateSO
 {
     /// <summary>
-    /// 状態に入ったときに呼ばれる。
-    /// 死亡アニメーションが使用可能なら再生し、死亡処理を行う。
-    /// アニメーションが使えない場合は即座に死亡処理を行う。
+    /// 死亡状態に入ったときの処理
+    /// ・死亡アニメーションがある場合は再生し、アニメーション終了まで待ってからプールへ返却
+    /// ・アニメーションがない場合は即座にプール返却する
     /// </summary>
     /// <param name="owner">状態の所有者（敵のコントローラー）</param>
     public override void Enter(EnemyController owner)
@@ -21,14 +21,48 @@ public class EnemyDeadStateSO : EnemyStateSO
         {
             // 死亡アニメーションを再生
             owner.GetAnimationController().PlayDeadAnimation();
-            // 死亡処理（プールへ戻すなど）
-            owner.HandleDead();
+            // コルーチンを使ってアニメーション終了まで待機し、その後プールに返却
+            owner.StartCoroutine(WaitAndHandleDead(owner));
         }
         else
         {
-            // アニメーションなしで即死亡処理
+            // アニメーションなしなら即座にプールへ返却
             owner.HandleDead();
         }
+    }
+
+    /// <summary>
+    /// 死亡アニメーション終了まで待機し、プールに返却するコルーチン
+    /// </summary>
+    /// <param name="owner">敵コントローラー</param>
+    /// <returns>IEnumerator</returns>
+    private System.Collections.IEnumerator WaitAndHandleDead(EnemyController owner)
+    {
+        // Animatorコンポーネントを取得
+        Animator animator = owner.GetAnimationController().GetComponent<Animator>();
+        if (animator != null)
+        {
+            // 現在のアニメーション状態を取得
+            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+            // アニメーションの長さを取得（秒）
+            float animationLength = stateInfo.length;
+
+            // 死亡アニメーションの長さを取得して待機する方法の例（固定秒数でも可）
+            // ※状況によっては死亡アニメーション名を指定して正確な長さを取得したほうが良い
+            yield return new WaitForSeconds(animationLength);
+
+            // もしくは固定秒数待つ例
+            // yield return new WaitForSeconds(1.0f);
+        }
+        else
+        {
+            // Animatorが取得できなければ1フレーム待つだけにする
+            yield return null;
+        }
+
+        // 待機後、プールに返却
+        owner.HandleDead();
     }
 
     /// <summary>
