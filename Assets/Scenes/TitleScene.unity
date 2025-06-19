@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &780859 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 834085050011653278, guid: 3d414d84b07fd76469c5706280845807, type: 3}
+  m_PrefabInstance: {fileID: 4853782055677924825}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &145539105 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4024481336176957023, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
@@ -189,8 +194,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49bd2fb876d14f54c964cdca229ffcc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  molePrefab: {fileID: 0}
-  spawnInterval: 5
+  molePrefab: {fileID: 780859}
+  spawnInterval: 1
   cameraAheadOffset: 5
 --- !u!4 &472521618
 Transform:
@@ -1740,6 +1745,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4506361813661526130, guid: 3d414d84b07fd76469c5706280845807, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4800390255121893545, guid: 3d414d84b07fd76469c5706280845807, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 9c37f4ee5693d234c808e45af88b7f56, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
