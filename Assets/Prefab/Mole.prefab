@@ -11,9 +11,7 @@ GameObject:
   - component: {fileID: 3305528716944029541}
   - component: {fileID: 6471841682556332664}
   - component: {fileID: 4800390255121893545}
-  - component: {fileID: 4506361813661526130}
   - component: {fileID: 3300434901747026398}
-  - component: {fileID: 588762551152280928}
   m_Layer: 0
   m_Name: Mole
   m_TagString: Enemy
@@ -101,7 +99,7 @@ Animator:
   m_GameObject: {fileID: 834085050011653278}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 853d2aacb83ae6346b932a866faa787a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9c37f4ee5693d234c808e45af88b7f56, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -113,19 +111,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &4506361813661526130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 834085050011653278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f220ffbf565e0f34694087306a3ebd42, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  status: {fileID: 11400000, guid: 86940459306e8384393ad2ea371abbf1, type: 2}
 --- !u!70 &3300434901747026398
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -163,16 +148,3 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 1.24}
   m_Size: {x: 3.47, y: 0.1}
   m_Direction: 0
---- !u!114 &588762551152280928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 834085050011653278}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c623bd2b47ae14b4c97aa7c90a6c8bc6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifetime: 2
