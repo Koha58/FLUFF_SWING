@@ -174,6 +174,22 @@ public class EnemyController : MonoBehaviour, IDamageable
         // TODO: UŒ‚ƒƒWƒbƒNÀ‘•—\’è
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // Playerƒ^ƒO‚ÆÚG‚µ‚½‚ç
+        if (collision.CompareTag("Player"))
+        {
+            // IDamageable ‚ğæ“¾‚µ‚Äƒ_ƒ[ƒW‚ğ—^‚¦‚é
+            IDamageable damageable = collision.GetComponent<IDamageable>();
+            if (damageable != null)
+            {
+                damageable.TakeDamage(status.attack); // Enemy ‚ÌUŒ‚—Í‚ğ“n‚·
+                Debug.Log($"Enemy attacked Player for {status.attack} damage");
+            }
+        }
+    }
+
+
     /// <summary>
     /// €–SŒãAƒv[ƒ‹‚Ö•Ô‹p
     /// </summary>

@@ -163,6 +163,11 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         currentHP -= damage;
         Debug.Log($"Player took {damage} damage. HP: {currentHP}");
 
+        // プレイヤーの今の向きで仮に決める
+        float direction = Mathf.Sign(transform.localScale.x);
+
+        animatorController?.PlayDamegeAnimation(direction);
+
         if (currentHP <= 0)
         {
             OnDead();

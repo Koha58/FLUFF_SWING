@@ -131,8 +131,8 @@ public class PlayerMove : MonoBehaviour
     /// </summary>
     private void FixedUpdate()
     {
-        // ワイヤーに接続中は一切の移動を無効にする
-        if (wireActionScript.IsConnected)
+        // ダメージアニメ再生中、またはワイヤー接続中なら移動禁止
+        if (animatorController.IsDamagePlaying || wireActionScript.IsConnected)
         {
             return;
         }

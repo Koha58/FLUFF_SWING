@@ -11,7 +11,10 @@ public class PlayerAnimatorController : MonoBehaviour
 {
     #region アニメーター本体
 
-    // アニメーター本体（Animatorコンポーネント）
+    // --------------------------------------------------------------
+    // 【Animator本体（Animatorコンポーネントへの参照）】
+    // プレイヤーの状態遷移を制御する中心コンポーネント
+    // --------------------------------------------------------------
     private Animator _animator;
 
     #endregion
@@ -19,104 +22,127 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region アニメーターパラメータ名
 
-    // Animatorパラメータ名の定義
+    // --------------------------------------------------------------
+    // 【Animatorパラメータ名の定数定義】
+    // パラメータ名のtypo防止と一元管理
+    // --------------------------------------------------------------
     private static class AnimatorParams
     {
+        // プレイヤー状態の整数値
         public const string State = "State";
+
+        // アニメーション再生速度
         public const string SpeedMultiplier = "speedMultiplier";
     }
 
-    /// <summary>
-    /// プレイヤーの状態を表すEnum。AnimatorのStateパラメータと連動。
-    /// </summary>
+    #endregion
+
+
+    #region プレイヤーステート（Enum）
+
+    // --------------------------------------------------------------
+    // 【プレイヤーの状態を表すEnum】
+    // AnimatorのStateパラメータと連動する値
+    // --------------------------------------------------------------
     public enum PlayerState
     {
-        Idle = 0,
-        Run = 1,
-        Jump = 2,
-        Wire = 3,
-        Landing = 4,
-        MeleeAttack = 5,
-        RangedAttack = 6,
-        Damage = 7,
-        Goal = 8
+        Idle = 0,         // 待機
+        Run = 1,          // 走り
+        Jump = 2,         // ジャンプ
+        Wire = 3,         // ワイヤー掴まり
+        Landing = 4,      // 着地
+        MeleeAttack = 5,  // 近距離攻撃
+        RangedAttack = 6, // 遠距離攻撃
+        Damage = 7,       // ダメージ
+        Goal = 8          // クリア
     }
 
-    /// <summary>
-    /// 現在のステート（状態）
-    /// </summary>
+    #endregion
+
+
+    #region プレイヤー状態制御
+
+    // --------------------------------------------------------------
+    // 【現在のプレイヤーステート】
+    // Animatorに連動させて管理
+    // --------------------------------------------------------------
     private PlayerState _currentState = PlayerState.Idle;
 
-    /// <summary>
-    /// 指定されたプレイヤーステートに応じてAnimatorを制御する。
-    /// 状態遷移は基本的に Run → Jump → Wire → Landing → Idle の流れを想定。
-    /// <br/>
-    /// 【force引数について】
-    /// forceがtrueの場合は、現在の状態と同じステートでも強制的に状態遷移を行う。
-    /// 通常は同じ状態への遷移は無視されるため、再アニメーション再生やパラメータ更新を明示的に行いたい場合に使用する。
-    /// </summary>
-    /// <param name="newState">遷移先の状態</param>
-    /// <param name="direction">プレイヤーの向き（-1〜1）</param>
-    /// <param name="speed">移動速度（0〜1の正規化値）</param>
-    /// <param name="force">同じ状態でも強制的に遷移処理を行うかどうか</param>
+    // --------------------------------------------------------------
+    // 【Animatorの状態遷移メソッド】
+    // 状態に応じてパラメータや向き、速度を適用
+    // --------------------------------------------------------------
     public void SetPlayerState(PlayerState newState, float direction = 0f, float speed = 0f, bool force = false)
     {
-        // 現在の状態と同じ場合、forceがfalseなら処理を抜ける
-        if (!force && _currentState == newState)
-            return;
+        // 同じ状態でforce=falseなら何もしない
+        if (!force && _currentState == newState) return;
+
+        // 被弾中は他状態を許さない
+        if (!force && _currentState == PlayerState.Damage) return;
 
         var oldState = _currentState;
         _currentState = newState;
         Debug.Log($"[SetPlayerState] Transitioning from {oldState} to {newState}");
 
-        // 攻撃中フラグ設定
+        // 攻撃フラグ更新
         _isAttacking = (newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack);
 
-        // Animatorにステートを整数で渡す
+        // Animatorパラメータ更新
         _animator.SetInteger(AnimatorParams.State, (int)newState);
 
-        // 向き反転も反映
+        // 向き反映
         FlipSprite(direction);
 
-        // 状態ごとの速度設定（必要に応じて）
+        // --------------------------------------------------------------
+        // 【新しいプレイヤーステートに応じて再生速度を設定】
+        // 状態に合わせて SpeedMultiplier を調整する
+        // --------------------------------------------------------------
         switch (newState)
         {
             case PlayerState.Run:
-                // 移動速度に応じてアニメーション再生速度をリニア補間
+                // 【走り】入力速度に応じて最小〜最大速度を補間
                 float normalizedSpeed = Mathf.Clamp01(Mathf.Abs(speed));
                 float moveSpeed = Mathf.Lerp(AnimatorSpeeds.RunMin, AnimatorSpeeds.RunMax, normalizedSpeed);
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, moveSpeed);
                 break;
 
             case PlayerState.Jump:
+                // 【ジャンプ】掴まり動作と共通の基準速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Grapple);
                 break;
 
             case PlayerState.Wire:
+                // 【ワイヤー】スイング中の基準速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Swing);
                 break;
 
             case PlayerState.Landing:
+                // 【着地】着地アニメーションの速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Landing);
                 break;
 
             case PlayerState.MeleeAttack:
+                // 【近距離攻撃】近接攻撃アニメーション速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.MeleeAttack);
                 break;
 
             case PlayerState.RangedAttack:
+                // 【遠距離攻撃】遠距離攻撃アニメーション速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.RangedAttack);
                 break;
 
             case PlayerState.Damage:
+                // 【被弾】ダメージリアクションの速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Damage);
                 break;
 
             case PlayerState.Goal:
+                // 【ゴール】クリア演出の速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Goal);
                 break;
 
             default:
+                // 【待機などその他】Idleの基準速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
                 break;
         }
@@ -125,99 +151,97 @@ public class PlayerAnimatorController : MonoBehaviour
     #endregion
 
 
-    #region アニメーション再生速度定数
+    #region アニメーション速度定義
 
-    // 各状態に対応するアニメーション速度設定
+    // --------------------------------------------------------------
+    // 【Animator速度設定】
+    // 各ステートごとのアニメーション再生速度の基準値
+    // --------------------------------------------------------------
     private static class AnimatorSpeeds
     {
-        // 走りアニメの最低速度
-        public const float RunMin = 0.5f;
-
-        // 走りアニメの最大速度
-        public const float RunMax = 3.0f;
-
-        // スイング中の再生速度
-        public const float Swing = 1.5f;
-
-        // 掴まり直後の再生速度
-        public const float Grapple = 1.5f;
-
-        // 着地時の再生速度
-        public const float Landing = 1.0f;
-
-        // 近距離攻撃の再生速度
-        public const float MeleeAttack = 1.0f;
-
-        // 遠距離攻撃の再生速度
-        public const float RangedAttack = 1.0f;
-
-        // 被弾時の再生速度
-        public const float Damage = 1.0f;
-
-        // クリアアニメ時の再生速度
-        public const float Goal = 1.0f;
-
-        // 静止時の再生速度
-        public const float Idle = 1.0f;　　　　　　
+        public const float RunMin = 0.5f;    // 走り最小速度
+        public const float RunMax = 3.0f;    // 走り最大速度
+        public const float Swing = 1.5f;     // スイング中
+        public const float Grapple = 1.5f;   // 掴まり
+        public const float Landing = 1.0f;   // 着地
+        public const float MeleeAttack = 1.0f; // 近距離攻撃
+        public const float RangedAttack = 1.0f; // 遠距離攻撃
+        public const float Damage = 1.0f;    // ダメージ
+        public const float Goal = 1.0f;      // クリア
+        public const float Idle = 1.0f;      // 待機
     }
 
     #endregion
 
 
-    #region Constants
+    #region 各種定数
 
-    // 動作検出や演出に使う閾値やタイミング
-    private const float MoveThreshold = 0.05f;        // 微小入力を無視するしきい値
-    private const float MoveDelayTime = 0.1f;         // 停止とみなすまでの時間
-    private const float GrappleTransitionTime = 0.3f; // 掴まり演出の維持時間
-    private const float FlipThreshold = 0.01f;        // 向きを反転するための最小入力値
-    private const float LandingToIdleDelay = 0.2f;    // 着地アニメーション後Idleに遷移するまでの遅延時間
+    // --------------------------------------------------------------
+    // 【各種閾値・遅延時間】
+    // プレイヤー挙動や演出に使用
+    // --------------------------------------------------------------
+    private const float MoveThreshold = 0.05f;        // 微小入力無視
+    private const float MoveDelayTime = 0.1f;         // 移動停止判定
+    private const float GrappleTransitionTime = 0.3f; // 掴まり演出時間
+    private const float FlipThreshold = 0.01f;        // 向き反転閾値
+    private const float LandingToIdleDelay = 0.2f;    // 着地→Idle遷移遅延
 
     #endregion
 
 
-    #region プレイヤー移動状態管理
+    #region プレイヤー挙動フラグ
 
-    // プレイヤーが現在移動しているかどうかを示すフラグ（左右入力により移動している状態）
+    // --------------------------------------------------------------
+    // 【移動状態管理】
+    // 入力による移動/停止を判断
+    // --------------------------------------------------------------
     private bool _isMoving = false;
-
-    // 移動を停止してから経過した時間を記録するタイマー（Idle遷移判定などに使用）
     private float _moveStopTimer = 0f;
 
-    // 着地後に自動的にIdle状態へ遷移する処理を一時的にキャンセルするためのフラグ
-    // ワイヤーなどのアクション中はIdleに戻らないようにする
+    // --------------------------------------------------------------
+    // 【状態遷移制御フラグ】
+    // 特定の状況での遷移抑制や保留
+    // --------------------------------------------------------------
     private bool _cancelIdleTransition = false;
-
-    // プレイヤーがワイヤーアクション状態へ遷移するのを保留しているかどうか
-    // 攻撃中や着地中など、他の状態が完了するのを待ってから遷移させるために使用
     private bool _pendingWireTransition = false;
-
-    // ワイヤーアクションに遷移する際の移動方向（1:右、-1:左）を保持
-    // 遷移時にプレイヤーの向きや初速などに利用される
     private float _wireDirection = 0f;
 
-    // プレイヤーが現在攻撃中かどうかを示すフラグ
-    // 攻撃中は他の行動（移動やジャンプなど）を制限するために使用
+    // --------------------------------------------------------------
+    // 【攻撃状態フラグ】
+    // 攻撃中は他動作を制御
+    // --------------------------------------------------------------
     private bool _isAttacking = false;
 
+    // ダメージアニメ再生中かどうか
+    public bool IsDamagePlaying { get; private set; }
+
+    // --------------------------------------------------------------
+    // 【攻撃コンポーネント参照】
+    // 爆弾投げなど攻撃用
+    // --------------------------------------------------------------
     [SerializeField] private PlayerAttack playerAttack;
 
+    // --------------------------------------------------------------
+    // 【投擲イベント】
+    // 現在向きに応じて爆弾投げ
+    // --------------------------------------------------------------
     public void ThrowBombEvent()
     {
         float direction = transform.localScale.x > 0 ? 1f : -1f;
         playerAttack.ThrowBomb(direction);
-
     }
 
     #endregion
 
 
+    #region ワイヤー状態管理
 
-    #region ワイヤー掴まり状態管理
-
-    // ワイヤー掴まり直後の状態管理
-    private bool _justGrappled = false; // 掴まった直後かどうか
-    private float _grappleTimer = 0f;   // 掴まり状態の残り演出時間
+    // --------------------------------------------------------------
+    // 【ワイヤー掴まり状態管理】
+    // 掴まり演出の一時状態
+    // --------------------------------------------------------------
+    private bool _justGrappled = false;
+    private float _grappleTimer = 0f;
 
     #endregion
 
@@ -440,6 +464,44 @@ public class PlayerAnimatorController : MonoBehaviour
         // プレイヤーの状態をIdleに戻す。
         // 引数: PlayerState.Idle（状態）、0f（横速度）、0f（縦速度）、true（強制的に状態を変更する）
         SetPlayerState(PlayerState.Idle, 0f, 0f, true);
+    }
+
+    /// <summary>
+    /// ダメージのアニメーションを再生する。
+    /// プレイヤーの向きを指定方向に合わせる。
+    /// </summary>
+    /// <param name="direction">プレイヤーの向き（X方向：-1または1）</param>
+    public void PlayDamegeAnimation(float direction)
+    {
+        // Animator が設定されていない場合はエラーを出す
+        if (_animator == null)
+        {
+            Debug.LogError("animatorController is NULL!");
+        }
+
+        Debug.Log("PlayRangedAttackAnimation called");
+
+        // ダメージ状態をON
+        IsDamagePlaying = true;
+
+        // 状態を Damage に遷移させる（向きも反映）
+        SetPlayerState(PlayerState.Damage, direction);
+    }
+
+    /// <summary>
+    /// Damage アニメーションが終了した際に
+    /// Animation Event から呼ばれるコールバック。
+    /// 強制的に Idle に戻す。
+    /// </summary>
+    public void OnDamageAnimationEnd()
+    {
+        Debug.Log("[PlayerAnimatorController] Damage animation ended by Animation Event.");
+
+        // ダメージ状態をOFF
+        IsDamagePlaying = false;
+
+        // Damage 終了後、強制的に Idle に遷移させる
+        SetPlayerState(PlayerState.Idle, force: true);
     }
 
     /// <summary>

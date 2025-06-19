@@ -1,36 +1,87 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
-/// �G�����e�𓊂����p�N���X
-/// - Animator�̃C�x���g����Ă΂��
+/// 敵が爆弾を投げる専用クラス
+/// - AnimatorのイベントからThrow()が呼ばれて爆弾を生成し、プレイヤー方向に投げる
+/// - 投げる爆弾はbombPrefabで指定
+/// - ダメージ量は敵のステータス（status）から取得
+/// - 投げる力は minThrowForce 〜 maxThrowForce の範囲でランダム
 /// </summary>
 public class EnemyThrowAttack : MonoBehaviour
 {
+    /// <summary>
+    /// 投げる爆弾のプレハブ。
+    /// </summary>
     [SerializeField] private GameObject bombPrefab;
-    [SerializeField] private float throwForce = 7f;
 
-    private Transform player;
+    /// <summary>
+    /// 敵のステータス情報。
+    /// </summary>
+    [SerializeField] private CharacterStatus status;
 
-    public void Initialize(Transform playerTransform)
+    /// <summary>
+    /// プレイヤーのTransform。
+    /// </summary>
+    [SerializeField] private Transform player;
+
+    /// <summary>
+    /// 投げる力の最小値（内部固定値）。
+    /// </summary>
+    private float minThrowForce = 4f;
+
+    /// <summary>
+    /// 投げる力の最大値（内部固定値）。
+    /// </summary>
+    private float maxThrowForce = 8f;
+
+    /// <summary>
+    /// プレイヤーのTransformと敵のステータスをセットする初期化メソッド。
+    /// </summary>
+    public void Initialize(Transform playerTransform, CharacterStatus enemyStatus)
     {
         player = playerTransform;
+        status = enemyStatus;
     }
 
     /// <summary>
-    /// �A�j���[�V�����C�x���g����Ă΂�Ĕ��e�𐶐��E������
+    /// アニメーションイベントから呼ばれるメソッド。
+    /// 爆弾を生成し、プレイヤー方向に投げる。
     /// </summary>
     public void Throw()
     {
-        if (bombPrefab == null || player == null) return;
+        Debug.Log("Throw() called.");
+
+        if (bombPrefab == null)
+        {
+            Debug.LogWarning("bombPrefab is null!");
+            return;
+        }
+        if (player == null)
+        {
+            Debug.LogWarning("player is null!");
+            return;
+        }
+        if (status == null)
+        {
+            Debug.LogWarning("status is null!");
+            return;
+        }
+
+        // ランダムな投げる力を決定
+        float randomForce = Random.Range(minThrowForce, maxThrowForce);
 
         GameObject bomb = Instantiate(bombPrefab, transform.position, Quaternion.identity);
         Bomb bombScript = bomb.GetComponent<Bomb>();
 
         if (bombScript != null)
         {
-            // �G����v���C���[�����֔�΂�
             Vector2 dir = (player.position - transform.position).normalized;
-            bombScript.Launch(dir.x, throwForce, 20); // 20 = �_���[�W��
+            bombScript.Launch(dir.x, randomForce, status.attack);
+            Debug.Log($"Bomb launched with random force: {randomForce}");
+        }
+        else
+        {
+            Debug.LogWarning("Bomb prefab does not have Bomb script!");
         }
     }
 }
