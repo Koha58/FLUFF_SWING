@@ -2,5 +2,6 @@ using UnityEngine;
 
 public class MoleSpawnPoint : MonoBehaviour
 {
-    // 空のマーカーだけ。処理はなしでOK
+    [HideInInspector]
+    public bool isOccupied = false; // 使用中かどうか
 }

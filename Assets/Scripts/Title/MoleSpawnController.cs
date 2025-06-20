@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using static UnityEditor.PlayerSettings;
 
 public class MoleSpawnController : MonoBehaviour
 {
@@ -47,7 +48,8 @@ public class MoleSpawnController : MonoBehaviour
         foreach (var point in allSpawnPoints)
         {
             Vector3 pos = point.transform.position;
-            if (spawnRect.Contains(new Vector2(pos.x, pos.y)))
+
+            if (!point.isOccupied && spawnRect.Contains(new Vector2(pos.x, pos.y)))
             {
                 visiblePoints.Add(point);
             }
@@ -56,8 +58,14 @@ public class MoleSpawnController : MonoBehaviour
         if (visiblePoints.Count > 0)
         {
             MoleSpawnPoint selected = visiblePoints[Random.Range(0, visiblePoints.Count)];
-            Instantiate(molePrefab, selected.transform.position, Quaternion.identity);
+            selected.isOccupied = true; // 使用中にマーク
+
+            GameObject mole = Instantiate(molePrefab, selected.transform.position, Quaternion.identity);
+
+            // Mole 側で spawnPoint を記憶
+            mole.GetComponent<Mole>().mySpawnPoint = selected;
         }
+
     }
 }
    
