@@ -35,9 +35,9 @@ public class Bomb : MonoBehaviour
     /// <summary>
     /// 衝突判定（地形・敵などに当たったら爆発）
     /// </summary>
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Bomb collided with {collision.gameObject.name}");
+        Debug.Log($"Bomb collided with {other.gameObject.name}");
         if (hasExploded) return;
 
         Explode();

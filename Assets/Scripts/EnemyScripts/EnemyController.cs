@@ -174,16 +174,26 @@ public class EnemyController : MonoBehaviour, IDamageable
         // TODO: 攻撃ロジック実装予定
     }
 
+    /// <summary>
+    /// Playerとの接触処理
+    /// </summary>
+    /// <param name="collision"></param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Playerタグと接触したら
         if (collision.CompareTag("Player"))
         {
-            // IDamageable を取得してダメージを与える
+            // Patrolで、かつ潜り中は無効化
+            if (Type == EnemyType.Patrol && !IsMovementDisabledByAnimation)
+            {
+                Debug.Log("Patrol enemy is disabled by animation. No damage dealt.");
+                return; // スキップ
+            }
+
+            // それ以外はダメージを与える
             IDamageable damageable = collision.GetComponent<IDamageable>();
             if (damageable != null)
             {
-                damageable.TakeDamage(status.attack); // Enemy の攻撃力を渡す
+                damageable.TakeDamage(status.attack);
                 Debug.Log($"Enemy attacked Player for {status.attack} damage");
             }
         }
