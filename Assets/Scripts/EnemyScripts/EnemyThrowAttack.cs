@@ -67,6 +67,23 @@ public class EnemyThrowAttack : MonoBehaviour
             return;
         }
 
+        // --- 🎯 Playerの方向に向き調整 ---
+        Vector2 dirToPlayer = player.position - transform.position;
+
+        // X座標だけで判定：右なら -1, 左なら +1 (PlayerのSpriteの基準が左のため)
+        if (dirToPlayer.x > 0f)
+        {
+            // Playerが右側 → 右を向く
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+        else
+        {
+            // Playerが左側 → 左を向く
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+
+        // ---------------------------------
+
         // ランダムな投げる力を決定
         float randomForce = Random.Range(minThrowForce, maxThrowForce);
 
@@ -75,7 +92,7 @@ public class EnemyThrowAttack : MonoBehaviour
 
         if (bombScript != null)
         {
-            Vector2 dir = (player.position - transform.position).normalized;
+            Vector2 dir = dirToPlayer.normalized;
             bombScript.Launch(dir.x, randomForce, status.attack);
             Debug.Log($"Bomb launched with random force: {randomForce}");
         }
@@ -84,4 +101,5 @@ public class EnemyThrowAttack : MonoBehaviour
             Debug.LogWarning("Bomb prefab does not have Bomb script!");
         }
     }
+
 }

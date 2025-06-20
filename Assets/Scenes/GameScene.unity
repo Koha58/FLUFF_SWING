@@ -671,7 +671,7 @@ GameObject:
   - component: {fileID: 480771129}
   - component: {fileID: 480771128}
   - component: {fileID: 480771132}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: RedPanda
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -764,7 +764,7 @@ Transform:
   m_GameObject: {fileID: 480771124}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.538, y: -1.392, z: 0}
+  m_LocalPosition: {x: 17.69, y: -1.392, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -881,7 +881,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bombPrefab: {fileID: 9171000065244376544, guid: f3be7ff786ff38143aee78de35f3d9f1, type: 3}
-  throwForce: 7
   status: {fileID: 11400000, guid: 7f5c68e3f748e3646ac70d1f582b3ac4, type: 2}
   player: {fileID: 382275816}
 --- !u!1 &519420028
@@ -1594,10 +1593,11 @@ GameObject:
   - component: {fileID: 1109058380}
   - component: {fileID: 1109058379}
   - component: {fileID: 1109058382}
+  - component: {fileID: 1109058386}
   - component: {fileID: 1109058385}
   - component: {fileID: 1109058383}
   - component: {fileID: 1109058384}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: BlueRabbit
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -1775,7 +1775,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1109058378}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -1793,7 +1793,53 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
+--- !u!61 &1109058386
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109058378}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -1.8}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.6, y: 3.9}
+    newSize: {x: 3.6, y: 3.9}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.54, y: 0.34}
+  m_EdgeRadius: 0
 --- !u!1 &1172749490
 GameObject:
   m_ObjectHideFlags: 0
@@ -3064,10 +3110,11 @@ GameObject:
   - component: {fileID: 1491331119}
   - component: {fileID: 1491331118}
   - component: {fileID: 1491331121}
+  - component: {fileID: 1491331125}
   - component: {fileID: 1491331124}
   - component: {fileID: 1491331122}
   - component: {fileID: 1491331123}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: YellowRabbit
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -3160,7 +3207,7 @@ Transform:
   m_GameObject: {fileID: 1491331117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.619, y: -1.624, z: 0}
+  m_LocalPosition: {x: 6.752, y: -1.624, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3201,7 +3248,7 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 4.23, y: 5.23}
+  m_Size: {x: 4.23, y: 3.9}
   m_Direction: 0
 --- !u!114 &1491331122
 MonoBehaviour:
@@ -3245,7 +3292,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1491331117}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
@@ -3263,7 +3310,53 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
+--- !u!61 &1491331125
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491331117}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -1.8}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.6, y: 3.9}
+    newSize: {x: 3.6, y: 3.9}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.6, y: 0.34}
+  m_EdgeRadius: 0
 --- !u!1 &1538072997
 GameObject:
   m_ObjectHideFlags: 0
@@ -3415,7 +3508,7 @@ GameObject:
   - component: {fileID: 1662945845}
   - component: {fileID: 1662945840}
   - component: {fileID: 1662945844}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Bird
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -3650,7 +3743,7 @@ GameObject:
   - component: {fileID: 1911957417}
   - component: {fileID: 1911957419}
   - component: {fileID: 1911957420}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mole
   m_TagString: Enemy
   m_Icon: {fileID: 0}
