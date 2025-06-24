@@ -30,6 +30,9 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// <summary>死亡アニメーションの有無</summary>
     [SerializeField] private bool hasDeadAnimation = true;
 
+    /// <summary>SpriteRenderer</summary>
+    [SerializeField] private SpriteRenderer spriteRenderer;
+
     #endregion
 
     #region === Private Fields ===
@@ -82,6 +85,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// <summary>アニメーション中の移動無効化</summary>
     public bool IsMovementDisabledByAnimation { get; private set; }
 
+    /// <summary>
+    /// 方向状態を外部からアクセスさせる
+    /// </summary>
+    public int Direction { get; set; } = -1; // 左向きで開始
+
     #endregion
 
     #region === Unity Callbacks ===
@@ -96,6 +104,12 @@ public class EnemyController : MonoBehaviour, IDamageable
 
         // キャラクターデータから移動速度を取得
         moveSpeed = characterData.moveSpeed;
+
+        // SpriteRendererがない場合は作成する
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        }
     }
 
     /// <summary>
@@ -196,6 +210,47 @@ public class EnemyController : MonoBehaviour, IDamageable
                 damageable.TakeDamage(status.attack);
                 Debug.Log($"Enemy attacked Player for {status.attack} damage");
             }
+        }
+
+        if (collision.CompareTag("Wire"))
+        {
+            // Birdにワイヤーが接触したとき
+            if (Type == EnemyType.Bird)
+            {
+                // ワイヤーの Player を取得して CutWire を呼ぶ
+                var player = collision.GetComponentInParent<WireActionScript>();
+                if (player != null)
+                {
+                    player.CutWire();
+                }
+            }
+        }
+
+        // "Flip"タグに触れたら反転
+        if (collision.CompareTag("Flip"))
+        {
+            ReverseDirection();
+        }
+    }
+
+    /// <summary>
+    /// 方向と Sprite を反転する
+    /// </summary>
+    public void ReverseDirection()
+    {
+        Direction *= -1;
+        UpdateSpriteFlip();
+        Debug.Log($"[EnemyController] 方向反転: {Direction}");
+    }
+
+    /// <summary>
+    /// SpriteRenderer の FlipX を Direction に合わせて設定
+    /// </summary>
+    private void UpdateSpriteFlip()
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.flipX = (Direction == 1);
         }
     }
 

@@ -15,6 +15,6 @@ MonoBehaviour:
   usesMove: 1
   usesAttack: 0
   usesDead: 0
-  moveState: {fileID: 11400000, guid: eda2b95509b1d5b4eaad95c4a08505dc, type: 2}
+  moveState: {fileID: 11400000, guid: a0b32964b7336a349a549861dcadf201, type: 2}
   attackState: {fileID: 11400000, guid: 16f694a6c5a9795499cc51e47647f18e, type: 2}
   deadState: {fileID: 11400000, guid: 99ab2032d1bd02940b55d386bc483223, type: 2}

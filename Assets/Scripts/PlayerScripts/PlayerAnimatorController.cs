@@ -471,15 +471,13 @@ public class PlayerAnimatorController : MonoBehaviour
     /// プレイヤーの向きを指定方向に合わせる。
     /// </summary>
     /// <param name="direction">プレイヤーの向き（X方向：-1または1）</param>
-    public void PlayDamegeAnimation(float direction)
+    public void PlayDamageAnimation(float direction)
     {
         // Animator が設定されていない場合はエラーを出す
         if (_animator == null)
         {
             Debug.LogError("animatorController is NULL!");
         }
-
-        Debug.Log("PlayRangedAttackAnimation called");
 
         // ダメージ状態をON
         IsDamagePlaying = true;

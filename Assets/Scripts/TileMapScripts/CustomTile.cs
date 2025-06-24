@@ -12,7 +12,7 @@ public class CustomTile : Tile
     /// <summary>
     /// タイルの種類を表す列挙型。
     /// - Ground : プレイヤーが接続可能な地面
-    /// - Hazard : 危険エリア（将来的な用途などを想定）
+    /// - Hazard : 危険エリア（接触するとPlayerにダメージ）
     /// </summary>
     public enum TileType
     {
@@ -25,4 +25,9 @@ public class CustomTile : Tile
     /// タイルごとに Ground や Hazard などを指定できる。
     /// </summary>
     public TileType tileType;
+
+    /// <summary>
+    /// ハザードの場合のダメージ量
+    /// </summary>
+    public int damageAmount = 1;
 }

@@ -1,11 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 敵キャラクターの単純な左右移動ステート。
+/// 敵キャラクターの糸切りステート。
 /// EnemyMoveStateSO を継承し、移動ロジックを Tick で定義する。
 /// </summary>
-[CreateAssetMenu(menuName = "State/EnemyMove/SimpleMoveState")]
-public class SimpleMoveStateSO : EnemyMoveStateSO
+[CreateAssetMenu(menuName = "State/EnemyMove/CutMoveState")]
+public class CutMoveStateSO : EnemyMoveStateSO
 {
     /// <summary>
     /// 毎フレーム呼ばれる移動処理。

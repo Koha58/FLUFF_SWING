@@ -259,7 +259,7 @@ public class WireActionScript : MonoBehaviour
     /// <summary>
     /// ワイヤーを切断。
     /// </summary>
-    private void CutWire()
+    public void CutWire()
     {
         // DistanceJoint2D を無効化してワイヤー接続を解除
         distanceJoint.enabled = false;

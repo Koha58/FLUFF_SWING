@@ -11,95 +11,94 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(Rigidbody2D))] // Rigidbody2D がアタッチされていない場合、自動で追加される
 public class PlayerMove : MonoBehaviour
 {
-    #region 依存スクリプト・構成要素
+    #region === Inspector設定・依存コンポーネント ===
 
-    // ワイヤーアクションの状態（接続状態など）を管理するスクリプト
+    /// <summary>ワイヤーアクションの状態を管理するスクリプト</summary>
     [SerializeField] private WireActionScript wireActionScript;
 
-    // アニメーション制御スクリプト
+    /// <summary>アニメーション制御用スクリプト</summary>
     [SerializeField] private PlayerAnimatorController animatorController;
 
-    // ステータス管理スクリプト
+    /// <summary>プレイヤーステータスデータ（移動速度など）</summary>
     [SerializeField] private CharacterBase characterData;
 
-    // プレイヤーの物理挙動を制御する Rigidbody2D
+    /// <summary>地面判定用のTransform（プレイヤーの足元）</summary>
+    [SerializeField] private Transform groundCheck;
+
+    /// <summary>地面判定で判定対象とするレイヤー</summary>
+    [SerializeField] private LayerMask groundLayer;
+
+    #endregion
+
+
+    #region === 内部フィールド ===
+
+    /// <summary>プレイヤーの物理挙動を制御する Rigidbody2D</summary>
     private Rigidbody2D rb;
 
-    // 入力アクション（"Move"）
+    /// <summary>移動入力値（-1～1）</summary>
+    private float moveInput;
+
+    /// <summary>地上での移動速度（characterDataから取得）</summary>
+    private float moveSpeed;
+
+    /// <summary>接地判定用の半径（OverlapCircleなどの判定範囲）</summary>
+    private float groundCheckRadius = 0.5f;
+
+    /// <summary>現在プレイヤーが地面に接地しているかのフラグ</summary>
+    private bool isGrounded;
+
+    /// <summary>前フレームでの接地状態（状態変化の検知に使用）</summary>
+    private bool wasGrounded = false;
+
+    /// <summary>角にハマった際に自動ジャンプするための上方向力</summary>
+    private float jumpPower = 3.0f;
+
+    /// <summary>現在接触している地面のカスタムタイル（接地判定時に更新）</summary>
+    private CustomTile currentGroundTile;
+
+    /// <summary>移動入力アクション（Input Systemの"Move"）</summary>
     private InputAction moveAction;
 
     #endregion
 
 
-    #region 移動関連
-
-    // 地上での左右移動スピード
-    private float moveSpeed;
-
-    // プレイヤーの左右入力値（-1 ～ 1）
-    private float moveInput;
-
-    #endregion
-
-
-    #region 接地判定関連
-
-    [Header("Ground Check Settings")]
-
-    // 地面チェック用の基準点（プレイヤー足元）
-    [SerializeField] private Transform groundCheck;
-
-    // 地面と判定するレイヤー（LayerMask）
-    [SerializeField] private LayerMask groundLayer;
-
-    // 接地判定に使用する円の半径（OverlapCircle用）
-    private float groundCheckRadius = 0.5f;
-
-    // 現在プレイヤーが地面に接地しているかどうか
-    private bool isGrounded;
-
-    // 前のフレームでの接地状態
-    private bool wasGrounded = false;
-
-    // 角にハマった際に自動ジャンプするための上方向力
-    private float jumpPower = 3.0f;
+    #region === Unityイベントメソッド ===
 
     /// <summary>
-    /// プレイヤーが現在地面に接しているかを取得（外部読み取り専用）
+    /// コンポーネント初期化処理
     /// </summary>
-    public bool IsGrounded => isGrounded;
-
-    #endregion
-
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Input System から "Move" アクションを取得
+        // Input SystemからMoveアクションを取得して有効化
         moveAction = InputSystem.actions.FindAction("Move");
-        moveAction?.Enable(); // 入力受付を有効化
+        moveAction?.Enable();
 
-        // characterData から moveSpeedを取得
+        // ステータスから移動速度を取得
         moveSpeed = characterData.moveSpeed;
     }
 
+    /// <summary>
+    /// 毎フレームの入力取得と接地判定、アニメーション制御
+    /// </summary>
     private void Update()
     {
-        // 入力の取得（A/Dキーや左スティックによる水平方向の入力）
+        // 水平方向の移動入力を取得（-1から1）
         moveInput = moveAction?.ReadValue<Vector2>().x ?? 0f;
 
-        // 接地判定を実施
+        // 接地判定を実施（Raycastで足元をチェック）
         isGrounded = CheckGrounded();
 
-        // 接地状態の変化をログ出力
+        // 接地状態が変化したらログを出す（デバッグ用）
         if (isGrounded != wasGrounded)
         {
             Debug.Log("接地状態が変化: isGrounded = " + isGrounded);
             wasGrounded = isGrounded;
         }
 
-        // ワイヤーに接続中は移動アニメーション停止
+        // ワイヤー接続中は移動アニメーション停止、そうでなければ入力に応じて更新
         if (wireActionScript.IsConnected)
         {
             animatorController?.ResetMoveAnimation(moveInput);
@@ -111,44 +110,97 @@ public class PlayerMove : MonoBehaviour
     }
 
     /// <summary>
-    /// 接地状態を判定するためのメソッド
-    /// Raycastで下方向に線を飛ばし、地面との衝突を確認する
-    /// </summary>
-    /// <returns>地面に接しているかどうか</returns>
-    private bool CheckGrounded()
-    {
-        Vector3 checkPos = groundCheck.position;
-
-        // 下方向にRaycastを飛ばし、一定距離内で地面レイヤーに当たるか調査
-        RaycastHit2D hit = Physics2D.Raycast(checkPos, Vector2.down, groundCheckRadius, groundLayer);
-
-        // 当たっていて、Tilemapが存在する場合、地面と見なす
-        return hit.collider != null && hit.collider.GetComponent<Tilemap>() != null;
-    }
-
-    /// <summary>
-    /// 物理演算の処理（FixedUpdateは一定間隔で呼ばれる）
+    /// 物理演算更新（一定間隔で呼ばれる）
+    /// 移動処理やジャンプの補助をここで実行
     /// </summary>
     private void FixedUpdate()
     {
-        // ダメージアニメ再生中、またはワイヤー接続中なら移動禁止
+        // ダメージアニメ再生中またはワイヤー接続中は移動不可にする
         if (animatorController.IsDamagePlaying || wireActionScript.IsConnected)
         {
             return;
         }
 
-        // 接地していて、かつワイヤーに接続されていないときのみ移動可能
         if (isGrounded && !wireActionScript.IsConnected)
         {
-            // 左右移動を反映（Y方向の速度は保持）
+            // linearVelocityを使って速度を設定（Y方向は保持）
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
         }
 
         if (!isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f && moveInput != 0)
         {
-            // 角にハマってるようなときに自動で小ジャンプ
+            // 角ハマり対策の自動ジャンプ
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, jumpPower);
         }
-
     }
+
+
+    #endregion
+
+
+    #region === 接地判定関連メソッド ===
+
+    /// <summary>
+    /// Raycastを使ってプレイヤー足元の地面を判定し、地面に接しているかを返す。
+    /// また接触しているカスタムタイルを更新する。
+    /// </summary>
+    /// <returns>地面に接地していればtrue、そうでなければfalse</returns>
+    private bool CheckGrounded()
+    {
+        Vector3 checkPos = groundCheck.position;
+
+        // 下方向にRaycastを飛ばして地面レイヤーに当たるか判定
+        RaycastHit2D hit = Physics2D.Raycast(checkPos, Vector2.down, groundCheckRadius, groundLayer);
+
+        if (hit.collider != null)
+        {
+            // Tilemapを取得し、当たったポイントのタイル情報を取得する
+            Tilemap tilemap = hit.collider.GetComponent<Tilemap>();
+
+            if (tilemap != null)
+            {
+                // ワールド座標をタイル座標に変換
+                Vector3Int cell = tilemap.WorldToCell(hit.point);
+
+                // タイルを取得し、CustomTileかどうか判定
+                TileBase tile = tilemap.GetTile(cell);
+                if (tile is CustomTile customTile)
+                {
+                    currentGroundTile = customTile;
+                }
+                else
+                {
+                    currentGroundTile = null;
+                }
+
+                return true;
+            }
+        }
+
+        currentGroundTile = null;
+        return false;
+    }
+
+    #endregion
+
+
+    #region === プロパティ（外部参照用） ===
+
+    /// <summary>
+    /// 現在接触しているタイルの種類（地面の種類を判別可能）
+    /// nullの場合は地面なし
+    /// </summary>
+    public CustomTile.TileType? CurrentGroundType => currentGroundTile?.tileType;
+
+    /// <summary>
+    /// 現在接触しているタイルのインスタンス
+    /// </summary>
+    public CustomTile CurrentGroundTile => currentGroundTile;
+
+    /// <summary>
+    /// プレイヤーが現在地面に接地しているかどうか
+    /// </summary>
+    public bool IsGrounded => isGrounded;
+
+    #endregion
 }
