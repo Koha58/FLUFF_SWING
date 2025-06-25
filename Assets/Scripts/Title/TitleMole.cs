@@ -11,13 +11,13 @@ public class Mole : MonoBehaviour
 
     void Start()
     {
-        {
+        
             GetComponent<Animator>().Play("TitleMole");
 
 
             // ˆê’èŠÔŒã‚É©“®‚ÅÁ‚¦‚é
             Destroy(gameObject, lifeTime);
-        }
+        
     }
     void OnDestroy()
     {
