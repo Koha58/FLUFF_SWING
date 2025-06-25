@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   usesMove: 1
   usesAttack: 0
+  usesCut: 0
   usesDead: 0
   moveState: {fileID: 11400000, guid: eda2b95509b1d5b4eaad95c4a08505dc, type: 2}
   attackState: {fileID: 11400000, guid: 16f694a6c5a9795499cc51e47647f18e, type: 2}
+  cutState: {fileID: 11400000, guid: c9008611b3c17a549a889287d72ae0c5, type: 2}
   deadState: {fileID: 11400000, guid: 99ab2032d1bd02940b55d386bc483223, type: 2}
