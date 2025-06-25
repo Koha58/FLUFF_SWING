@@ -173,7 +173,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      pink_14_0: 1819556008697873154
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
