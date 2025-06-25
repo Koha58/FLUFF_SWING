@@ -7,7 +7,7 @@ public class MoleSpawnController : MonoBehaviour
 {
     public GameObject molePrefab;
     public float spawnInterval = 3f;
-    public float cameraAheadOffset = 5f; // カメラより少し前でも出していい距離
+    public float cameraAheadOffset = 15f; // カメラより少し前でも出していい距離
 
     private Camera mainCamera;
 
@@ -28,18 +28,22 @@ public class MoleSpawnController : MonoBehaviour
 
     void TrySpawnMoleInCameraView()
     {
+
         // カメラのビュー内のRectを取得
         Vector3 camPos = mainCamera.transform.position;
+
         float height = 2f * mainCamera.orthographicSize;
         float width = height * mainCamera.aspect;
 
         // カメラ前方を含めた矩形領域
         Rect spawnRect = new Rect(
-            camPos.x - width / 2f,
-            camPos.y - height / 2f,
+            camPos.x - width / 2,
+            camPos.y - height / 2,
             width + cameraAheadOffset,
             height
         );
+
+        Debug.Log($"Camera Rect: Pos({spawnRect.x}, {spawnRect.y}), Size({spawnRect.width}, {spawnRect.height})");
 
         // 画面内にあるTilemapたちを調べる
         MoleSpawnPoint[] allSpawnPoints = Object.FindObjectsByType<MoleSpawnPoint>(FindObjectsSortMode.None);
@@ -47,23 +51,39 @@ public class MoleSpawnController : MonoBehaviour
 
         foreach (var point in allSpawnPoints)
         {
-            Vector3 pos = point.transform.position;
+            visiblePoints.Add(point); // 強制的に全部通す
+            /*Vector3 pos = point.transform.position;
+            bool isInside = spawnRect.Contains(new Vector2(pos.x, pos.y));
+            Debug.Log($"SpawnPoint {point.name}: pos={pos}, inCamera={isInside}");
 
-            if (!point.isOccupied && spawnRect.Contains(new Vector2(pos.x, pos.y)))
+            if (!point.isOccupied && isInside)
             {
                 visiblePoints.Add(point);
-            }
+            }*/
         }
+
+        Debug.Log("Visible spawn points: " + visiblePoints.Count);
+
 
         if (visiblePoints.Count > 0)
         {
             MoleSpawnPoint selected = visiblePoints[Random.Range(0, visiblePoints.Count)];
-            selected.isOccupied = true; // 使用中にマーク
-
             GameObject mole = Instantiate(molePrefab, selected.transform.position, Quaternion.identity);
 
             // Mole 側で spawnPoint を記憶
-            mole.GetComponent<Mole>().mySpawnPoint = selected;
+            Mole moleScript = mole.GetComponent<Mole>();
+            if (moleScript != null)
+            {
+                moleScript.mySpawnPoint = selected;
+                selected.isOccupied = true;
+                Debug.Log("モグラ生成成功！");
+            }
+            else
+            {
+                Debug.LogError("Moleスクリプトがモグラに付いてない！");
+            }
+
+
         }
 
     }
