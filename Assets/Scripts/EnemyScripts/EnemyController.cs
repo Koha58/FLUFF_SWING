@@ -1,4 +1,3 @@
-using UnityEditor.U2D.Animation;
 using UnityEngine;
 
 /// <summary>
@@ -51,6 +50,8 @@ public class EnemyController : MonoBehaviour, IDamageable
 
     /// <summary>パトロール方向（1:右, -1:左）</summary>
     private int patrolDirection = -1;
+
+    private WireActionScript wireToCut; // ★ Wireを一時保持する
 
     #endregion
 
@@ -219,9 +220,13 @@ public class EnemyController : MonoBehaviour, IDamageable
             {
                 // ワイヤーの Player を取得して CutWire を呼ぶ
                 var player = collision.GetComponentInParent<WireActionScript>();
+
                 if (player != null)
                 {
-                    player.CutWire();
+                    wireToCut = player;  // ← Wireを覚えておく！
+
+                    // 攻撃ステートに遷移
+                    stateMachine.ChangeState(stateMachineSO.cutState);
                 }
             }
         }
@@ -303,8 +308,26 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     public void SwitchToAttack()
     {
+        // 攻撃中は移動無効
+        DisableMovementByAnimation();
+
         // 攻撃ステートに遷移
         stateMachine.ChangeState(stateMachineSO.attackState);
+    }
+
+    /// <summary>
+    /// 攻撃アニメーション終了時に呼ばれる
+    /// </summary>
+    public void OnAttackAnimationEnd()
+    {
+        EnableMovementByAnimation();  // 移動無効を解除
+        SwitchToMove();               // ステートを移動に戻す
+                                      // Wireがあれば切る
+        if (wireToCut != null)
+        {
+            wireToCut.CutWire();
+            wireToCut = null;  // 忘れずクリア！
+        }
     }
 
     /// <summary>

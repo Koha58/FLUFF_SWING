@@ -16,6 +16,8 @@ public class EnemyAnimationController : MonoBehaviour
     [SerializeField] private bool usesAttack = false;  // 攻撃アニメーションを使用するか
     [SerializeField] private bool usesDead = false;    // 死亡アニメーションを使用するか
 
+    private bool canUseMove = false; // Attack が呼ばれたら true にする
+
     private void Awake()
     {
         // 使用するアニメーションに対応したパラメータ名をハッシュ化（高速アクセス用）
@@ -28,10 +30,27 @@ public class EnemyAnimationController : MonoBehaviour
     }
 
     /// <summary>
+    /// 全てのアニメーション状態をリセットする
+    /// </summary>
+    private void ResetAnimationStates()
+    {
+        if (usesMove && moveParamHash != 0)
+            animator.SetBool(moveParamHash, false);
+        if (usesAttack && attackParamHash != 0)
+            animator.SetBool(attackParamHash, false);
+        // DeadはTriggerなので無効化しない
+    }
+
+    /// <summary>
     /// 移動アニメーションを開始する
     /// </summary>
     public void PlayMoveAnimation()
     {
+        // Attack呼ばれるまで無効
+        if (!usesMove || !canUseMove) return;
+
+        ResetAnimationStates();
+
         if (usesMove)
             animator.SetBool(moveParamHash, true);
     }
@@ -50,8 +69,15 @@ public class EnemyAnimationController : MonoBehaviour
     /// </summary>
     public void PlayAttackAnimation()
     {
+        if (!usesAttack) return;
+
+        ResetAnimationStates();
+
         if (usesAttack)
             animator.SetBool(attackParamHash, true);
+
+        // Attackを呼んだので以降Moveを有効にする
+        canUseMove = true;
     }
 
     /// <summary>
@@ -68,6 +94,8 @@ public class EnemyAnimationController : MonoBehaviour
     /// </summary>
     public void PlayDeadAnimation()
     {
+        ResetAnimationStates();
+
         if (usesDead)
             animator.SetTrigger(deadParamHash);
     }
