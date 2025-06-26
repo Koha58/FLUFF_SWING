@@ -331,6 +331,7 @@ public class WireActionScript : MonoBehaviour
 
         // ワイヤー接続のためのDistanceJoint2Dを構成
         distanceJoint.enabled = false; // 一度無効化してから設定
+        distanceJoint.autoConfigureConnectedAnchor = false; // ← ★必須：自動設定を無効化！
         distanceJoint.connectedBody = null; // 静的な位置接続にするためBodyは指定しない
         distanceJoint.connectedAnchor = needlePivotWorldPos; // 接続先のワールド座標
         distanceJoint.maxDistanceOnly = true; // 最大距離を超えないように制限（バネ的に伸びない）
