@@ -78,7 +78,7 @@ public class PlayerAnimatorController : MonoBehaviour
         if (!force && _currentState == newState) return;
 
         // 被弾中は他状態を許さない
-        if (!force && _currentState == PlayerState.Damage || !force && _currentState == PlayerState.Goal) return;
+        if (!force && _currentState == PlayerState.Damage) return;
 
         var oldState = _currentState;
         _currentState = newState;
@@ -500,23 +500,6 @@ public class PlayerAnimatorController : MonoBehaviour
 
         // Damage 終了後、強制的に Idle に遷移させる
         SetPlayerState(PlayerState.Idle, force: true);
-    }
-
-    /// <summary>
-    /// ダメージのアニメーションを再生する。
-    /// プレイヤーの向きを指定方向に合わせる。
-    /// </summary>
-    /// <param name="direction">プレイヤーの向き（X方向：-1または1）</param>
-    public void PlayGoalAnimation(float direction)
-    {
-        // Animator が設定されていない場合はエラーを出す
-        if (_animator == null)
-        {
-            Debug.LogError("animatorController is NULL!");
-        }
-
-        // 状態を Goal に遷移させる（向きも反映）
-        SetPlayerState(PlayerState.Goal, direction);
     }
 
     /// <summary>

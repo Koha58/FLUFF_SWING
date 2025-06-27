@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+
 public class MoleSpawnController : MonoBehaviour
 {
     public GameObject molePrefab;
