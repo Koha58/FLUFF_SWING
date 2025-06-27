@@ -23,9 +23,10 @@ public class CameraFollowScript : MonoBehaviour
     public float horizontalOffset = 2f;
 
     /// <summary>
-    /// スムージングの時間(数が大きいほどゆっくり移動)
+    /// スムージングの時間
+    /// (数が大きいほどゆっくり移動)
     /// </summary>
-    public float smoothTime = 0.3f;
+    public float smoothTime = 0.5f;
 
     /// <summary>
     /// SmoothDamp用
@@ -39,9 +40,9 @@ public class CameraFollowScript : MonoBehaviour
 
     /// <summary>
     /// 遅延の持続時間(秒)
-    /// 調整可
+    /// (数が大きいほど遅延時間が長くなる)
     /// </summary>
-    private float delayDuration = 0.5f;
+    private float delayDuration = 0.3f;
 
     /// <summary>
     /// 遅延タイマー(0未満なら未使用)
@@ -74,7 +75,7 @@ public class CameraFollowScript : MonoBehaviour
             Vector2 wirePos = wireActionScript.HookedPosition;
 
             targetX = wirePos.x;
-            targetY = wirePos.y - 0.3f;
+            targetY = wirePos.y-1;
         }
         // ワイヤー不使用時
         else

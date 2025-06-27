@@ -17,11 +17,9 @@ public class BackGroundMover : MonoBehaviour
     private Transform playerTransform;
 
     // 背景をスクロールさせる速さ(数値が大きいほど早く移動)
-    [SerializeField]
     private Vector2 m_offsetSpeed = new Vector2(0.01f, 0f);
 
     // 加減速にかける時間（秒）
-    [SerializeField]
     private float acceltionTime = 0.3f;
 
     private Vector2 currentOffset = Vector2.zero;
