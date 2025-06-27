@@ -27,6 +27,12 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     [SerializeField] private PlayerAnimatorController animatorController;
 
     /// <summary>
+    /// プレイヤーのライフUI表示用スクリプト
+    /// （HPに応じてハートを表示）
+    /// </summary>
+    [SerializeField] private PlayerHealthUI healthUI;
+
+    /// <summary>
     /// 爆弾Prefab（Inspectorでセット）
     /// </summary>
     [SerializeField] private GameObject bombPrefab;
@@ -77,6 +83,9 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         // このオブジェクトのSpriteRendererコンポーネントを取得してキャッシュする
         // → 無敵時の点滅表示を制御するために使用
         spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // UI初期化
+        healthUI?.SetMaxHealth(currentHP);
     }
 
 
@@ -260,6 +269,9 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         float direction = Mathf.Sign(transform.localScale.x);
         animatorController?.PlayDamageAnimation(direction);
 
+        // UI更新
+        healthUI?.UpdateHealth(currentHP);
+
         if (currentHP <= 0)
         {
             OnDead();
@@ -278,7 +290,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     private void OnDead()
     {
         Debug.Log("Player died.");
-        // TODO: ゲームオーバー画面の表示やリスポーン処理などをここに実装
+        GameManager.Instance.OnPlayerDead();
     }
 
 

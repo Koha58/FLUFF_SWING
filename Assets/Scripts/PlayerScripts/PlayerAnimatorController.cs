@@ -77,6 +77,13 @@ public class PlayerAnimatorController : MonoBehaviour
         // 同じ状態でforce=falseなら何もしない
         if (!force && _currentState == newState) return;
 
+        if (_currentState == PlayerState.Goal && newState != PlayerState.Goal)
+        {
+            // Goalアニメーションが終わったらIdleに遷移
+            StartCoroutine(WaitForGoalAnimationToEnd());
+            return;
+        }
+
         // 被弾中は他状態を許さない
         if (!force && _currentState == PlayerState.Damage || !force && _currentState == PlayerState.Goal) return;
 
@@ -517,6 +524,18 @@ public class PlayerAnimatorController : MonoBehaviour
 
         // 状態を Goal に遷移させる（向きも反映）
         SetPlayerState(PlayerState.Goal, direction);
+    }
+
+    private IEnumerator WaitForGoalAnimationToEnd()
+    {
+        // Goal状態のアニメーションの長さが必要
+        float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
+
+        // アニメーションが終わるまで待機
+        yield return new WaitForSeconds(animationLength);
+
+        // Goalアニメーションが終わったらIdleに遷移
+        SetPlayerState(PlayerState.Idle, 0f, 0f, true);
     }
 
     /// <summary>
