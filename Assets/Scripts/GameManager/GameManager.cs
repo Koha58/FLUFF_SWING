@@ -8,16 +8,32 @@ public class GameManager : MonoBehaviour
 {
     #region Inspector Settings
 
-    [Header("UI References")]
+    // -------------------------------
+    // UI関連オブジェクトと時間制御設定
+    // ゲーム結果（クリア or ゲームオーバー）の表示や時間停止処理に使用
+    // -------------------------------
+
+    // 結果全体を覆うパネル
     [SerializeField] private GameObject resultPanel;
+
+    // ステージクリア時に表示するUI
     [SerializeField] private GameObject clearUI;
+
+    // ゲームオーバー時に表示するUI
     [SerializeField] private GameObject gameOverUI;
 
+    // ゲーム終了後にUIを表示するまでの待機時間（秒）
     private float resultDelay = 2.0f;
+
+    // UI表示後にゲームを一時停止するまでの遅延時間（秒）
     private float pauseDelayAfterResult = 0.5f;
 
+    // 通常のゲーム進行速度（Time.timeScale = 1）
     private float normalTimeScale = 1.0f;
+
+    // 一時停止時のゲーム進行速度（Time.timeScale = 0）
     private float pausedTimeScale = 0.0f;
+
 
     #endregion
 
