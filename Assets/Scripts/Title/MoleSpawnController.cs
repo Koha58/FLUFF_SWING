@@ -52,14 +52,14 @@ public class MoleSpawnController : MonoBehaviour
         foreach (var point in allSpawnPoints)
         {
             visiblePoints.Add(point); // ã≠êßìIÇ…ëSïîí Ç∑
-            /*Vector3 pos = point.transform.position;
+            Vector3 pos = point.transform.position;
             bool isInside = spawnRect.Contains(new Vector2(pos.x, pos.y));
             Debug.Log($"SpawnPoint {point.name}: pos={pos}, inCamera={isInside}");
 
             if (!point.isOccupied && isInside)
             {
                 visiblePoints.Add(point);
-            }*/
+            }
         }
 
         Debug.Log("Visible spawn points: " + visiblePoints.Count);
