@@ -34,6 +34,23 @@ public class EnemyThrowAttack : MonoBehaviour
     /// </summary>
     private float maxThrowForce = 8f;
 
+    private void Start()
+    {
+        // playerが未設定なら、"Player" タグ付きオブジェクトを探す
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogWarning("Player tag のオブジェクトが見つかりません！");
+            }
+        }
+    }
+
     /// <summary>
     /// プレイヤーのTransformと敵のステータスをセットする初期化メソッド。
     /// </summary>
