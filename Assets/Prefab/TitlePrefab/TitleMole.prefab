@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3300434901747026398}
   - component: {fileID: 6278069813797132419}
   m_Layer: 0
-  m_Name: Mole
+  m_Name: TitleMole
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
