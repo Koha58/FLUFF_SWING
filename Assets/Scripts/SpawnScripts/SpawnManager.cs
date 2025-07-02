@@ -23,23 +23,34 @@ public class SpawnManager : MonoBehaviour
     /// <summary>
     /// ゲーム開始時にスポーン処理を実行。
     /// </summary>
-    void Start()
+void Start()
+{
+    foreach (var entry in spawnData.entries)
     {
-        foreach (var entry in spawnData.entries)
+        switch (entry.type.ToLower())
         {
-            // Resources フォルダからプレハブをロード
-            GameObject prefab = Resources.Load<GameObject>(entry.prefabName);
-            if (prefab == null)
-            {
-                Debug.LogWarning($"Prefabが見つかりません: {entry.prefabName}");
-                continue;
-            }
+            case "enemy":
+                string enemyName = System.IO.Path.GetFileName(entry.prefabName);
+                var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
+                if (enemy == null)
+                {
+                    Debug.LogWarning($"Enemy取得失敗: {entry.prefabName}");
+                }
+                break;
 
-            // プレハブを指定された位置に生成
-            GameObject obj = Instantiate(prefab, entry.position, Quaternion.identity, spawnParent);
+            case "coin":
+                var coin = CoinPoolManager.Instance.GetCoin(entry.position);
+                if (coin == null)
+                {
+                    Debug.LogWarning($"Coin取得失敗: {entry.prefabName}");
+                }
+                break;
 
-            // TODO: 必要に応じて type に応じた初期化処理を追加可能
-            // 例: if (entry.type == "Enemy") { ... }
+            default:
+                Debug.LogWarning($"未対応のタイプ: {entry.type}");
+                break;
         }
     }
+}
+
 }

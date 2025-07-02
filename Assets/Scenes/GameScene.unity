@@ -3325,19 +3325,19 @@ MonoBehaviour:
   enemyPrefabs:
   - enemyName: Mole
     prefab: {fileID: 7948004360844435560, guid: bce53b3cc2c7f2d4b93343b10af7ce0f, type: 3}
-    initialPoolSize: 5
+    initialPoolSize: 0
   - enemyName: BlueRabbit
     prefab: {fileID: 6801323078340003004, guid: f5d3c5fe0c3b83c45be2befcdc8b436e, type: 3}
-    initialPoolSize: 5
+    initialPoolSize: 0
   - enemyName: YellowRabbit
     prefab: {fileID: 2594962355315163488, guid: dbde3b32e2e02834784a83c52bf7e53a, type: 3}
-    initialPoolSize: 5
+    initialPoolSize: 0
   - enemyName: Bird
     prefab: {fileID: 231348037153288311, guid: b71d602647d6d8446bd3a5f91c46ba72, type: 3}
-    initialPoolSize: 5
+    initialPoolSize: 0
   - enemyName: RedPanda
     prefab: {fileID: 2618454118121127242, guid: cab1715eeaed9064c8cb2ff59151711a, type: 3}
-    initialPoolSize: 5
+    initialPoolSize: 0
 --- !u!4 &1669256207
 Transform:
   m_ObjectHideFlags: 0
@@ -3820,6 +3820,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: e7ddf9820dd1b5d429a11bb4c22cf1c3, type: 2}
+    - target: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.93
