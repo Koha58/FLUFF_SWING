@@ -23,34 +23,34 @@ public class SpawnManager : MonoBehaviour
     /// <summary>
     /// ゲーム開始時にスポーン処理を実行。
     /// </summary>
-void Start()
-{
-    foreach (var entry in spawnData.entries)
+    void Start()
     {
-        switch (entry.type.ToLower())
+        foreach (var entry in spawnData.entries)
         {
-            case "enemy":
-                string enemyName = System.IO.Path.GetFileName(entry.prefabName);
-                var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
-                if (enemy == null)
-                {
-                    Debug.LogWarning($"Enemy取得失敗: {entry.prefabName}");
-                }
-                break;
+            switch (entry.type.ToLower())
+            {
+                case "enemy":
+                    string enemyName = System.IO.Path.GetFileName(entry.prefabName);
+                    var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
+                    if (enemy == null)
+                    {
+                        Debug.LogWarning($"Enemy取得失敗: {entry.prefabName}");
+                    }
+                    break;
 
-            case "coin":
-                var coin = CoinPoolManager.Instance.GetCoin(entry.position);
-                if (coin == null)
-                {
-                    Debug.LogWarning($"Coin取得失敗: {entry.prefabName}");
-                }
-                break;
+                case "coin":
+                    var coin = CoinPoolManager.Instance.GetCoin(entry.position);
+                    if (coin == null)
+                    {
+                        Debug.LogWarning($"Coin取得失敗: {entry.prefabName}");
+                    }
+                    break;
 
-            default:
-                Debug.LogWarning($"未対応のタイプ: {entry.type}");
-                break;
+                default:
+                    Debug.LogWarning($"未対応のタイプ: {entry.type}");
+                    break;
+            }
         }
     }
-}
 
 }

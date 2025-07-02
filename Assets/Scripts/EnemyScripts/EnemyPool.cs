@@ -34,7 +34,6 @@ public class EnemyPool : MonoBehaviour
 
     private void Awake()
     {
-        // すでにInstanceが存在したらこのオブジェクトを破棄し、唯一のInstanceを維持する
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -42,20 +41,9 @@ public class EnemyPool : MonoBehaviour
         }
         Instance = this;
 
-        // 各敵の種類ごとにプールを作成し、初期数分インスタンスを生成して非アクティブにする
-        foreach (var entry in enemyPrefabs)
-        {
-            Queue<EnemyController> queue = new Queue<EnemyController>();
-            for (int i = 0; i < entry.initialPoolSize; i++)
-            {
-                var enemy = Instantiate(entry.prefab, transform);
-                enemy.gameObject.SetActive(false);  // 初期は非アクティブで待機
-                enemy.name = entry.enemyName;       // 敵の名前を設定（管理しやすくするため）
-                queue.Enqueue(enemy);
-            }
-            poolDict[entry.enemyName] = queue;
-        }
+        // 初期化はしない。必要になった時に初回生成する（遅延生成）
     }
+
 
     /// <summary>
     /// 指定した敵の種類のオブジェクトをプールから取得し、指定位置に配置して有効化する
@@ -65,11 +53,17 @@ public class EnemyPool : MonoBehaviour
     /// <returns>取得したEnemyController</returns>
     public EnemyController GetFromPool(string enemyName, Vector3 position)
     {
-        // プールに指定の敵種類がない場合はエラーを出してnullを返す
+        // 存在しないなら新規でプールを作成（遅延生成）
         if (!poolDict.ContainsKey(enemyName))
         {
-            Debug.LogError($"EnemyPoolに'{enemyName}'のプールが存在しません！");
-            return null;
+            var entry = enemyPrefabs.Find(e => e.enemyName == enemyName);
+            if (entry == null)
+            {
+                Debug.LogError($"EnemyPrefabEntryが見つかりません: {enemyName}");
+                return null;
+            }
+
+            poolDict[enemyName] = new Queue<EnemyController>();
         }
 
         var queue = poolDict[enemyName];
@@ -77,12 +71,10 @@ public class EnemyPool : MonoBehaviour
 
         if (queue.Count > 0)
         {
-            // キューに空きがあればそこから取得
             enemy = queue.Dequeue();
         }
         else
         {
-            // キューが空の場合は新たに生成する
             var entry = enemyPrefabs.Find(e => e.enemyName == enemyName);
             if (entry == null)
             {
@@ -93,11 +85,11 @@ public class EnemyPool : MonoBehaviour
             enemy.name = entry.enemyName;
         }
 
-        // 位置を設定し有効化して返す
         enemy.transform.position = position;
         enemy.gameObject.SetActive(true);
         return enemy;
     }
+
 
     /// <summary>
     /// 敵オブジェクトをプールに戻し、非アクティブにする
