@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: 5737a114671bc6149971296abe886a96
+guid: 3aa88ccc813609444acbbc5f8973f9d3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1275828784427328326
-    second: wave (4)_0
+      213: 4959610329666554722
+    second: goalR_2_0
+  - first:
+      213: -2444895019902991400
+    second: goalR_2_1
+  - first:
+      213: -6613016548035178824
+    second: goalR_2_2
+  - first:
+      213: 8408307385267488126
+    second: goalR_2_3
+  - first:
+      213: 1542346250878804407
+    second: goalR_2_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,13 +151,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: wave (4)_0
+      name: goalR_2_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 320
-        height: 320
+        x: 25
+        y: 305
+        width: 70
+        height: 70
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +166,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: abc9dfdea785b4ee0800000000000000
-      internalID: -1275828784427328326
+      spriteID: 26b0224515314d440800000000000000
+      internalID: 4959610329666554722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: goalR_2_1
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 2
+        width: 396
+        height: 486
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d38f89deecf11ed0800000000000000
+      internalID: -2444895019902991400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: goalR_2_2
+      rect:
+        serializedVersion: 2
+        x: 415
+        y: 305
+        width: 70
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8be4590ac78d934a0800000000000000
+      internalID: -6613016548035178824
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: goalR_2_3
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 205
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e75892d840f40b470800000000000000
+      internalID: 8408307385267488126
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: goalR_2_4
+      rect:
+        serializedVersion: 2
+        x: 435
+        y: 165
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b169445eb3876510800000000000000
+      internalID: 1542346250878804407
       vertices: []
       indices: 
       edges: []
@@ -173,8 +273,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      wave (4)_0: -1275828784427328326
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
