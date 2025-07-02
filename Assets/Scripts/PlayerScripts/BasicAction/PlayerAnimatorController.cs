@@ -600,7 +600,7 @@ public class PlayerAnimatorController : MonoBehaviour
             Vector3 scale = transform.localScale;
 
             // X軸の符号を入力の符号と逆にして左右反転（スプライトの向きを合わせる）
-            scale.x = -Mathf.Sign(moveInput) * Mathf.Abs(scale.x);
+            scale.x = Mathf.Sign(moveInput) * Mathf.Abs(scale.x);
 
             // スケールを適用
             transform.localScale = scale;
