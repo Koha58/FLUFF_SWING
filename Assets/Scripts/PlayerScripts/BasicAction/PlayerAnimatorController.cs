@@ -141,6 +141,7 @@ public class PlayerAnimatorController : MonoBehaviour
             case PlayerState.Damage:
                 // 【被弾】ダメージリアクションの速度
                 _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Damage);
+                StartCoroutine(ResetFromDamage(1.0f)); // 例：1秒後に解除
                 break;
 
             case PlayerState.Goal:
@@ -526,16 +527,43 @@ public class PlayerAnimatorController : MonoBehaviour
         SetPlayerState(PlayerState.Goal, direction);
     }
 
+    /// <summary>
+    /// ゴールアニメーションの再生が終了するまで待機し、
+    /// アニメーション終了後にプレイヤーの状態をIdleに遷移させる。
+    /// </summary>
+    /// <returns>アニメーションの再生を待機するためのコルーチン</returns>
     private IEnumerator WaitForGoalAnimationToEnd()
     {
-        // Goal状態のアニメーションの長さが必要
+        // Animatorの現在のステート（レイヤー0）のアニメーションの長さを取得
         float animationLength = _animator.GetCurrentAnimatorStateInfo(0).length;
 
-        // アニメーションが終わるまで待機
+        // アニメーションの再生が完了するまで待機
         yield return new WaitForSeconds(animationLength);
 
-        // Goalアニメーションが終わったらIdleに遷移
+        // アニメーションが終了したら、プレイヤーの状態をIdleに遷移させる
         SetPlayerState(PlayerState.Idle, 0f, 0f, true);
+    }
+
+    /// <summary>
+    /// ダメージアニメーションの再生後、指定された遅延時間を待ってから
+    /// プレイヤーの状態をIdleにリセットする。
+    /// </summary>
+    /// <param name="delay">待機する秒数（通常はダメージアニメーションの長さ）</param>
+    /// <returns>状態リセット処理を行うコルーチン</returns>
+    private IEnumerator ResetFromDamage(float delay)
+    {
+        // 指定された遅延時間だけ待機（ダメージアニメーションの再生時間など）
+        yield return new WaitForSeconds(delay);
+
+        // ダメージ再生中フラグを解除
+        IsDamagePlaying = false;
+
+        // 現在の状態がDamageであれば、Idle状態に戻す
+        // 向きはlocalScale.xによって判断（右向きなら1、左向きなら-1）
+        if (_currentState == PlayerState.Damage)
+        {
+            SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? 1f : -1f, 0f, true);
+        }
     }
 
     /// <summary>

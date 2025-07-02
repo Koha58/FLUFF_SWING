@@ -222,7 +222,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         if (direction != Mathf.Sign(transform.localScale.x))
         {
             Vector3 scale = transform.localScale;
-            scale.x = -scale.x;
             transform.localScale = scale;
         }
 
@@ -246,7 +245,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         if (bomb != null)
         {
             // 爆弾を指定方向に発射（左向きなら力を逆に）
-            bomb.Launch(-direction, throwForce, status.attack);
+            bomb.Launch(direction, throwForce, status.attack);
         }
     }
 
