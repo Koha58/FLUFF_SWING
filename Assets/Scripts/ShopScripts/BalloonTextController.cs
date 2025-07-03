@@ -9,70 +9,80 @@ using TMPro;
 /// </summary>
 public class BalloonTextController : MonoBehaviour
 {
-    // 吹き出し内のテキストコンポーネント
+    /// <summary>吹き出し内のテキスト表示コンポーネント</summary>
     private TextMeshProUGUI dialogueText;
-    // 表示したい全文テキスト
+
+    /// <summary>表示する全文テキスト</summary>
     private string fullText = "ボタンをライフに交換する？";
-    // タイピング速度（1文字あたりの待ち時間）
+
+    /// <summary>1文字表示の間隔（秒）</summary>
     private float typingSpeed = 0.05f;
 
-    // プレイヤーのTransform（距離計算用）
+    /// <summary>プレイヤーのTransform（位置取得用）</summary>
     private Transform player;
-    // 吹き出しを表示する最大距離
+
+    /// <summary>吹き出し表示の最大距離（3メートル）</summary>
     private float showDistance = 3.0f;
 
-    // キャラクター頭上へのオフセット位置
+    /// <summary>吹き出しの表示位置オフセット（頭上あたり）</summary>
     private Vector3 offset = new Vector3(0, 1.5f, 0);
-    // メインカメラ（吹き出しをカメラ方向に向けるため）
+
+    /// <summary>メインカメラ参照（吹き出しの回転制御用）</summary>
     private Camera mainCamera;
 
-    // 吹き出し用Canvasの参照
+    /// <summary>吹き出しCanvasコンポーネント</summary>
     private Canvas balloonCanvas;
 
-    // タイピングコルーチンの参照
+    /// <summary>テキストタイピング処理のCoroutine管理</summary>
     private Coroutine typingCoroutine;
 
-    // 吹き出し表示中かどうかのフラグ
-    private bool isDisplayed = false; 
+    /// <summary>吹き出しが現在表示中かどうかのフラグ</summary>
+    private bool isDisplayed = false;
 
-    /// <summary>
-    /// 初期化処理。
-    /// 子オブジェクトからCanvasとTextMeshProUGUIを取得し、
-    /// プレイヤーやカメラの参照も設定します。
-    /// 吹き出しは初期非表示にします。
-    /// </summary>
+    /// <summary>テキストが全文表示されたかどうかのフラグ</summary>
+    private bool isFullyDisplayed = false;
+
+    /// <summary>全文表示されたかどうかの公開プロパティ</summary>
+    public bool IsFullyDisplayed => isFullyDisplayed;
+
+    /// <summary>テキスト全文表示完了時に呼ばれるイベント</summary>
+    public event System.Action OnFullyDisplayed;
+
+
     void Start()
     {
-        // 子オブジェクトからCanvasを取得
+        // Canvasコンポーネントを取得（子オブジェクトから）
         balloonCanvas = GetComponentInChildren<Canvas>();
-        // 子オブジェクトからTextMeshProUGUIを取得
+
+        // TextMeshProUGUIコンポーネントを取得（子オブジェクトから）
         dialogueText = GetComponentInChildren<TextMeshProUGUI>();
 
-        // Canvasが存在しない場合はエラー表示して処理を停止
+        // Canvasが存在しない場合はエラーを出して処理停止
         if (balloonCanvas == null)
         {
-            Debug.LogError("吹き出しCanvasが見つかりません。子オブジェクトにCanvasを設置してください。");
+            Debug.LogError("吹き出しCanvasが見つかりません。");
             enabled = false;
             return;
         }
-        // TextMeshProUGUIが存在しない場合はエラー表示して処理を停止
+
+        // TextMeshProUGUIが存在しない場合はエラーを出して処理停止
         if (dialogueText == null)
         {
-            Debug.LogError("TextMeshProUGUIが見つかりません。子オブジェクトにTextMeshProUGUIを設置してください。");
+            Debug.LogError("TextMeshProUGUIが見つかりません。");
             enabled = false;
             return;
         }
 
-        // 初期状態は吹き出しを非表示にする
+        // 最初は吹き出しを非表示にする
         balloonCanvas.enabled = false;
 
-        // メインカメラが未設定ならシーン内のメインカメラを取得
+        // メインカメラの参照を取得
         if (mainCamera == null)
         {
             mainCamera = Camera.main;
         }
 
-        // プレイヤーオブジェクトをタグ「Player」から探してセット
+        // タグ「Player」が付いたオブジェクトのTransformを取得
         player = GameObject.FindWithTag("Player")?.transform;
         if (player == null)
         {
@@ -82,35 +92,29 @@ public class BalloonTextController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 毎フレーム呼び出される更新処理。
-    /// プレイヤーとの距離判定で吹き出しの表示/非表示を切り替え、
-    /// 表示中は吹き出しの位置をキャラクター頭上に固定し、
-    /// カメラ方向を向かせるBillboard処理を行います。
-    /// </summary>
     void Update()
     {
-        // プレイヤーとキャラクターの距離を計算
+        // プレイヤーとこのオブジェクトの距離を計算
         float distance = Vector3.Distance(transform.position, player.position);
 
-        // プレイヤーが近づいたら吹き出しを表示
+        // 距離内でまだ表示していなければ表示開始
         if (distance < showDistance && !isDisplayed)
         {
             ShowBalloon();
         }
-        // プレイヤーが遠ざかったら吹き出しを非表示
+        // 距離外になり表示中なら非表示にする
         else if (distance >= showDistance && isDisplayed)
         {
             HideBalloon();
         }
 
-        // 吹き出し表示中は毎フレーム吹き出しの位置と回転を調整
+        // 表示中は吹き出しの位置を頭上に設定し、
+        // カメラの方向を向くように回転を調整する
         if (isDisplayed)
         {
-            // キャラクターの頭上（offset分上）に吹き出しCanvasを移動
             balloonCanvas.transform.position = transform.position + offset;
 
-            // カメラに常に正面を向くように回転（Billboard効果）
+            // カメラ方向に常に正面を向くように回転
             balloonCanvas.transform.LookAt(
                 balloonCanvas.transform.position + mainCamera.transform.rotation * Vector3.forward,
                 mainCamera.transform.rotation * Vector3.up);
@@ -118,56 +122,64 @@ public class BalloonTextController : MonoBehaviour
     }
 
     /// <summary>
-    /// 吹き出しを表示し、テキストのタイピング表示を開始します。
-    /// 既にタイピング中なら停止してから再スタートします。
+    /// 吹き出しを表示し、テキストのタイピングを開始する
     /// </summary>
     private void ShowBalloon()
     {
-        isDisplayed = true;            // 表示中フラグを立てる
-        balloonCanvas.enabled = true;  // Canvasを表示状態にする
-        dialogueText.text = "";        // テキストを空に初期化
+        isDisplayed = true;
+        balloonCanvas.enabled = true;
+        dialogueText.text = "";
+        isFullyDisplayed = false;
 
-        // 既にタイピング中なら停止してから新たに開始
+        // もし前回のタイピング処理があれば停止する
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
         }
 
-        // タイピングを開始
+        // 新しくタイピング処理を開始
         typingCoroutine = StartCoroutine(TypeText());
     }
 
     /// <summary>
-    /// 吹き出しを非表示にし、タイピング表示を停止します。
+    /// 吹き出しを非表示にし、タイピング処理を停止する
     /// </summary>
     private void HideBalloon()
     {
-        isDisplayed = false;          // 表示中フラグを倒す
+        isDisplayed = false;
 
-        // タイピング中のコルーチンがあれば停止
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
             typingCoroutine = null;
         }
 
-        dialogueText.text = "";        // テキストをクリア
-        balloonCanvas.enabled = false; // Canvasを非表示にする
+        dialogueText.text = "";
+        balloonCanvas.enabled = false;
+        isFullyDisplayed = false;
     }
 
     /// <summary>
-    /// fullTextを1文字ずつタイピング風に表示するコルーチン。
+    /// テキストを1文字ずつ表示していくコルーチン
+    /// 表示完了後、OnFullyDisplayedイベントを呼び出す
     /// </summary>
     private IEnumerator TypeText()
     {
-        // 0文字から全文字まで順に表示
+        // 0文字目から全文字分ループ
         for (int i = 0; i <= fullText.Length; i++)
         {
-            // 部分文字列を切り出してテキストにセット
+            // 0文字目からi文字目までを切り出して表示
             dialogueText.text = fullText.Substring(0, i);
 
-            // typingSpeed秒待つ（1文字表示する時間）
+            // 指定秒数待機
             yield return new WaitForSeconds(typingSpeed);
         }
+
+        // 全文表示完了フラグを立てる
+        isFullyDisplayed = true;
+
+        // 表示完了の通知イベントを呼び出す（nullチェック付き）
+        OnFullyDisplayed?.Invoke();
     }
+
 }
