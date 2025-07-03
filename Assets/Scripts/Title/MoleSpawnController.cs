@@ -43,8 +43,6 @@ public class MoleSpawnController : MonoBehaviour
             height
         );
 
-        Debug.Log($"Camera Rect: Pos({spawnRect.x}, {spawnRect.y}), Size({spawnRect.width}, {spawnRect.height})");
-
         // 画面内にあるTilemapたちを調べる
         MoleSpawnPoint[] allSpawnPoints = Object.FindObjectsByType<MoleSpawnPoint>(FindObjectsSortMode.None);
         List<MoleSpawnPoint> visiblePoints = new List<MoleSpawnPoint>();
@@ -70,20 +68,21 @@ public class MoleSpawnController : MonoBehaviour
             MoleSpawnPoint selected = visiblePoints[Random.Range(0, visiblePoints.Count)];
             GameObject mole = Instantiate(molePrefab, selected.transform.position, Quaternion.identity);
 
+            // 生成直後はAnimatorを無効化
+            Animator anim = mole.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.enabled = false;
+            }
+
             // Mole 側で spawnPoint を記憶
             Mole moleScript = mole.GetComponent<Mole>();
             if (moleScript != null)
             {
                 moleScript.mySpawnPoint = selected;
                 selected.isOccupied = true;
-                Debug.Log("モグラ生成成功！");
             }
-            else
-            {
-                Debug.LogError("Moleスクリプトがモグラに付いてない！");
-            }
-
-
+           
         }
 
     }

@@ -30,7 +30,7 @@ public class Plyerscrool : MonoBehaviour
         animator.SetFloat("scroll", horizontalSpeed);
 
         // スプライト反転（元の絵が左向きだから右に進むときはflipX = true）
-        spriteRenderer.flipX = rb.linearVelocity.x > 0;
+        spriteRenderer.flipX = rb.linearVelocity.x < 0;
 
     }
 }
