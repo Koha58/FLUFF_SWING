@@ -7,25 +7,22 @@ public class Mole : MonoBehaviour
 
     public MoleSpawnPoint mySpawnPoint;
 
+    private bool hasStarted = false;
+
 
     void Start()
     {
-        
-            GetComponent<Animator>().Play("TitleMole");
 
+        // Animatorは最初は無効化しておき、Updateで画面内に入ったら再生する
+        GetComponent<Animator>().enabled = false;
 
-            // 一定時間後に自動で消える
-            Destroy(gameObject, lifeTime);
-        
     }
-    public void Disappear()
+    void OnDestroy()
     {
         if (mySpawnPoint != null)
         {
             mySpawnPoint.isOccupied = false; // 破棄時に開放
         }
-
-        Destroy(gameObject);
     }
 
     private void Update()
@@ -35,7 +32,12 @@ public class Mole : MonoBehaviour
 
         if (onScreen && !GetComponent<Animator>().enabled)
         {
-            GetComponent<Animator>().enabled = true; // カメラに入った瞬間アニメ再生開始
+            var animator = GetComponent<Animator>();
+            animator.enabled = true;
+            animator.Play("TitleMole"); // アニメーション名を正確に
+
+            // Destroy をここで呼ぶことで、画面に入ってからlifeTime秒後に消える
+            Destroy(gameObject, lifeTime);
         }
     }
 }
