@@ -259,7 +259,6 @@ public class EnemyController : MonoBehaviour, IDamageable
         }
     }
 
-
     /// <summary>
     /// €–SŒãAƒv[ƒ‹‚Ö•Ô‹p
     /// </summary>
