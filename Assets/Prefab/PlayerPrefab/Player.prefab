@@ -722,6 +722,11 @@ MonoBehaviour:
   uiPanel: {fileID: 731030439221105263}
   npcBalloon: {fileID: 0}
   npcTransform: {fileID: 0}
+  balloonTextRectTransform: {fileID: 0}
+  playerHealthUI: {fileID: 0}
+  triggerDistance: 3
+  requiredCoinAmount: 5
+  restoreDelay: 3
 --- !u!1 &4337393497275992921
 GameObject:
   m_ObjectHideFlags: 0
@@ -734,6 +739,7 @@ GameObject:
   - component: {fileID: 5596918959233530252}
   - component: {fileID: 907404189621617455}
   - component: {fileID: 2962214720231109921}
+  - component: {fileID: 7083178830967141748}
   m_Layer: 6
   m_Name: NoButton
   m_TagString: Untagged
@@ -855,6 +861,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &7083178830967141748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4337393497275992921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e53d262f6f5678459db869164edfad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4760957649956905684
 GameObject:
   m_ObjectHideFlags: 0
@@ -1275,6 +1293,7 @@ GameObject:
   - component: {fileID: 3326935195182307433}
   - component: {fileID: 4637654864279150277}
   - component: {fileID: 7768512517668164793}
+  - component: {fileID: 2619466034325877247}
   m_Layer: 6
   m_Name: YesButton
   m_TagString: Untagged
@@ -1396,6 +1415,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2619466034325877247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6326955858000381978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e53d262f6f5678459db869164edfad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7286396634723726207
 GameObject:
   m_ObjectHideFlags: 0

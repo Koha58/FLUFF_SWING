@@ -4,30 +4,49 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// プレイヤーの攻撃入力を管理するクラス。
 /// Input Systemの"Attack"アクションを監視し、攻撃コマンドをPlayerAttackへ伝達する。
+/// 地面に接地している場合のみ攻撃が実行される。
 /// </summary>
 public class PlayerAttackInput : MonoBehaviour
 {
-    // 攻撃処理を担当するPlayerAttackコンポーネントの参照
+    /// <summary>攻撃処理を担当する PlayerAttack コンポーネント</summary>
     [SerializeField] private PlayerAttack playerAttack;
 
-    // Input Systemの"Attack"アクション
+    /// <summary>プレイヤーの接地状態を確認するための PlayerMove コンポーネント</summary>
+    [SerializeField] private PlayerMove playerMove;
+
+    /// <summary>攻撃入力アクション（Input Systemの"Attack"）</summary>
     private InputAction attackAction;
 
+    /// <summary>
+    /// 初期化処理（Input Systemからアクションを取得してイベント登録）
+    /// </summary>
     private void Awake()
     {
         // Input Systemから"Attack"アクションを取得
         attackAction = InputSystem.actions.FindAction("Attack");
+
         if (attackAction != null)
         {
-            // "Attack"アクションが実行されたときにPlayerAttackの攻撃処理を呼び出す
-            attackAction.performed += ctx => playerAttack.PerformAutoAttack();
+            // "Attack"入力がされたときのコールバックを登録
+            attackAction.performed += ctx =>
+            {
+                // 接地している場合のみ攻撃処理を実行
+                if (playerMove != null && playerMove.IsGrounded)
+                {
+                    playerAttack.PerformAutoAttack();
+                }
+                else
+                {
+                    Debug.Log("空中またはワイヤー中のため攻撃不可");
+                }
+            };
 
-            // 入力受付を有効化
+            // アクションを有効化
             attackAction.Enable();
         }
         else
         {
-            Debug.LogWarning("playerAttack is null");
+            Debug.LogWarning("Attackアクションが見つかりません");
         }
     }
 }
