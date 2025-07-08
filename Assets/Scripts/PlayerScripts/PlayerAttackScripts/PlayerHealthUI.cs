@@ -9,35 +9,30 @@ using UnityEngine.UI;
 /// </summary>
 public class PlayerHealthUI : MonoBehaviour
 {
-    /// <summary>
-    /// ハートのプレハブ（ImageなどのUI要素）
-    /// </summary>
+    // --- Inspectorで設定するプレハブ・UI要素 ---
+
+    // ハートのプレハブ（ImageなどのUI要素）
     [SerializeField] private GameObject heartPrefab;
 
-    /// <summary>
-    /// ハートを並べるPanel（HorizontalLayoutGroup などを使わない場合）
-    /// </summary>
+    // ハートを並べるPanel（HorizontalLayoutGroup などを使わない場合）
     [SerializeField] private RectTransform heartPanel;
 
-    /// <summary>
-    /// ハート同士の横の間隔（X軸）
-    /// </summary>
+    // --- ハート表示の位置調整用パラメータ ---
+
+    // ハート同士の横の間隔（X軸）
     private float heartSpacing = 70f;
 
-    /// <summary>
-    /// 最初のハートのX座標オフセット（パネルの中心からのずれ）
-    /// </summary>
+    // 最初のハートのX座標オフセット（パネルの中心からのずれ）
     private float startOffsetX = 100f;
 
-    /// <summary>
-    /// ハートのY座標（位置を固定したい場合に使用）
-    /// </summary>
+    // ハートのY座標（位置を固定したい場合に使用）
     private float startOffsetY = -65f;
 
-    /// <summary>
-    /// 現在表示中のハートアイコンのリスト
-    /// </summary>
+    // --- ハート表示の管理用 ---
+
+    // 現在表示中のハートアイコンのリスト
     private List<GameObject> heartIcons = new List<GameObject>();
+
 
     /// <summary>
     /// 最大HPに応じてハートアイコンを初期化する。

@@ -222,6 +222,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         if (direction != Mathf.Sign(transform.localScale.x))
         {
             Vector3 scale = transform.localScale;
+            scale.x *= -1;
             transform.localScale = scale;
         }
 
@@ -280,6 +281,24 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             // 無敵状態にして点滅開始
             StartCoroutine(InvincibleCoroutine());
         }
+    }
+
+
+    /// <summary>
+    /// プレイヤーのHPを指定量回復する。
+    /// 最大HPを超えて回復することも可能。
+    /// </summary>
+    /// <param name="amount">回復するHPの量</param>
+    public void Heal(int amount)
+    {
+        // 回復量を現在のHPに加算（最大HPを超えてもよい）
+        currentHP += amount;
+
+        // デバッグログに回復情報を表示
+        Debug.Log($"Player healed by {amount}. HP: {currentHP}");
+
+        // HP UIを更新（nullチェック付き）
+        healthUI?.UpdateHealth(currentHP);
     }
 
 

@@ -46,6 +46,22 @@ public class PlayerCoinUI : MonoBehaviour
     }
 
     /// <summary>
+    /// 指定したコイン数を消費できるか確認し、可能なら消費して true を返す。
+    /// </summary>
+    /// <param name="amount">消費したいコイン数</param>
+    /// <returns>成功したら true、足りなければ false</returns>
+    public bool TryUseCoins(int amount)
+    {
+        if (coinCount >= amount)
+        {
+            coinCount -= amount;
+            UpdateUI();
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// UIテキストを現在のコイン数で更新（2桁表示、ゼロ埋め）。
     /// </summary>
     private void UpdateUI()
