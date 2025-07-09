@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4330a51c093cd7144bf01db4711a47b2
+guid: d4553188d3eb77c4da610dd500026fd4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9069075329558735571
-    second: g01_0
+      213: -2260478560200180114
+    second: grass23_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 93.8
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: g01_0
+      name: grass23_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 320
-        height: 311
+        height: 320
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3da6b9356f3dbdd70800000000000000
-      internalID: 9069075329558735571
+      spriteID: e6eb1ecd9ba21a0e0800000000000000
+      internalID: -2260478560200180114
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      g01_0: 9069075329558735571
+      grass23_0: -2260478560200180114
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
