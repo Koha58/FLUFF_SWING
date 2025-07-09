@@ -30,7 +30,7 @@ public class Mole : MonoBehaviour
         Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position);
         bool onScreen = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
 
-        if (onScreen && !GetComponent<Animator>().enabled)
+        if (onScreen && !hasStarted)
         {
             var animator = GetComponent<Animator>();
             animator.enabled = true;
