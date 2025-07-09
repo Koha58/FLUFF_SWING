@@ -1,4 +1,6 @@
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -49,6 +51,11 @@ public class GameManager : MonoBehaviour
 
     #region Unity Lifecycle
 
+    /// <summary>攻撃入力アクション（Input Systemの"Attack"）</summary>
+    private InputAction pauseAction;
+
+    private bool isPaused = false;
+
     /// <summary>
     /// 初期化処理。シングルトンの設定とTimeScaleの初期化を行う。
     /// </summary>
@@ -56,6 +63,9 @@ public class GameManager : MonoBehaviour
     {
         // ゲーム開始時は通常速度で動作するように設定
         Time.timeScale = normalTimeScale;
+
+        // Input Systemから"Pause"アクションを取得
+        pauseAction = InputSystem.actions.FindAction("Pause");
 
         // すでに他のインスタンスが存在する場合は重複を避けるため自身を破棄
         if (Instance != null && Instance != this)
@@ -169,6 +179,45 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Time Control
+
+    private void OnEnable()
+    {
+        if (pauseAction != null)
+        {
+            pauseAction.Enable();
+            pauseAction.performed += OnPausePerformed;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (pauseAction != null)
+        {
+            pauseAction.performed -= OnPausePerformed;
+            pauseAction.Disable();
+        }
+    }
+
+    private void OnPausePerformed(InputAction.CallbackContext context)
+    {
+        if (isGameEnded) return;
+
+        if (isPaused)
+        {
+            ResumeGame();
+            // ここでポーズUIを非表示に（別クラスでも可）
+            PauseMenuUIController.Instance?.ClosePauseMenu();
+        }
+        else
+        {
+            PauseGame();
+            // ここでポーズUIを表示（別クラスでも可）
+            PauseMenuUIController.Instance?.OpenPauseMenu();
+        }
+
+        isPaused = !isPaused;
+    }
+
 
     /// <summary>
     /// ゲームを一時停止する（Time.timeScaleを0に設定）
