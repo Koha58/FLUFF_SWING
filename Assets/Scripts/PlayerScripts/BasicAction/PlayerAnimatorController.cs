@@ -506,8 +506,16 @@ public class PlayerAnimatorController : MonoBehaviour
         // ダメージ状態をOFF
         IsDamagePlaying = false;
 
-        // Damage 終了後、強制的に Idle に遷移させる
-        SetPlayerState(PlayerState.Idle, force: true);
+        if(_pendingWireTransition == true)
+        {
+            // Damage 終了後、Wire中であれば強制的に Wire に遷移させる
+            SetPlayerState(PlayerState.Wire, force: true);
+        }
+        else
+        {
+            // Damage 終了後、強制的に Idle に遷移させる
+            SetPlayerState(PlayerState.Idle, force: true);
+        }
     }
 
     /// <summary>

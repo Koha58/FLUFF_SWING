@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 582749422001711569}
   - component: {fileID: 8065730285795009847}
   m_Layer: 5
-  m_Name: LifePanell
+  m_Name: LifePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88,8 +88,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92c44829eeabbf84b8ed112e84ded06c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heartPrefab: {fileID: 0}
+  heartPrefab: {fileID: 8821957269150628768, guid: 9247e75f271a4b54eb9cc4e055653a44, type: 3}
   heartPanel: {fileID: 6140562324609340187}
-  heartSpacing: 70
-  startOffsetX: 100
-  startOffsetY: -65
