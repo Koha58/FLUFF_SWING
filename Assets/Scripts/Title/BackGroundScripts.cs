@@ -1,13 +1,14 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class BackgroundManager : MonoBehaviour
 {
-    public GameObject backgroundPrefab;     // 背景プレハブ
-    public Transform player;                // プレイヤー（右に進む）
-    public float backgroundWidth = 20f;     // 背景画像の横幅（Unity単位）
-    public int preloadCount = 3;            // 初期に表示しておく枚数
-    public float deleteDistance = 30f;      // カメラからこれ以上離れたら削除
+    public GameObject backgroundPrefab;  // 背景プレハブ
+    public Transform player;             // プレイヤー
+    public int preloadCount = 2;         // 事前に生成しておく数
+    public float backgroundWidth = 20f;  // 背景画像の幅
+    public float deleteDistance = 30f;   // 一定距離を過ぎた背景は削除
 
     private List<GameObject> backgrounds = new List<GameObject>();
     private float nextSpawnX = 0f;
@@ -22,16 +23,16 @@ public class BackgroundManager : MonoBehaviour
 
     void Update()
     {
-        // プレイヤーが次の背景位置に近づいたら追加
+        // プレイヤーが一定距離進んだら背景を生成
         if (player.position.x + backgroundWidth * preloadCount > nextSpawnX)
         {
             SpawnBackground();
         }
 
-        // 背景削除処理
+        // 一定距離を過ぎた背景を削除
         for (int i = backgrounds.Count - 1; i >= 0; i--)
         {
-            if (player.position.x - backgrounds[i].transform.position.x > deleteDistance)
+            if (player.position.x > backgrounds[i].transform.position.x + deleteDistance)
             {
                 Destroy(backgrounds[i]);
                 backgrounds.RemoveAt(i);
@@ -41,9 +42,8 @@ public class BackgroundManager : MonoBehaviour
 
     void SpawnBackground()
     {
-        // プレハブと同じY座標を使うために、最初の背景の高さを記録して使うのがベスト
-        float backgroundY = backgroundPrefab.transform.position.y;  // ← ここが重要！
-
+        // nextSpawnXの位置に背景を生成する処理
+        float backgroundY = backgroundPrefab.transform.position.y; // 元の背景と同じ高さ
         Vector3 spawnPos = new Vector3(nextSpawnX, backgroundY, 0f);
         GameObject bg = Instantiate(backgroundPrefab, spawnPos, Quaternion.identity);
         backgrounds.Add(bg);
