@@ -1,14 +1,16 @@
-using System.Collections;
+using System.Collections.Generic;
+using System.Collections; 
 using UnityEngine;
 
 public class BirdSpawnController : MonoBehaviour
 {
-    public GameObject birdPrefab; // InspectorでPrefabを指定
-    public Transform spawnPoint; // 鳥が出現する位置（空のオブジェクトを配置して指定）
-    public float spawnInterval = 5f;
+    public GameObject birdPrefab;
+    public float spawnInterval = 2f;
+    private Camera mainCamera;
 
     void Start()
     {
+        mainCamera = Camera.main;
         StartCoroutine(SpawnRoutine());
     }
 
@@ -16,13 +18,38 @@ public class BirdSpawnController : MonoBehaviour
     {
         while (true)
         {
-            SpawnBird();
             yield return new WaitForSeconds(spawnInterval);
+            SpawnBird();
         }
     }
 
     void SpawnBird()
     {
-        Instantiate(birdPrefab, spawnPoint.position, Quaternion.identity);
+        BirdSpawnPoint[] allPoints = Object.FindObjectsByType<BirdSpawnPoint>(FindObjectsSortMode.None);
+
+        List<BirdSpawnPoint> visiblePoints = new List<BirdSpawnPoint>();
+
+        foreach (var point in allPoints)
+        {
+            if (point == null) continue; // Destroy済み対策
+
+            Vector3 screenPoint = mainCamera.WorldToViewportPoint(point.transform.position);
+            bool inCamera = screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
+
+            if (inCamera)
+            {
+                visiblePoints.Add(point);
+            }
+        }
+
+        if (visiblePoints.Count > 0)
+        {
+            var selected = visiblePoints[Random.Range(0, visiblePoints.Count)];
+            Instantiate(birdPrefab, selected.transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Debug.Log("画面内にBirdSpawnPointがありません");
+        }
     }
 }

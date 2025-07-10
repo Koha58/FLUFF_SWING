@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6049880816360654136}
+  - component: {fileID: 1682373622003032926}
   m_Layer: 0
   m_Name: BirdSpawnPoint
   m_TagString: Untagged
@@ -25,12 +26,25 @@ Transform:
   m_GameObject: {fileID: 559110834197385192}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 23.068897, y: -15.326912, z: -0.11811986}
+  m_LocalPosition: {x: 23.068897, y: 2.5, z: -0.11811986}
   m_LocalScale: {x: 3.333333, y: 3.333333, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1059389199353764084}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1682373622003032926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559110834197385192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 388754ff47ce0dd4a8e47e9178438007, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOccupied: 0
 --- !u!1 &618892770063543109
 GameObject:
   m_ObjectHideFlags: 0
