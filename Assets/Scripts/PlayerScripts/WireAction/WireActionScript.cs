@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -220,6 +221,21 @@ public class WireActionScript : MonoBehaviour
 
             // 見つかれば接続
             TryConnectWire(adjustedTarget, hit.collider.gameObject);
+        }
+
+        // ITileWithTypeを実装していれば tileType プロパティが使える
+        if (tile is ITileWithType tileWithType)
+        {
+            if (tileWithType.tileType == CustomTile.TileType.Ground)
+            {
+                // クリック位置をそのまま使わず、表面を探す関数を呼び出す
+                Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+
+                // 見つかれば接続
+                TryConnectWire(adjustedTarget, hit.collider.gameObject);
+                return;
+            }
+            // 他の tileType も必要に応じて判定可能
         }
     }
 
