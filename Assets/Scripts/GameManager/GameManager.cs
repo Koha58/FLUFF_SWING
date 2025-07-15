@@ -218,6 +218,20 @@ public class GameManager : MonoBehaviour
         isPaused = !isPaused;
     }
 
+    /// <summary>
+    /// ポーズ UI から Resume されたときに呼ぶ。
+    /// ・TimeScale を戻す
+    /// ・内部フラグ isPaused もリセット
+    /// （ゲーム終了後には呼ばれてほしくないのでガードを入れる）
+    /// </summary>
+    public void ResumeFromPauseMenu()
+    {
+        if (isGameEnded) return;
+
+        ResumeGame();   // Time.timeScale = 1
+        isPaused = false;
+    }
+
 
     /// <summary>
     /// ゲームを一時停止する（Time.timeScaleを0に設定）

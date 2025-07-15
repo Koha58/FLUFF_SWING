@@ -3,91 +3,99 @@ using UnityEngine;
 using System.Linq;
 
 /// <summary>
-/// CustomTile をエディタ上で一括編集するためのカスタムエディタウィンドウ。
-/// - プロジェクト内の CustomTile を全て読み込み
-/// - 全タイルの TileType を一括変更
+/// CustomTile と TaggedRuleTile を一括編集するためのカスタムエディタウィンドウ。
+/// プロジェクト内の該当タイルをまとめて読み込み、TileType を一括で変更できます。
 /// </summary>
 public class CustomTileEditorWindow : EditorWindow
 {
-    // 新しく設定する TileType（GUI 上で選択可能）
+    // GUI 上で設定する新しい TileType（Ground, Hazard など）
     private CustomTile.TileType newTileType = CustomTile.TileType.Ground;
 
-    // 読み込んだ CustomTile の配列
-    private CustomTile[] tiles;
+    // 読み込んだすべてのタイル（CustomTile, TaggedRuleTile）の共通インターフェース配列
+    private ITileWithType[] tiles;
 
     /// <summary>
-    /// メニューに「Tools/Custom Tile Editor」を追加。
-    /// クリックするとウィンドウが表示される。
+    /// Unity メニューに「Tools/Custom Tile Editor」を追加する
     /// </summary>
     [MenuItem("Tools/Custom Tile Editor")]
     public static void ShowWindow()
     {
-        // エディタウィンドウを開く（またはフォーカス）
+        // ウィンドウを開く（または既存のウィンドウをアクティブにする）
         GetWindow<CustomTileEditorWindow>("Custom Tile Editor");
     }
 
     /// <summary>
-    /// エディタウィンドウの GUI 描画処理
+    /// エディタウィンドウのGUI描画処理（ボタン、セレクタなど）
     /// </summary>
     private void OnGUI()
     {
-        // 見出し表示
         GUILayout.Label("Custom Tile Type Editor", EditorStyles.boldLabel);
 
         // タイル読み込みボタン
-        if (GUILayout.Button("Load All CustomTiles"))
+        if (GUILayout.Button("Load All CustomTiles & TaggedRuleTiles"))
         {
             LoadTiles();
         }
 
-        // タイルがロード済みかチェック
+        // タイルが読み込まれている場合
         if (tiles != null && tiles.Length > 0)
         {
-            // TileType の選択 UI
+            // タイルタイプ選択フィールド
             newTileType = (CustomTile.TileType)EditorGUILayout.EnumPopup("New TileType", newTileType);
 
-            // 全タイルに対して新しいタイプを一括設定
+            // 一括設定ボタン
             if (GUILayout.Button("Set TileType for All Loaded Tiles"))
             {
                 foreach (var tile in tiles)
                 {
-                    // Undo に対応させる（Ctrl+Z対応）
-                    Undo.RecordObject(tile, "Change Tile Type");
+                    // Undo 対応（Ctrl+Z で戻せるように）
+                    Undo.RecordObject((Object)tile, "Change Tile Type");
 
-                    // タイルのタイプを変更
+                    // TileType を変更
                     tile.tileType = newTileType;
 
-                    // 変更をエディタに通知（インスペクタ更新など）
-                    EditorUtility.SetDirty(tile);
+                    // エディタに変更を通知
+                    EditorUtility.SetDirty((Object)tile);
                 }
 
-                // 変更を保存
+                // アセットの変更を保存
                 AssetDatabase.SaveAssets();
 
                 Debug.Log($"Set {newTileType} to {tiles.Length} tiles.");
             }
 
-            // 読み込んだタイル数表示
+            // ロードされたタイル数の表示
             GUILayout.Label($"{tiles.Length} tiles loaded.");
         }
         else
         {
-            // タイルがロードされていない場合のメッセージ
             GUILayout.Label("No tiles loaded.");
         }
     }
 
     /// <summary>
-    /// プロジェクト内からすべての CustomTile アセットを検索して読み込む
+    /// プロジェクト内から CustomTile と TaggedRuleTile を検索・読み込む
     /// </summary>
     private void LoadTiles()
     {
-        // タイプ CustomTile の GUID を全検索
-        string[] guids = AssetDatabase.FindAssets("t:CustomTile");
+        // CustomTile アセットの GUID を取得
+        var customTileGUIDs = AssetDatabase.FindAssets("t:CustomTile");
 
-        // GUID からパスを取得し、実際のアセットとしてロード
-        tiles = guids
+        // TaggedRuleTile アセットの GUID を取得
+        var taggedRuleTileGUIDs = AssetDatabase.FindAssets("t:TaggedRuleTile");
+
+        // GUID からアセットをロードし、null でないものを ITileWithType にキャスト
+        var customTiles = customTileGUIDs
             .Select(guid => AssetDatabase.LoadAssetAtPath<CustomTile>(AssetDatabase.GUIDToAssetPath(guid)))
-            .ToArray();
+            .Where(tile => tile != null)
+            .Cast<ITileWithType>();
+
+        var ruleTiles = taggedRuleTileGUIDs
+            .Select(guid => AssetDatabase.LoadAssetAtPath<TaggedRuleTile>(AssetDatabase.GUIDToAssetPath(guid)))
+            .Where(tile => tile != null)
+            .Cast<ITileWithType>();
+
+        // 両者を結合して tiles 配列に格納
+        tiles = customTiles.Concat(ruleTiles).ToArray();
     }
 }

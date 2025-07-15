@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PauseMenuUIController : MonoBehaviour
 {
@@ -6,24 +7,46 @@ public class PauseMenuUIController : MonoBehaviour
 
     [SerializeField] private GameObject pauseUI;
 
+    // 親 Canvas にある GraphicRaycaster を指定
+    [SerializeField] private GraphicRaycaster pauseRaycaster;
+
     private void Awake()
     {
         Instance = this;
-       // pauseUI.SetActive(false);
+
+        pauseUI.SetActive(false);
+
+        if (pauseRaycaster != null)
+            pauseRaycaster.enabled = false;
     }
 
     public void OpenPauseMenu()
     {
-        //pauseUI.SetActive(true);
-        // 必要に応じて選択ボタンなども設定
+        pauseUI.SetActive(true);
+
+        if (pauseRaycaster != null)
+            pauseRaycaster.enabled = true;
 
         Debug.Log("OpenPause");
     }
 
     public void ClosePauseMenu()
     {
-        //pauseUI.SetActive(false);
+        pauseUI.SetActive(false);
+
+        if (pauseRaycaster != null)
+            pauseRaycaster.enabled = false;
     }
 
-    // Resume ボタンや Quit ボタンはここで実装
+    // === UI Buttons ===
+    public void ClickResume()
+    {
+        GameManager.Instance.ResumeFromPauseMenu();
+        ClosePauseMenu();
+    }
+
+    public void ClickQuitToTitle()
+    {
+        // SceneManager.LoadScene("Title");
+    }
 }
