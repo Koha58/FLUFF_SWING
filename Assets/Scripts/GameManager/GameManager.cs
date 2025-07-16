@@ -1,80 +1,65 @@
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ゲームの状態（クリア・ゲームオーバーなど）とUI表示、時間制御を管理するクラス
+/// ゲーム全体の状態（ゲームクリア、ゲームオーバーなど）と、
+/// それに伴うUI表示・時間制御・入力処理を管理するクラス。
 /// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Inspector Settings
 
-    // -------------------------------
-    // UI関連オブジェクトと時間制御設定
-    // ゲーム結果（クリア or ゲームオーバー）の表示や時間停止処理に使用
-    // -------------------------------
-
-    // 結果全体を覆うパネル
-    [SerializeField] private GameObject resultPanel;
-
-    // ステージクリア時に表示するUI
-    [SerializeField] private GameObject clearUI;
-
-    // ゲームオーバー時に表示するUI
-    [SerializeField] private GameObject gameOverUI;
-
-    // ゲーム終了後にUIを表示するまでの待機時間（秒）
+    /// <summary>ゲーム終了後にUIを表示するまでの待機時間（秒）</summary>
+    [SerializeField]
     private float resultDelay = 2.0f;
 
-    // UI表示後にゲームを一時停止するまでの遅延時間（秒）
+    /// <summary>UI表示後にゲームを一時停止するまでの遅延時間（秒）</summary>
+    [SerializeField]
     private float pauseDelayAfterResult = 0.5f;
 
-    // 通常のゲーム進行速度（Time.timeScale = 1）
-    private float normalTimeScale = 1.0f;
+    /// <summary>通常のゲーム進行速度（Time.timeScale = 1）</summary>
+    private readonly float normalTimeScale = 1.0f;
 
-    // 一時停止時のゲーム進行速度（Time.timeScale = 0）
-    private float pausedTimeScale = 0.0f;
-
+    /// <summary>一時停止時のゲーム進行速度（Time.timeScale = 0）</summary>
+    private readonly float pausedTimeScale = 0.0f;
 
     #endregion
 
     #region State Management
 
-    /// <summary>シングルトンのインスタンス</summary>
+    /// <summary>シングルトンインスタンス</summary>
     public static GameManager Instance { get; private set; }
 
-    /// <summary>ゲーム終了済みかどうかのフラグ</summary>
+    /// <summary>ゲームが終了しているかどうか</summary>
     private bool isGameEnded = false;
 
     #endregion
 
     #region Unity Lifecycle
 
-    /// <summary>攻撃入力アクション（Input Systemの"Attack"）</summary>
+    /// <summary>ポーズ用のInputアクション</summary>
     private InputAction pauseAction;
 
+    /// <summary>現在ポーズ状態かどうか</summary>
     private bool isPaused = false;
 
     /// <summary>
-    /// 初期化処理。シングルトンの設定とTimeScaleの初期化を行う。
+    /// 初期化処理：シングルトンの設定とInputアクションの取得、TimeScaleの初期化を行う。
     /// </summary>
     private void Awake()
     {
-        // ゲーム開始時は通常速度で動作するように設定
+        // ゲーム開始時のタイムスケールを通常に設定
         Time.timeScale = normalTimeScale;
 
-        // Input Systemから"Pause"アクションを取得
+        // Input System から "Pause" アクションを取得
         pauseAction = InputSystem.actions.FindAction("Pause");
-
-        // すでに他のインスタンスが存在する場合は重複を避けるため自身を破棄
-        if (Instance != null && Instance != this)
+        if (pauseAction == null)
         {
-            Destroy(gameObject);
-            return;
+            Debug.LogError("Pauseアクションが見つかりません。InputActionsの設定を確認してください。");
         }
 
-        // シングルトンインスタンスを設定
+        // シングルトンインスタンスの設定
         Instance = this;
     }
 
@@ -83,21 +68,20 @@ public class GameManager : MonoBehaviour
     #region External Event Handlers
 
     /// <summary>
-    /// プレイヤーがゴールに到達した時の処理
-    /// すでにゲーム終了状態なら処理を無視する
+    /// プレイヤーがゴールに到達した際に呼び出される。
+    /// UI表示・アニメーション再生・ゲーム一時停止処理を行う。
     /// </summary>
     /// <param name="playerTransform">ゴールしたプレイヤーのTransform</param>
     public void OnGoalReached(Transform playerTransform)
     {
-        // すでにゲーム終了していれば何もしない
+        // すでに終了していれば無視
         if (isGameEnded) return;
 
         // ゲーム終了フラグを立てる
         isGameEnded = true;
-
         Debug.Log("Goal reached! Stage Clear!");
 
-        // プレイヤーの向きを判定しゴール用アニメーションを再生
+        // プレイヤーの向きに応じたゴールアニメーションを再生
         var playerController = playerTransform.GetComponent<PlayerAnimatorController>();
         if (playerController != null)
         {
@@ -105,81 +89,55 @@ public class GameManager : MonoBehaviour
             playerController.PlayGoalAnimation(direction);
         }
 
-        // 指定遅延時間後にクリア画面を表示する処理を呼ぶ
-        Invoke(nameof(ShowClearScreen), resultDelay);
+        // 指定秒数後にリザルトUIを表示
+        Invoke(nameof(NotifyClear), resultDelay);
     }
 
     /// <summary>
-    /// プレイヤーが死亡した時の処理
-    /// すでにゲーム終了状態なら処理を無視する
+    /// プレイヤーが死亡したときに呼び出される。
     /// </summary>
     public void OnPlayerDead()
     {
-        // すでにゲーム終了していれば何もしない
+        // すでに終了していれば無視
         if (isGameEnded) return;
 
-        // ゲーム終了フラグを立てる
+        // ゲーム終了フラグを立てて、ゲームオーバー処理を遅延呼び出し
         isGameEnded = true;
-
-        Debug.Log("Game Over!");
-
-        // 指定遅延時間後にゲームオーバー画面を表示する処理を呼ぶ
-        Invoke(nameof(ShowGameOverScreen), resultDelay);
+        Invoke(nameof(NotifyGameOver), resultDelay);
     }
 
-    #endregion
+    /// <summary>ステージクリア通知処理（内部用）</summary>
+    private void NotifyClear()
+    {
+        ShowResult(GameResult.Clear);
+    }
 
-    #region UI & Screen Management
+    /// <summary>ゲームオーバー通知処理（内部用）</summary>
+    private void NotifyGameOver()
+    {
+        ShowResult(GameResult.GameOver);
+    }
 
     /// <summary>
-    /// クリア画面を表示する処理
+    /// ゲーム結果に応じたリザルトUI表示と一時停止を行う。
     /// </summary>
-    private void ShowClearScreen()
+    /// <param name="result">クリア or ゲームオーバー</param>
+    private void ShowResult(GameResult result)
     {
-        Debug.Log("Showing clear screen...");
+        // 結果に応じたUIを表示
+        GameResultUIController.Instance.ShowResult(result);
 
-        // クリアUIのみ表示し、他は非表示に切り替え
-        ShowResultUI(clearUI);
-
-        // UI表示後にゲームを一時停止するための呼び出しを遅延させる
+        // UI表示後に一時停止処理を遅延実行
         Invoke(nameof(PauseGame), pauseDelayAfterResult);
-    }
-
-    /// <summary>
-    /// ゲームオーバー画面を表示する処理
-    /// </summary>
-    private void ShowGameOverScreen()
-    {
-        Debug.Log("Showing Game Over screen...");
-
-        // ゲームオーバーUIのみ表示し、他は非表示に切り替え
-        ShowResultUI(gameOverUI);
-
-        // UI表示後にゲームを一時停止するための呼び出しを遅延させる
-        Invoke(nameof(PauseGame), pauseDelayAfterResult);
-    }
-
-    /// <summary>
-    /// 結果画面用UIの切り替え処理
-    /// </summary>
-    /// <param name="targetUI">表示するUIオブジェクト</param>
-    private void ShowResultUI(GameObject targetUI)
-    {
-        // 結果パネル自体は常に表示する
-        resultPanel.SetActive(true);
-
-        // 全UIを一旦非表示にする
-        clearUI.SetActive(false);
-        gameOverUI.SetActive(false);
-
-        // 引数のUIだけを表示状態にする
-        targetUI.SetActive(true);
     }
 
     #endregion
 
     #region Time Control
 
+    /// <summary>
+    /// 有効化時にPauseアクションを登録。
+    /// </summary>
     private void OnEnable()
     {
         if (pauseAction != null)
@@ -189,6 +147,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 無効化時にPauseアクションを解除。
+    /// </summary>
     private void OnDisable()
     {
         if (pauseAction != null)
@@ -198,43 +159,49 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ポーズ入力が行われたときの処理。
+    /// ゲームの一時停止/再開とUI表示制御を行う。
+    /// </summary>
+    /// <param name="context">入力イベントコンテキスト</param>
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
+        // ゲーム終了後はポーズできないようにする
         if (isGameEnded) return;
 
         if (isPaused)
         {
+            // 再開処理：タイムスケールを戻し、ポーズUIを閉じる
             ResumeGame();
-            // ここでポーズUIを非表示に（別クラスでも可）
             PauseMenuUIController.Instance?.ClosePauseMenu();
         }
         else
         {
+            // 一時停止処理：タイムスケールを0にし、ポーズUIを開く
             PauseGame();
-            // ここでポーズUIを表示（別クラスでも可）
             PauseMenuUIController.Instance?.OpenPauseMenu();
         }
 
+        // ポーズ状態のフラグをトグル
         isPaused = !isPaused;
     }
 
     /// <summary>
-    /// ポーズ UI から Resume されたときに呼ぶ。
-    /// ・TimeScale を戻す
-    /// ・内部フラグ isPaused もリセット
-    /// （ゲーム終了後には呼ばれてほしくないのでガードを入れる）
+    /// ポーズUIからResumeされた際に呼び出す。
+    /// タイムスケールとフラグをリセットする。
     /// </summary>
     public void ResumeFromPauseMenu()
     {
+        // ゲーム終了後は何もしない
         if (isGameEnded) return;
 
-        ResumeGame();   // Time.timeScale = 1
+        // 再開処理
+        ResumeGame();
         isPaused = false;
     }
 
-
     /// <summary>
-    /// ゲームを一時停止する（Time.timeScaleを0に設定）
+    /// ゲームを一時停止（Time.timeScale = 0）にする。
     /// </summary>
     public void PauseGame()
     {
@@ -242,7 +209,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ゲームの一時停止を解除する（Time.timeScaleを通常値に戻す）
+    /// ゲームの一時停止を解除（Time.timeScale = 1）に戻す。
     /// </summary>
     public void ResumeGame()
     {

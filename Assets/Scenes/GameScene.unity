@@ -984,7 +984,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 260303880}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 224337513}
+        m_TargetAssemblyTypeName: PauseMenuUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToStageSelect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &260303880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1521,6 +1533,7 @@ GameObject:
   m_Component:
   - component: {fileID: 499009404}
   - component: {fileID: 499009403}
+  - component: {fileID: 499009405}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1540,9 +1553,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43114243f47c0914c89847ff50bd6a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resultPanel: {fileID: 595807755}
-  clearUI: {fileID: 179484886}
-  gameOverUI: {fileID: 883706760}
 --- !u!4 &499009404
 Transform:
   m_ObjectHideFlags: 0
@@ -1558,6 +1568,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &499009405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499009402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a348ce27a44e7364c9c364ee8210722d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  raycaster: {fileID: 1696027662}
+  clearUI: {fileID: 179484886}
+  gameOverUI: {fileID: 883706760}
 --- !u!114 &513625904 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8996202828860273277, guid: d2f9e9f638f1e134e8b6c27bfb820bef, type: 3}
@@ -1882,7 +1907,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &595807756
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1890,14 +1915,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595807755}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 179484887}
   - {fileID: 883706761}
-  m_Father: {fileID: 1990841928}
+  m_Father: {fileID: 1696027665}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2948,7 +2973,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 877603670}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToStageSelect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &877603670
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3004,7 +3041,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &883706761
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5170,7 +5207,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1337710290}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickNext
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1337710290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5291,7 +5340,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1416321852}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 224337513}
+        m_TargetAssemblyTypeName: PauseMenuUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToTitle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1416321852
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5424,13 +5485,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 224337511}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickRetry
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6229,7 +6290,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1584061244}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToStageSelect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1584061244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6777,7 +6850,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1668938661}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToTitle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1668938661
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6984,6 +7069,108 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694521180}
   m_CullTransparentMesh: 1
+--- !u!1 &1696027661
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1696027665}
+  - component: {fileID: 1696027664}
+  - component: {fileID: 1696027663}
+  - component: {fileID: 1696027662}
+  m_Layer: 5
+  m_Name: ResultCanvas
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1696027662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696027661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &1696027663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696027661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &1696027664
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696027661}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &1696027665
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1696027661}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 595807756}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1716071750
 GameObject:
   m_ObjectHideFlags: 0
@@ -7679,7 +7866,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1882195503}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 499009405}
+        m_TargetAssemblyTypeName: GameResultUIController, Assembly-CSharp
+        m_MethodName: ClickQuitToTitle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1882195503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7920,7 +8119,6 @@ RectTransform:
   - {fileID: 312363396}
   - {fileID: 1732763435}
   - {fileID: 224337512}
-  - {fileID: 595807756}
   - {fileID: 825250040}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8609,6 +8807,7 @@ SceneRoots:
   - {fileID: 1067845890}
   - {fileID: 1669256207}
   - {fileID: 1990841928}
+  - {fileID: 1696027665}
   - {fileID: 1669679992}
   - {fileID: 6812381044389267372}
   - {fileID: 8845224679234699472}
