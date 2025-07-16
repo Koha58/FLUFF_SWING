@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 01516c485717c7d4bb7f681857ac8321
+guid: f8f3e4a106b3205419bcd6be2417e31f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8621456225032892262
-    second: Popup02_0
+      213: 6637430213707688972
+    second: pin08_0
+  - first:
+      213: 5349593219507713094
+    second: pin08_1
+  - first:
+      213: 7092774703573406918
+    second: pin08_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,11 +52,11 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 0
-  spritePivot: {x: 0.5, y: 0.5}
+  alignment: 9
+  spritePivot: {x: 0.5, y: 0.55}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -139,23 +145,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Popup02_0
+      name: pin08_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 59
         y: 0
-        width: 6593
-        height: 4199
+        width: 52
+        height: 171
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66f6aab12c095a770800000000000000
-      internalID: 8621456225032892262
+      spriteID: c0ced7ddc93ec1c50800000000000000
+      internalID: 6637430213707688972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pin08_1
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 0
+        width: 52
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 644789590b29d3a40800000000000000
+      internalID: 5349593219507713094
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pin08_2
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 0
+        width: 52
+        height: 121
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c49e5683099e6260800000000000000
+      internalID: 7092774703573406918
       vertices: []
       indices: 
       edges: []
@@ -164,8 +214,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -174,7 +224,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Popup02_0: 8621456225032892262
+      pin08_0: 6637430213707688972
+      pin08_1: 5349593219507713094
+      pin08_2: 7092774703573406918
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

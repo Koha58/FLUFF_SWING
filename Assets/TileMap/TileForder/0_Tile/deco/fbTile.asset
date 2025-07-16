@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
-  m_Name: riTile
+  m_Name: fbTile
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 4583488763186203801, guid: 64043d14bf0dbae43988c29fd0533c61, type: 3}
+  m_DefaultSprite: {fileID: -2641301424830333673, guid: 82d469b18292d09429da023d902a7a93, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
   m_TilingRules:
   - m_Id: 0
     m_Sprites:
-    - {fileID: -1794129537371435763, guid: 9659e63b01764774d98d6684b7559156, type: 3}
-    - {fileID: 6584986403921880050, guid: 926ef92f25ee12141ab6fc35008bc883, type: 3}
-    - {fileID: 2312358024562269229, guid: 86fc8ba6981c12849a16e862306fc608, type: 3}
-    - {fileID: -7982281533406709354, guid: f7e91afeb28ce2648bf03fada8d01342, type: 3}
-    - {fileID: 4583488763186203801, guid: 64043d14bf0dbae43988c29fd0533c61, type: 3}
-    - {fileID: -4906596570699567565, guid: 174284d7ffef6db4bb6e0cf494bf2ef3, type: 3}
+    - {fileID: -2641301424830333673, guid: 82d469b18292d09429da023d902a7a93, type: 3}
+    - {fileID: 5776116380540753620, guid: babf21657564f784e8ec342fd03b6985, type: 3}
+    - {fileID: 3734662518829514065, guid: 345bc2d959a752544a9ac43ffc8985cc, type: 3}
+    - {fileID: -2641301424830333673, guid: 82d469b18292d09429da023d902a7a93, type: 3}
+    - {fileID: 5776116380540753620, guid: babf21657564f784e8ec342fd03b6985, type: 3}
+    - {fileID: 3734662518829514065, guid: 345bc2d959a752544a9ac43ffc8985cc, type: 3}
     m_GameObject: {fileID: 0}
     m_MinAnimationSpeed: 1
     m_MaxAnimationSpeed: 1
-    m_PerlinScale: 0.5
+    m_PerlinScale: 0.6
     m_Output: 1
     m_ColliderType: 1
     m_RandomTransform: 0
