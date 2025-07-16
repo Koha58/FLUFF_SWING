@@ -1,76 +1,117 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ƒQ[ƒ€‚ÌƒŠƒUƒ‹ƒgUIiƒNƒŠƒA^ƒQ[ƒ€ƒI[ƒo[j‚ğ§Œä‚·‚éƒNƒ‰ƒXB
+/// ã‚²ãƒ¼ãƒ ã®ãƒªã‚¶ãƒ«ãƒˆUIï¼ˆã‚¯ãƒªã‚¢ï¼ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼ï¼‰ã‚’åˆ¶å¾¡ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
 /// </summary>
 public enum GameResult { Clear, GameOver }
 
 public class GameResultUIController : MonoBehaviour
 {
-    /// <summary>ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX</summary>
+    #region Singleton
+
+    /// <summary>ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹</summary>
     public static GameResultUIController Instance { get; private set; }
 
-    [Header("‹¤’Ê")]
-    [SerializeField]
-    private GraphicRaycaster raycaster; // UIƒ{ƒ^ƒ“‚Ì—LŒø‰»§Œä—pRaycaster
+    #endregion
 
-    [Header("Œ‹‰Ê•Ê UI")]
-    [SerializeField]
-    private GameObject clearUI; // ƒXƒe[ƒWƒNƒŠƒA‚É•\¦‚·‚éUI
-    [SerializeField]
-    private GameObject gameOverUI; // ƒQ[ƒ€ƒI[ƒo[‚É•\¦‚·‚éUI
+    #region Inspector Fields
 
-    /// <summary>ƒ^ƒCƒgƒ‹ƒV[ƒ“‚Ì–¼‘OiSceneManager‚Åg—pj</summary>
+    [Header("å…±é€š UI è¨­å®š")]
+    [SerializeField]
+    private GraphicRaycaster raycaster; // UIãƒœã‚¿ãƒ³ã®æœ‰åŠ¹åŒ–åˆ¶å¾¡ç”¨Raycaster
+
+    [Header("çµæœåˆ¥ UI è¨­å®š")]
+    [SerializeField]
+    private GameObject clearUI; // ã‚¹ãƒ†ãƒ¼ã‚¸ã‚¯ãƒªã‚¢æ™‚ã«è¡¨ç¤ºã™ã‚‹UI
+    [SerializeField]
+    private GameObject gameOverUI; // ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼æ™‚ã«è¡¨ç¤ºã™ã‚‹UI
+
+    [Header("ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³è¨­å®š")]
+    [SerializeField]
+    private float targetScale = 0.4f; // æ‹¡å¤§å¾Œã®ã‚¹ã‚±ãƒ¼ãƒ«
+    [SerializeField]
+    private float scaleUpDuration = 0.5f; // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‹ã‘ã‚‹æ™‚é–“
+
+    [Header("ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°è¨­å®š")]
+    [SerializeField]
+    private float easeOutBackStrength = 1.70158f; // EaseOutBack ã®å¼·åº¦
+
+    #endregion
+
+    #region Constants
+
+    /// <summary>ã‚¿ã‚¤ãƒˆãƒ«ã‚·ãƒ¼ãƒ³ã®åå‰ï¼ˆSceneManagerã§ä½¿ç”¨ï¼‰</summary>
     private const string TitleSceneName = "TitleScene";
 
-    /// <summary>’Êí‚ÌƒQ[ƒ€is‘¬“xiTime.timeScale = 1j</summary>
-    private readonly float normalTimeScale = 1.0f;
+    /// <summary>é€šå¸¸ã®ã‚²ãƒ¼ãƒ é€²è¡Œé€Ÿåº¦ï¼ˆTime.timeScale = 1ï¼‰</summary>
+    private const float NormalTimeScale = 1.0f;
+
+    /// <summary>ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°çµ‚äº†æ™‚ã®è£œæ­£å€¤</summary>
+    private const float EasingEnd = 1f;
+
+    /// <summary>ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°å…¥åŠ›ã‚ªãƒ•ã‚»ãƒƒãƒˆ</summary>
+    private const float EasingOffset = -1f;
+
+    /// <summary>3æ¬¡ã®ç´¯ä¹—æŒ‡æ•°</summary>
+    private const int CubicPower = 3;
+
+    /// <summary>2æ¬¡ã®ç´¯ä¹—æŒ‡æ•°</summary>
+    private const int QuadraticPower = 2;
+
+    #endregion
+
+    #region Unity Events
 
     /// <summary>
-    /// ‰Šú‰»ˆ—BUI”ñ•\¦‰»‚ÆƒVƒ“ƒOƒ‹ƒgƒ““o˜^‚ğs‚¤B
+    /// åˆæœŸåŒ–å‡¦ç†ã€‚UIéè¡¨ç¤ºåŒ–ã¨ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ç™»éŒ²ã‚’è¡Œã†ã€‚
     /// </summary>
     private void Awake()
     {
-        // ƒVƒ“ƒOƒ‹ƒgƒ““o˜^
+        // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ç™»éŒ²
         Instance = this;
 
-        // ƒQ[ƒ€ŠJn“_‚Å‚Íƒ{ƒ^ƒ“‚ğ–³Œø‰»‚µAUI‚ğ”ñ•\¦‚É‚µ‚Ä‚¨‚­
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ç‚¹ã§ã¯ UI ã‚’éè¡¨ç¤ºã«ã—ã€Raycaster ã‚‚ç„¡åŠ¹ã«ã™ã‚‹
         raycaster.enabled = false;
         clearUI.SetActive(false);
         gameOverUI.SetActive(false);
     }
 
-    //========================================
-    // ŠO•” API
-    //========================================
+    #endregion
+
+    #region Public API
 
     /// <summary>
-    /// w’è‚³‚ê‚½Œ‹‰Ê‚É‰‚¶‚ÄƒŠƒUƒ‹ƒgUI‚ğ•\¦‚·‚éB
+    /// æŒ‡å®šã•ã‚ŒãŸçµæœã«å¿œã˜ã¦ãƒªã‚¶ãƒ«ãƒˆUIã‚’è¡¨ç¤ºã™ã‚‹ã€‚
     /// </summary>
-    /// <param name="result">ƒQ[ƒ€Œ‹‰ÊiClear or GameOverj</param>
+    /// <param name="result">ã‚²ãƒ¼ãƒ çµæœï¼ˆClear or GameOverï¼‰</param>
     public void ShowResult(GameResult result)
     {
-        // Œ‹‰Ê‚É‰‚¶‚½UI‚ğ•\¦
-        clearUI.SetActive(result == GameResult.Clear);
-        gameOverUI.SetActive(result == GameResult.GameOver);
+        // è¡¨ç¤ºå¯¾è±¡UIã‚’é¸å®š
+        GameObject targetUI = (result == GameResult.Clear) ? clearUI : gameOverUI;
 
-        // ƒ{ƒ^ƒ“‘€ì‚ğ—LŒø‚É‚·‚é
+        // éè¡¨ç¤ºå´UIã‚’æ˜ç¤ºçš„ã«éš ã™
+        clearUI.SetActive(false);
+        gameOverUI.SetActive(false);
+
+        // UIã‚’ã‚¹ã‚±ãƒ¼ãƒ«ã‚¼ãƒ­ã§è¡¨ç¤ºã—ã¦ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æº–å‚™
+        targetUI.SetActive(true);
+        targetUI.transform.localScale = Vector3.zero;
+
+        // æ‹¡å¤§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³é–‹å§‹
+        StartCoroutine(AnimateScaleUp(targetUI));
+
+        // ãƒœã‚¿ãƒ³æ“ä½œã‚’è¨±å¯
         raycaster.enabled = true;
-
-        // ƒfƒoƒbƒOƒƒOiŠJ”­—pj
-        Debug.Log("ShowResult called. clearUI.activeSelf: " + clearUI.activeSelf);
-        Debug.Log("clearUI position: " + clearUI.transform.position);
-        Debug.Log("clearUI isInHierarchy: " + clearUI.activeInHierarchy);
     }
 
-    //========================================
-    // UIƒ{ƒ^ƒ“ ƒnƒ“ƒhƒ‰
-    //========================================
+    #endregion
+
+    #region Button Handlers
 
     /// <summary>
-    /// ƒŠƒgƒ‰ƒCƒ{ƒ^ƒ“‰Ÿ‰º‚Ìˆ—BŒ»İ‚ÌƒV[ƒ“‚ğÄ“Ç‚İ‚İ‚·‚éB
+    /// ã€Œãƒªãƒˆãƒ©ã‚¤ã€ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®å‡¦ç†ã€‚ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ã‚’å†èª­ã¿è¾¼ã¿ã™ã‚‹ã€‚
     /// </summary>
     public void ClickRetry()
     {
@@ -79,7 +120,7 @@ public class GameResultUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚éƒ{ƒ^ƒ“‰Ÿ‰º‚Ìˆ—B
+    /// ã€Œã‚¿ã‚¤ãƒˆãƒ«ã¸æˆ»ã‚‹ã€ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®å‡¦ç†ã€‚
     /// </summary>
     public void ClickQuitToTitle()
     {
@@ -88,7 +129,7 @@ public class GameResultUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// Ÿ‚ÌƒXƒe[ƒW‚Öi‚Şƒ{ƒ^ƒ“‰Ÿ‰º‚Ìˆ—iŒ»İ‚Í“¯ˆêƒV[ƒ“‚ğÄƒ[ƒhjB
+    /// ã€Œæ¬¡ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã¸ã€ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®å‡¦ç†ï¼ˆâ€»ç¾åœ¨ã¯åŒä¸€ã‚·ãƒ¼ãƒ³ã‚’å†ãƒ­ãƒ¼ãƒ‰ï¼‰ã€‚
     /// </summary>
     public void ClickNext()
     {
@@ -97,7 +138,7 @@ public class GameResultUIController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒXƒe[ƒW‘I‘ğ‰æ–Ê‚É–ß‚éƒ{ƒ^ƒ“‰Ÿ‰º‚Ìˆ—iŒ»İ‚Íƒ^ƒCƒgƒ‹‰æ–ÊjB
+    /// ã€Œã‚¹ãƒ†ãƒ¼ã‚¸é¸æŠã¸ã€ãƒœã‚¿ãƒ³æŠ¼ä¸‹æ™‚ã®å‡¦ç†ï¼ˆâ€»ç¾åœ¨ã¯ã‚¿ã‚¤ãƒˆãƒ«ç”»é¢ã«é·ç§»ï¼‰ã€‚
     /// </summary>
     public void ClickQuitToStageSelect()
     {
@@ -105,15 +146,74 @@ public class GameResultUIController : MonoBehaviour
         SceneManager.LoadScene(TitleSceneName);
     }
 
-    //========================================
-    // “à•”‹¤’Êˆ—
-    //========================================
+    #endregion
+
+    #region Helpers
 
     /// <summary>
-    /// Time.timeScale ‚ğ’Êí‚Ì1.0‚É–ß‚·B
+    /// ã‚²ãƒ¼ãƒ ã®æ™‚é–“ã‚¹ã‚±ãƒ¼ãƒ«ã‚’é€šå¸¸çŠ¶æ…‹ã«æˆ»ã™ï¼ˆãƒãƒ¼ã‚ºè§£é™¤ç”¨ï¼‰ã€‚
     /// </summary>
     private void ResumeGameTime()
     {
-        Time.timeScale = normalTimeScale;
+        Time.timeScale = NormalTimeScale;
     }
+
+    /// <summary>
+    /// æŒ‡å®šã•ã‚ŒãŸUIã‚’æ»‘ã‚‰ã‹ã«æ‹¡å¤§ã—ã¦è¡¨ç¤ºã™ã‚‹ï¼ˆãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—é¢¨ï¼‰ã€‚
+    /// </summary>
+    /// <param name="target">æ‹¡å¤§å¯¾è±¡ã®GameObject</param>
+    private System.Collections.IEnumerator AnimateScaleUp(GameObject target)
+    {
+        Vector3 startScale = Vector3.zero;
+        Vector3 endScale = Vector3.one * targetScale;
+        float elapsed = 0f;
+
+        // æŒ‡å®šã•ã‚ŒãŸæ™‚é–“ã§æ‹¡å¤§å‡¦ç†ã‚’è¡Œã†
+        while (elapsed < scaleUpDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            // æ™‚é–“ã®é€²è¡Œåº¦ï¼ˆ0ï½1ï¼‰ã‚’ç®—å‡º
+            float t = Mathf.Clamp01(elapsed / scaleUpDuration);
+
+            // ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°é–¢æ•°ã§è‡ªç„¶ãªã‚¹ã‚±ãƒ¼ãƒ«æ‹¡å¤§ã‚’é©ç”¨
+            float easedT = EaseOutBack(t);
+
+            // ç¾åœ¨ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’æ›´æ–°
+            target.transform.localScale = Vector3.Lerp(startScale, endScale, easedT);
+            yield return null;
+        }
+
+        // æœ€çµ‚ã‚¹ã‚±ãƒ¼ãƒ«ã‚’æ˜ç¤ºçš„ã«è¨­å®š
+        target.transform.localScale = endScale;
+    }
+
+    #endregion
+
+    #region Easing
+
+    /// <summary>
+    /// OutBacké¢¨ã®ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°é–¢æ•°ï¼ˆã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çµ‚ç«¯ã§ãƒã‚¦ãƒ³ãƒ‰ã™ã‚‹ã‚ˆã†ãªåŠ¹æœï¼‰ã€‚
+    /// </summary>
+    /// <param name="t">0ã€œ1 ã®æ™‚é–“é€²è¡Œåº¦ï¼ˆ0:é–‹å§‹, 1:çµ‚äº†ï¼‰</param>
+    /// <returns>ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°å¾Œã®è£œé–“å€¤ï¼ˆ0ã€œ1ä»¥ä¸Šï¼‰</returns>
+    private float EaseOutBack(float t)
+    {
+        // ãƒã‚¦ãƒ³ãƒ‰ã®å¼·ã•ï¼ˆInspectorã‹ã‚‰è¨­å®šå¯èƒ½ï¼‰
+        float c1 = easeOutBackStrength;
+
+        // ãƒã‚¦ãƒ³ãƒ‰åŠ¹æœã®ä¿‚æ•°ï¼ˆé€šå¸¸ c1 + 1ï¼‰
+        float c3 = c1 + EasingEnd;
+
+        // æ™‚é–“ã®é€²è¡Œã‚’èª¿æ•´ï¼ˆt ã‚’ -1 ï½ 0 ã«ã‚·ãƒ•ãƒˆï¼‰
+        float p = t + EasingOffset;
+
+        // EaseOutBack ã®å¼ã«åŸºã¥ã„ã¦è£œé–“å€¤ã‚’è¿”ã™
+        // return = 1 + (c3 * pÂ³) + (c1 * pÂ²)
+        // çµ‚ç›¤ã§ã‚„ã‚„è¡Œãéãã¦ã‹ã‚‰æˆ»ã‚‹ã‚ˆã†ãªã€Œãƒã‚¦ãƒ³ãƒ‰æ„Ÿã€ã‚’ç”Ÿã‚€
+        return EasingEnd + c3 * Mathf.Pow(p, CubicPower) + c1 * Mathf.Pow(p, QuadraticPower);
+    }
+
+
+    #endregion
 }

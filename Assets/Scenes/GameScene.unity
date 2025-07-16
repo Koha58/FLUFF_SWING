@@ -489,7 +489,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7178190328615695179, guid: a3a700d007e0a1849a7a751d0998b649, type: 3}
+  m_Sprite: {fileID: -4247393675775365415, guid: 00b6ad4fe16015e499d369ffb5760409, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -706,7 +706,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6119368011822985726, guid: 2ac5b360dd5e1fc4db65440706269dcb, type: 3}
+  m_Sprite: {fileID: 8621456225032892262, guid: 01516c485717c7d4bb7f681857ac8321, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1553,6 +1553,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43114243f47c0914c89847ff50bd6a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resultDelay: 2
+  pauseDelayAfterResult: 0.5
 --- !u!4 &499009404
 Transform:
   m_ObjectHideFlags: 0
@@ -1583,6 +1585,9 @@ MonoBehaviour:
   raycaster: {fileID: 1696027662}
   clearUI: {fileID: 179484886}
   gameOverUI: {fileID: 883706760}
+  targetScale: 0.4
+  scaleUpDuration: 0.5
+  easeOutBackStrength: 1.70158
 --- !u!114 &513625904 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8996202828860273277, guid: d2f9e9f638f1e134e8b6c27bfb820bef, type: 3}
@@ -3087,7 +3092,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7178190328615695179, guid: a3a700d007e0a1849a7a751d0998b649, type: 3}
+  m_Sprite: {fileID: 4367002703812525202, guid: b4709bd4d5cd42a48801950dc7ba1735, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8697,18 +8702,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1130722150500572754, guid: a0c13be280628b64b8fe692923c95749, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1397125819297243590, guid: a0c13be280628b64b8fe692923c95749, type: 3}
-      propertyPath: playerMove
-      value: 
-      objectReference: {fileID: 1428253102}
-    - target: {fileID: 1536718697083452004, guid: a0c13be280628b64b8fe692923c95749, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.54
-      objectReference: {fileID: 0}
     - target: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.93
