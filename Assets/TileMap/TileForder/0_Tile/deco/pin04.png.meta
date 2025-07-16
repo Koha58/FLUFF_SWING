@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 01516c485717c7d4bb7f681857ac8321
+guid: ecb0f86139e349d4b83bc7c82eba239e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8621456225032892262
-    second: Popup02_0
+      213: -1076787963995897675
+    second: pin04_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Popup02_0
+      name: pin04_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 6593
-        height: 4199
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 320
+        height: 320
+      alignment: 9
+      pivot: {x: 0.5, y: 0.55}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 66f6aab12c095a770800000000000000
-      internalID: 8621456225032892262
+      spriteID: 5b0cb934d0b7e01f0800000000000000
+      internalID: -1076787963995897675
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 4f550d2a9806fd54ea4cf39accc96ffb
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Popup02_0: 8621456225032892262
+      pin04_0: -1076787963995897675
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
