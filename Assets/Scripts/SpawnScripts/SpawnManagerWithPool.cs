@@ -24,7 +24,7 @@ public class SpawnManagerWithPool : MonoBehaviour
         {
             // プレイヤーとエントリーの位置の距離を計算
             float distance = Vector3.Distance(player.position, entry.position);
-            Debug.Log($"entry.id={entry.id}, distance={distance}");
+            //Debug.Log($"entry.id={entry.id}, distance={distance}");
 
             // 一定範囲内ならスポーン（まだスポーンしていなければ）
             if (distance <= spawnRange)

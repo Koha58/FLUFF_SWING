@@ -74,6 +74,13 @@ public class PlayerAnimatorController : MonoBehaviour
     // --------------------------------------------------------------
     public void SetPlayerState(PlayerState newState, float direction = 0f, float speed = 0f, bool force = false)
     {
+        // Awake()より先に呼ばれた場合に備え、Animatorの初期化を確認
+        if (_animator == null)
+        {
+            Debug.LogWarning("Animator is not yet initialized. Skipping state transition.");
+            return;
+        }
+
         // 同じ状態でforce=falseなら何もしない
         if (!force && _currentState == newState) return;
 
@@ -405,6 +412,13 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public void UpdateJumpState(float swingDirection)
     {
+        // アニメーターが初期化されていない場合は処理を中断
+        if (_animator == null)
+        {
+            Debug.LogWarning("Animator is not yet initialized. Skipping UpdateJumpState call.");
+            return;
+        }
+
         Debug.Log("UpdateJumpState called");
         SetPlayerState(PlayerState.Landing, swingDirection, 0f, true);
         Debug.Log("Animator current state int: " + _animator.GetInteger(AnimatorParams.State));

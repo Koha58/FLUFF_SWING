@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerWireConfig
   m_EditorClassIdentifier: 
   fixedWireLength: 3.5
-  needleSpeed: 0.3
+  needleSpeed: 20
   swingInitialSpeed: 10
   playerGravityScale: 3
   linearDamping: 0

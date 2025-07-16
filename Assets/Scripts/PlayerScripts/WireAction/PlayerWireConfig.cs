@@ -11,7 +11,7 @@ public class PlayerWireConfig : ScriptableObject
     public float fixedWireLength = 3.5f;
 
     /// <summary>針の飛ぶ速度（単位: ユニット/フレームなど）</summary>
-    public float needleSpeed = 0.3f;
+    public float needleSpeed = 20.0f;
 
     /// <summary>スイング開始時の初速（単位: ユニット/秒）</summary>
     public float swingInitialSpeed = 10f;
