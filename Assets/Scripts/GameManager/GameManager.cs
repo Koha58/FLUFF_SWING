@@ -24,6 +24,13 @@ public class GameManager : MonoBehaviour
     /// <summary>一時停止時のゲーム進行速度（Time.timeScale = 0）</summary>
     private readonly float pausedTimeScale = 0.0f;
 
+    [Header("SE設定")]
+    [SerializeField]
+    private AudioSource seAudioSource; // SEを再生するAudioSource
+
+    [SerializeField]
+    private AudioClip clearSE;         // ステージクリア時のSE
+
     #endregion
 
     #region State Management
@@ -126,6 +133,12 @@ public class GameManager : MonoBehaviour
     {
         // 結果に応じたUIを表示
         GameResultUIController.Instance.ShowResult(result);
+
+        // ゲームクリア時のみSEを再生
+        if (result == GameResult.Clear && seAudioSource != null && clearSE != null)
+        {
+            seAudioSource.PlayOneShot(clearSE);
+        }
 
         // UI表示後に一時停止処理を遅延実行
         Invoke(nameof(PauseGame), pauseDelayAfterResult);
