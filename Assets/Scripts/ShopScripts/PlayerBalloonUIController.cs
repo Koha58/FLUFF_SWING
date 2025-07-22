@@ -33,6 +33,12 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// <summary>メッセージを元に戻すまでの遅延秒数</summary>
     [SerializeField] private float restoreDelay = 3f;
 
+    /// <summary>SE再生用AudioSource</summary>
+    [SerializeField] private AudioSource seAudioSource;
+
+    /// <summary>「まいどあり」時に再生するSE</summary>
+    [SerializeField] private AudioClip thankYouSE;
+
     /// <summary>プレイヤーの攻撃制御クラス（HP回復の際にコイン所持数を参照）</summary>
     private PlayerAttack playerAttack;
 
@@ -163,6 +169,13 @@ public class PlayerBalloonUIController : MonoBehaviour
         {
             // コイン消費成功時は回復し感謝メッセージを表示
             playerAttack.Heal(1);
+
+            // SEが設定されていれば再生
+            if (seAudioSource != null && thankYouSE != null)
+            {
+                seAudioSource.PlayOneShot(thankYouSE);
+            }
+
             HandleResponse("まいどあり！");
         }
         else

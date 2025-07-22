@@ -72,6 +72,7 @@ public class SpawnDataImporter : EditorWindow
             string[] cols = lines[i].Split(',');
 
             SpawnDataEntry entry = new SpawnDataEntry();
+            entry.id = int.Parse(cols[0]);         // ID
             entry.type = cols[1].Trim();           // 種類（例: Enemy, Coin）
             entry.prefabName = cols[2].Trim();     // プレハブ名
 
