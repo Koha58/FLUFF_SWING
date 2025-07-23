@@ -42,8 +42,11 @@ public class GameResultUIController : MonoBehaviour
 
     #region Constants
 
+    /// <summary>セレクトシーンの名前（SceneManagerで使用）</summary>
+    private const string SelectSceneName = "SelectScene";
+
     /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
-    private const string TitleSceneName = "TitleScene";
+    private const string TitleSceneName = "SubTitleScene";
 
     /// <summary>通常のゲーム進行速度（Time.timeScale = 1）</summary>
     private const float NormalTimeScale = 1.0f;
@@ -143,7 +146,7 @@ public class GameResultUIController : MonoBehaviour
     public void ClickQuitToStageSelect()
     {
         ResumeGameTime();
-        SceneManager.LoadScene(TitleSceneName);
+        SceneManager.LoadScene(SelectSceneName);
     }
 
     #endregion

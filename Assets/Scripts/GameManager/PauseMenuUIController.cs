@@ -19,8 +19,11 @@ public class PauseMenuUIController : MonoBehaviour
     [SerializeField]
     private GraphicRaycaster pauseRaycaster; // ポーズ中のUI操作有効化用Raycaster
 
+    /// <summary>セレクトシーンの名前（SceneManagerで使用）</summary>
+    private const string SelectSceneName = "SelectScene";
+
     /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
-    private const string TitleSceneName = "TitleScene";
+    private const string TitleSceneName = "SubTitleScene";
 
     /// <summary>
     /// 初期化処理。UIを非表示にし、ボタン操作も無効化する。
@@ -82,7 +85,7 @@ public class PauseMenuUIController : MonoBehaviour
     /// </summary>
     public void ClickQuitToStageSelect()
     {
-        ResumeAndLoadScene(TitleSceneName);
+        ResumeAndLoadScene(SelectSceneName);
     }
 
     /// <summary>
