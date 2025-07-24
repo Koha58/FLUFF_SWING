@@ -43,7 +43,7 @@ public class BackgroundManager : MonoBehaviour
     void SpawnBackground()
     {
         // nextSpawnX‚ÌˆÊ’u‚É”wŒi‚ğ¶¬‚·‚éˆ—
-        float backgroundY = 0f; // ¶¬‚·‚éYÀ•W‚ğŒÅ’è
+        float backgroundY = backgroundPrefab.transform.position.y; ; // ¶¬‚·‚éYÀ•W‚ğŒÅ’è
         Vector3 spawnPos = new Vector3(nextSpawnX, backgroundY, 0f);
         GameObject bg = Instantiate(backgroundPrefab, spawnPos, Quaternion.identity);
         backgrounds.Add(bg);

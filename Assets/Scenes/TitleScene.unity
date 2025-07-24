@@ -155,6 +155,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2113774850}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &246431201
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 246431203}
+  - component: {fileID: 246431202}
+  m_Layer: 0
+  m_Name: SceneManegar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &246431202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246431201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbf91dc349a806a4d94674983d25274b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &246431203
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246431201}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 25.751577, y: 12.223324, z: -0.7189189}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &352060742 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4142046469220561104, guid: c66340af9c495214490b3348de0791f8, type: 3}
@@ -358,7 +402,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1047569225}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 246431202}
+        m_TargetAssemblyTypeName: SceneSelectScript, Assembly-CSharp
+        m_MethodName: SelectStage
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: SelectScene
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1047569225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2161,3 +2217,4 @@ SceneRoots:
   - {fileID: 2031409150}
   - {fileID: 6885924825962097803}
   - {fileID: 1844156761}
+  - {fileID: 246431203}
