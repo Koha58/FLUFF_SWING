@@ -8,6 +8,7 @@ using UnityEngine.Tilemaps;
 /// ITileWithType インターフェースを実装している。
 /// </summary>
 [CreateAssetMenu(menuName = "Tiles/Tagged RuleTile")]
+[System.Serializable]
 public class TaggedRuleTile : RuleTile, ITileWithType
 {
     // このタイルのタイプ（Ground, Hazard など）
