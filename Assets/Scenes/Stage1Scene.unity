@@ -15827,6 +15827,14 @@ PrefabInstance:
       propertyPath: balloonTextRectTransform
       value: 
       objectReference: {fileID: 1364599313}
+    - target: {fileID: 7758584978992543094, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: characterData
+      value: 
+      objectReference: {fileID: 11400000, guid: 8cb664153ee7f7647a46dd93c8d286f7, type: 2}
+    - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: status
+      value: 
+      objectReference: {fileID: 11400000, guid: 8cb664153ee7f7647a46dd93c8d286f7, type: 2}
     - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: healthUI
       value: 

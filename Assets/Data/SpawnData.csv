@@ -2,7 +2,7 @@
 1,enemy,SpawnPrefabs/EnemyPrefab/BlueRabbit,4.586,-1.624,0
 2,enemy,SpawnPrefabs/EnemyPrefab/YellowRabbit,5.83,-1.624,0
 3,enemy,SpawnPrefabs/EnemyPrefab/Bird,3.439298,0.5342882,0
-4,enemy,SpawnPrefabs/EnemyPrefab/RedPanda,17.69,-1.392,0
+4,enemy,SpawnPrefabs/EnemyPrefab/RedPanda,30,-1.392,0
 5,enemy,SpawnPrefabs/EnemyPrefab/Mole,11.56,-2,0
 6,coin,SpawnPrefabs/CoinPrefab/Coin,8,0,0
 7,coin,SpawnPrefabs/CoinPrefab/Coin,10,0,0
