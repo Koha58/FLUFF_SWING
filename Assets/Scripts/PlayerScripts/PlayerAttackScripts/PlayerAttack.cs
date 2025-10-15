@@ -37,6 +37,12 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// </summary>
     [SerializeField] private GameObject bombPrefab;
 
+    /// <summary>
+    /// 攻撃用SE
+    /// </summary>
+    [SerializeField] private AudioClip meleeAttackSE; // 近距離攻撃SE
+    [SerializeField] private AudioClip rangedAttackSE; // 遠距離攻撃SE
+
     #endregion
 
 
@@ -191,6 +197,12 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         // 攻撃アニメーションを再生（向き指定あり）
         animatorController?.PlayMeleeAttackAnimation(direction);
 
+        // SEを再生
+        if (meleeAttackSE != null)
+        {
+            AudioManager.Instance?.PlaySE(meleeAttackSE);
+        }
+
         // 対象がいればダメージを与える
         if (target != null)
         {
@@ -228,6 +240,12 @@ public class PlayerAttack : MonoBehaviour, IDamageable
 
         // 遠距離攻撃アニメーションを再生
         animatorController?.PlayRangedAttackAnimation(direction);
+
+        // SEを再生
+        if (meleeAttackSE != null)
+        {
+            AudioManager.Instance?.PlaySE(rangedAttackSE);
+        }
     }
 
 

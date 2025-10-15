@@ -15924,6 +15924,14 @@ PrefabInstance:
       propertyPath: healthUI
       value: 
       objectReference: {fileID: 68877112}
+    - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: meleeAttackSE
+      value: 
+      objectReference: {fileID: 8300000, guid: 7233d9ff968f17144be8a83e2a866c66, type: 3}
+    - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: rangedAttackSE
+      value: 
+      objectReference: {fileID: 8300000, guid: 6a8cbf2ac12309649b3ed65a664c9a93, type: 3}
     - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: needle
       value: 
