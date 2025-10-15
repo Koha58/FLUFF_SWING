@@ -1,72 +1,70 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// ƒQ[ƒ€‘S‘Ì‚Ìó‘ÔiƒQ[ƒ€ƒNƒŠƒAAƒQ[ƒ€ƒI[ƒo[‚È‚Çj‚ÆA
-/// ‚»‚ê‚É”º‚¤UI•\¦EŠÔ§ŒäE“ü—Íˆ—‚ğŠÇ—‚·‚éƒNƒ‰ƒXB
+/// ã‚²ãƒ¼ãƒ å…¨ä½“ã®çŠ¶æ…‹ï¼ˆã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢ã€ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼ãªã©ï¼‰ã¨ã€
+/// ãã‚Œã«ä¼´ã†UIè¡¨ç¤ºãƒ»æ™‚é–“åˆ¶å¾¡ãƒ»å…¥åŠ›å‡¦ç†ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
 /// </summary>
 public class GameManager : MonoBehaviour
 {
     #region Inspector Settings
 
-    /// <summary>ƒQ[ƒ€I—¹Œã‚ÉUI‚ğ•\¦‚·‚é‚Ü‚Å‚Ì‘Ò‹@ŠÔi•bj</summary>
+    /// <summary>ã‚²ãƒ¼ãƒ çµ‚äº†å¾Œã«UIã‚’è¡¨ç¤ºã™ã‚‹ã¾ã§ã®å¾…æ©Ÿæ™‚é–“ï¼ˆç§’ï¼‰</summary>
     [SerializeField]
     private float resultDelay = 2.0f;
 
-    /// <summary>UI•\¦Œã‚ÉƒQ[ƒ€‚ğˆê’â~‚·‚é‚Ü‚Å‚Ì’x‰„ŠÔi•bj</summary>
+    /// <summary>UIè¡¨ç¤ºå¾Œã«ã‚²ãƒ¼ãƒ ã‚’ä¸€æ™‚åœæ­¢ã™ã‚‹ã¾ã§ã®é…å»¶æ™‚é–“ï¼ˆç§’ï¼‰</summary>
     [SerializeField]
     private float pauseDelayAfterResult = 0.5f;
 
-    /// <summary>’Êí‚ÌƒQ[ƒ€is‘¬“xiTime.timeScale = 1j</summary>
+    /// <summary>é€šå¸¸ã®ã‚²ãƒ¼ãƒ é€²è¡Œé€Ÿåº¦ï¼ˆTime.timeScale = 1ï¼‰</summary>
     private readonly float normalTimeScale = 1.0f;
 
-    /// <summary>ˆê’â~‚ÌƒQ[ƒ€is‘¬“xiTime.timeScale = 0j</summary>
+    /// <summary>ä¸€æ™‚åœæ­¢æ™‚ã®ã‚²ãƒ¼ãƒ é€²è¡Œé€Ÿåº¦ï¼ˆTime.timeScale = 0ï¼‰</summary>
     private readonly float pausedTimeScale = 0.0f;
 
-    [Header("SEİ’è")]
-    [SerializeField]
-    private AudioSource seAudioSource; // SE‚ğÄ¶‚·‚éAudioSource
-
-    [SerializeField]
-    private AudioClip clearSE;         // ƒXƒe[ƒWƒNƒŠƒA‚ÌSE
+    [Header("SEè¨­å®š")]
+    [SerializeField] private AudioClip clearSE;         // ã‚¹ãƒ†ãƒ¼ã‚¸ã‚¯ãƒªã‚¢æ™‚ã®SE
+    [SerializeField] private AudioClip pauseOpenSE;  // ãƒãƒ¼ã‚ºãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’é–‹ã„ãŸæ™‚ã®SE
+    [SerializeField] private AudioClip pauseCloseSE; // ãƒãƒ¼ã‚ºãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’é–‰ã˜ãŸæ™‚ã®SE
 
     #endregion
 
     #region State Management
 
-    /// <summary>ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX</summary>
+    /// <summary>ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹</summary>
     public static GameManager Instance { get; private set; }
 
-    /// <summary>ƒQ[ƒ€‚ªI—¹‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©</summary>
+    /// <summary>ã‚²ãƒ¼ãƒ ãŒçµ‚äº†ã—ã¦ã„ã‚‹ã‹ã©ã†ã‹</summary>
     private bool isGameEnded = false;
 
     #endregion
 
     #region Unity Lifecycle
 
-    /// <summary>ƒ|[ƒY—p‚ÌInputƒAƒNƒVƒ‡ƒ“</summary>
+    /// <summary>ãƒãƒ¼ã‚ºç”¨ã®Inputã‚¢ã‚¯ã‚·ãƒ§ãƒ³</summary>
     private InputAction pauseAction;
 
-    /// <summary>Œ»İƒ|[ƒYó‘Ô‚©‚Ç‚¤‚©</summary>
+    /// <summary>ç¾åœ¨ãƒãƒ¼ã‚ºçŠ¶æ…‹ã‹ã©ã†ã‹</summary>
     private bool isPaused = false;
 
     /// <summary>
-    /// ‰Šú‰»ˆ—FƒVƒ“ƒOƒ‹ƒgƒ“‚Ìİ’è‚ÆInputƒAƒNƒVƒ‡ƒ“‚Ìæ“¾ATimeScale‚Ì‰Šú‰»‚ğs‚¤B
+    /// åˆæœŸåŒ–å‡¦ç†ï¼šã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã®è¨­å®šã¨Inputã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã®å–å¾—ã€TimeScaleã®åˆæœŸåŒ–ã‚’è¡Œã†ã€‚
     /// </summary>
     private void Awake()
     {
-        // ƒQ[ƒ€ŠJn‚Ìƒ^ƒCƒ€ƒXƒP[ƒ‹‚ğ’Êí‚Éİ’è
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã®ã‚¿ã‚¤ãƒ ã‚¹ã‚±ãƒ¼ãƒ«ã‚’é€šå¸¸ã«è¨­å®š
         Time.timeScale = normalTimeScale;
 
-        // Input System ‚©‚ç "Pause" ƒAƒNƒVƒ‡ƒ“‚ğæ“¾
+        // Input System ã‹ã‚‰ "Pause" ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’å–å¾—
         pauseAction = InputSystem.actions.FindAction("Pause");
         if (pauseAction == null)
         {
-            Debug.LogError("PauseƒAƒNƒVƒ‡ƒ“‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñBInputActions‚Ìİ’è‚ğŠm”F‚µ‚Ä‚­‚¾‚³‚¢B");
+            Debug.LogError("Pauseã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚InputActionsã®è¨­å®šã‚’ç¢ºèªã—ã¦ãã ã•ã„ã€‚");
         }
 
-        // ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX‚Ìİ’è
+        // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã®è¨­å®š
         Instance = this;
     }
 
@@ -75,20 +73,20 @@ public class GameManager : MonoBehaviour
     #region External Event Handlers
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ªƒS[ƒ‹‚É“’B‚µ‚½Û‚ÉŒÄ‚Ño‚³‚ê‚éB
-    /// UI•\¦EƒAƒjƒ[ƒVƒ‡ƒ“Ä¶EƒQ[ƒ€ˆê’â~ˆ—‚ğs‚¤B
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒã‚´ãƒ¼ãƒ«ã«åˆ°é”ã—ãŸéš›ã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚
+    /// UIè¡¨ç¤ºãƒ»ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å†ç”Ÿãƒ»ã‚²ãƒ¼ãƒ ä¸€æ™‚åœæ­¢å‡¦ç†ã‚’è¡Œã†ã€‚
     /// </summary>
-    /// <param name="playerTransform">ƒS[ƒ‹‚µ‚½ƒvƒŒƒCƒ„[‚ÌTransform</param>
+    /// <param name="playerTransform">ã‚´ãƒ¼ãƒ«ã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®Transform</param>
     public void OnGoalReached(Transform playerTransform)
     {
-        // ‚·‚Å‚ÉI—¹‚µ‚Ä‚¢‚ê‚Î–³‹
+        // ã™ã§ã«çµ‚äº†ã—ã¦ã„ã‚Œã°ç„¡è¦–
         if (isGameEnded) return;
 
-        // ƒQ[ƒ€I—¹ƒtƒ‰ƒO‚ğ—§‚Ä‚é
+        // ã‚²ãƒ¼ãƒ çµ‚äº†ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
         isGameEnded = true;
         Debug.Log("Goal reached! Stage Clear!");
 
-        // ƒvƒŒƒCƒ„[‚ÌŒü‚«‚É‰‚¶‚½ƒS[ƒ‹ƒAƒjƒ[ƒVƒ‡ƒ“‚ğÄ¶
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‘ãã«å¿œã˜ãŸã‚´ãƒ¼ãƒ«ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å†ç”Ÿ
         var playerController = playerTransform.GetComponent<PlayerAnimatorController>();
         if (playerController != null)
         {
@@ -96,51 +94,51 @@ public class GameManager : MonoBehaviour
             playerController.PlayGoalAnimation(direction);
         }
 
-        // w’è•b”Œã‚ÉƒŠƒUƒ‹ƒgUI‚ğ•\¦
+        // æŒ‡å®šç§’æ•°å¾Œã«ãƒªã‚¶ãƒ«ãƒˆUIã‚’è¡¨ç¤º
         Invoke(nameof(NotifyClear), resultDelay);
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ª€–S‚µ‚½‚Æ‚«‚ÉŒÄ‚Ño‚³‚ê‚éB
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ­»äº¡ã—ãŸã¨ãã«å‘¼ã³å‡ºã•ã‚Œã‚‹ã€‚
     /// </summary>
     public void OnPlayerDead()
     {
-        // ‚·‚Å‚ÉI—¹‚µ‚Ä‚¢‚ê‚Î–³‹
+        // ã™ã§ã«çµ‚äº†ã—ã¦ã„ã‚Œã°ç„¡è¦–
         if (isGameEnded) return;
 
-        // ƒQ[ƒ€I—¹ƒtƒ‰ƒO‚ğ—§‚Ä‚ÄAƒQ[ƒ€ƒI[ƒo[ˆ—‚ğ’x‰„ŒÄ‚Ño‚µ
+        // ã‚²ãƒ¼ãƒ çµ‚äº†ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã¦ã€ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼å‡¦ç†ã‚’é…å»¶å‘¼ã³å‡ºã—
         isGameEnded = true;
         Invoke(nameof(NotifyGameOver), resultDelay);
     }
 
-    /// <summary>ƒXƒe[ƒWƒNƒŠƒA’Ê’mˆ—i“à•”—pj</summary>
+    /// <summary>ã‚¹ãƒ†ãƒ¼ã‚¸ã‚¯ãƒªã‚¢é€šçŸ¥å‡¦ç†ï¼ˆå†…éƒ¨ç”¨ï¼‰</summary>
     private void NotifyClear()
     {
         ShowResult(GameResult.Clear);
     }
 
-    /// <summary>ƒQ[ƒ€ƒI[ƒo[’Ê’mˆ—i“à•”—pj</summary>
+    /// <summary>ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼é€šçŸ¥å‡¦ç†ï¼ˆå†…éƒ¨ç”¨ï¼‰</summary>
     private void NotifyGameOver()
     {
         ShowResult(GameResult.GameOver);
     }
 
     /// <summary>
-    /// ƒQ[ƒ€Œ‹‰Ê‚É‰‚¶‚½ƒŠƒUƒ‹ƒgUI•\¦‚Æˆê’â~‚ğs‚¤B
+    /// ã‚²ãƒ¼ãƒ çµæœã«å¿œã˜ãŸãƒªã‚¶ãƒ«ãƒˆUIè¡¨ç¤ºã¨ä¸€æ™‚åœæ­¢ã‚’è¡Œã†ã€‚
     /// </summary>
-    /// <param name="result">ƒNƒŠƒA or ƒQ[ƒ€ƒI[ƒo[</param>
+    /// <param name="result">ã‚¯ãƒªã‚¢ or ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼</param>
     private void ShowResult(GameResult result)
     {
-        // Œ‹‰Ê‚É‰‚¶‚½UI‚ğ•\¦
+        // çµæœã«å¿œã˜ãŸUIã‚’è¡¨ç¤º
         GameResultUIController.Instance.ShowResult(result);
 
-        // ƒQ[ƒ€ƒNƒŠƒA‚Ì‚İSE‚ğÄ¶
-        if (result == GameResult.Clear && seAudioSource != null && clearSE != null)
+        // ã‚²ãƒ¼ãƒ ã‚¯ãƒªã‚¢æ™‚ã®ã¿SEã‚’å†ç”Ÿ
+        if (result == GameResult.Clear && clearSE != null)
         {
-            seAudioSource.PlayOneShot(clearSE);
+            AudioManager.Instance.PlaySE(clearSE);
         }
 
-        // UI•\¦Œã‚Éˆê’â~ˆ—‚ğ’x‰„Às
+        // UIè¡¨ç¤ºå¾Œã«ä¸€æ™‚åœæ­¢å‡¦ç†ã‚’é…å»¶å®Ÿè¡Œ
         Invoke(nameof(PauseGame), pauseDelayAfterResult);
     }
 
@@ -149,7 +147,7 @@ public class GameManager : MonoBehaviour
     #region Time Control
 
     /// <summary>
-    /// —LŒø‰»‚ÉPauseƒAƒNƒVƒ‡ƒ“‚ğ“o˜^B
+    /// æœ‰åŠ¹åŒ–æ™‚ã«Pauseã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’ç™»éŒ²ã€‚
     /// </summary>
     private void OnEnable()
     {
@@ -161,7 +159,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// –³Œø‰»‚ÉPauseƒAƒNƒVƒ‡ƒ“‚ğ‰ğœB
+    /// ç„¡åŠ¹åŒ–æ™‚ã«Pauseã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’è§£é™¤ã€‚
     /// </summary>
     private void OnDisable()
     {
@@ -173,48 +171,66 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒ|[ƒY“ü—Í‚ªs‚í‚ê‚½‚Æ‚«‚Ìˆ—B
-    /// ƒQ[ƒ€‚Ìˆê’â~/ÄŠJ‚ÆUI•\¦§Œä‚ğs‚¤B
+    /// ãƒãƒ¼ã‚ºå…¥åŠ›ãŒè¡Œã‚ã‚ŒãŸã¨ãã®å‡¦ç†ã€‚
+    /// ã‚²ãƒ¼ãƒ ã®ä¸€æ™‚åœæ­¢/å†é–‹ã¨UIè¡¨ç¤ºåˆ¶å¾¡ã‚’è¡Œã†ã€‚
     /// </summary>
-    /// <param name="context">“ü—ÍƒCƒxƒ“ƒgƒRƒ“ƒeƒLƒXƒg</param>
+    /// <param name="context">å…¥åŠ›ã‚¤ãƒ™ãƒ³ãƒˆã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ</param>
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
-        // ƒQ[ƒ€I—¹Œã‚Íƒ|[ƒY‚Å‚«‚È‚¢‚æ‚¤‚É‚·‚é
+        // ã‚²ãƒ¼ãƒ çµ‚äº†å¾Œã¯ãƒãƒ¼ã‚ºã§ããªã„ã‚ˆã†ã«ã™ã‚‹
         if (isGameEnded) return;
 
         if (isPaused)
         {
-            // ÄŠJˆ—Fƒ^ƒCƒ€ƒXƒP[ƒ‹‚ğ–ß‚µAƒ|[ƒYUI‚ğ•Â‚¶‚é
+            // å†é–‹å‡¦ç†ï¼šã‚¿ã‚¤ãƒ ã‚¹ã‚±ãƒ¼ãƒ«ã‚’æˆ»ã—ã€ãƒãƒ¼ã‚ºUIã‚’é–‰ã˜ã‚‹
             ResumeGame();
             PauseMenuUIController.Instance?.ClosePauseMenu();
+
+            // ğŸ”Š ãƒãƒ¼ã‚ºã‚’é–‰ã˜ã‚‹SEã‚’å†ç”Ÿ
+            if (pauseCloseSE != null)
+            {
+                AudioManager.Instance.PlaySE(pauseCloseSE);
+            }
         }
         else
         {
-            // ˆê’â~ˆ—Fƒ^ƒCƒ€ƒXƒP[ƒ‹‚ğ0‚É‚µAƒ|[ƒYUI‚ğŠJ‚­
+            // ä¸€æ™‚åœæ­¢å‡¦ç†ï¼šã‚¿ã‚¤ãƒ ã‚¹ã‚±ãƒ¼ãƒ«ã‚’0ã«ã—ã€ãƒãƒ¼ã‚ºUIã‚’é–‹ã
             PauseGame();
             PauseMenuUIController.Instance?.OpenPauseMenu();
+
+            // ğŸ”Š ãƒãƒ¼ã‚ºã‚’é–‹ãSEã‚’å†ç”Ÿ
+            if (pauseOpenSE != null)
+            {
+                AudioManager.Instance.PlaySE(pauseOpenSE);
+            }
         }
 
-        // ƒ|[ƒYó‘Ô‚Ìƒtƒ‰ƒO‚ğƒgƒOƒ‹
+        // ãƒãƒ¼ã‚ºçŠ¶æ…‹ã®ãƒ•ãƒ©ã‚°ã‚’ãƒˆã‚°ãƒ«
         isPaused = !isPaused;
     }
 
     /// <summary>
-    /// ƒ|[ƒYUI‚©‚çResume‚³‚ê‚½Û‚ÉŒÄ‚Ño‚·B
-    /// ƒ^ƒCƒ€ƒXƒP[ƒ‹‚Æƒtƒ‰ƒO‚ğƒŠƒZƒbƒg‚·‚éB
+    /// ãƒãƒ¼ã‚ºUIã‹ã‚‰Resumeã•ã‚ŒãŸéš›ã«å‘¼ã³å‡ºã™ã€‚
+    /// ã‚¿ã‚¤ãƒ ã‚¹ã‚±ãƒ¼ãƒ«ã¨ãƒ•ãƒ©ã‚°ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹ã€‚
     /// </summary>
     public void ResumeFromPauseMenu()
     {
-        // ƒQ[ƒ€I—¹Œã‚Í‰½‚à‚µ‚È‚¢
+        // ã‚²ãƒ¼ãƒ çµ‚äº†å¾Œã¯ä½•ã‚‚ã—ãªã„
         if (isGameEnded) return;
 
-        // ÄŠJˆ—
+        // å†é–‹å‡¦ç†
         ResumeGame();
         isPaused = false;
+
+        // ğŸ”Š ãƒãƒ¼ã‚ºã‚’é–‰ã˜ã‚‹SEã‚’å†ç”Ÿ
+        if (pauseCloseSE != null)
+        {
+            AudioManager.Instance.PlaySE(pauseCloseSE);
+        }
     }
 
     /// <summary>
-    /// ƒQ[ƒ€‚ğˆê’â~iTime.timeScale = 0j‚É‚·‚éB
+    /// ã‚²ãƒ¼ãƒ ã‚’ä¸€æ™‚åœæ­¢ï¼ˆTime.timeScale = 0ï¼‰ã«ã™ã‚‹ã€‚
     /// </summary>
     public void PauseGame()
     {
@@ -222,7 +238,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒQ[ƒ€‚Ìˆê’â~‚ğ‰ğœiTime.timeScale = 1j‚É–ß‚·B
+    /// ã‚²ãƒ¼ãƒ ã®ä¸€æ™‚åœæ­¢ã‚’è§£é™¤ï¼ˆTime.timeScale = 1ï¼‰ã«æˆ»ã™ã€‚
     /// </summary>
     public void ResumeGame()
     {

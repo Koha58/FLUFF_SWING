@@ -3,113 +3,139 @@ using UnityEngine.Audio;
 using UnityEngine.UI;
 
 /// <summary>
-/// 全シーンで共有するオーディオ管理クラス（BGM/SE の音量管理）。
-/// ・スライダーは 0〜1 の線形値を受け取り、AudioMixer に渡すときに dB（対数）に変換します。
-/// ・設定は PlayerPrefs に保存して永続化します。
-/// ・シーンをまたいで破棄されないように DontDestroyOnLoad を使用します。
+/// 🎧 ゲーム全体の音量（BGM・SE）を統一的に管理するマネージャークラス。
+/// - AudioMixerを介して実際の音量を制御
+/// - スライダーUIと連動して音量を変更・保存
+/// - ゲーム間で音量設定を保持（DontDestroyOnLoad）
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
-    // シングルトン参照（簡易的な実装）
+    /// <summary>グローバルにアクセス可能なシングルトンインスタンス</summary>
     public static AudioManager Instance;
 
-    // インスペクターで割り当てる：
-    // - AudioMixer: BGM/SE のグループを持つ Mixer（Exposed Parameter を作成しておく）
-    // - bgmSlider / seSlider: Unity UI (UGUI) の Slider（0〜1）
-    [SerializeField] private AudioMixer audioMixer;
-    [SerializeField] private Slider bgmSlider;
-    [SerializeField] private Slider seSlider;
+    [Header("Audio Mixer & Sliders")]
+    [SerializeField] private AudioMixer audioMixer; // 🎚 実際の音量制御に使うミキサー
+    [SerializeField] private Slider bgmSlider;      // 🎵 BGM音量用スライダー
+    [SerializeField] private Slider seSlider;       // 🔊 SE音量用スライダー
 
-    // PlayerPrefs に保存するキー名
+    [Header("Audio Sources")]
+    [SerializeField] private AudioSource bgmSource; // BGM再生用
+    [SerializeField] private AudioSource seSource;  // SE再生用
+
+    [Header("確認用SE")]
+    [SerializeField] private AudioClip testSE; // 🎵 スライダー操作時に流す確認用SE
+
+    // 🔑 PlayerPrefs用の保存キー
     private const string BGM_KEY = "BGMVolume";
     private const string SE_KEY = "SEVolume";
 
+    private float lastPlayTime;
+    private const float playCooldown = 0.2f; // 0.2秒間隔で制限
+    private bool isInitializing = true; // 🟡 初期化中フラグ
+
+    public AudioClip TestSE => testSE;
+
+    /// <summary>
+    /// 初期化処理（シングルトン構築のみ）。
+    /// 音量設定の反映は AudioMixer の初期化が終わる Start() で行う。
+    /// </summary>
     private void Awake()
     {
-        // --- シングルトンと DontDestroyOnLoad の設定 ---
-        // 最初のインスタンスだけを残し、それ以外は破棄します。
-        // これにより、オーディオ設定を保持したままシーン移動できます。
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // シーンをまたいでオブジェクトを維持
+            DontDestroyOnLoad(gameObject); // シーンを跨いでも破棄されないようにする
         }
         else
         {
-            Destroy(gameObject); // 既に存在する場合は重複を破棄
+            Destroy(gameObject); // 二重生成を防ぐ
             return;
         }
+    }
 
-        // --- 保存された音量の読み込み（存在しなければ 1.0 を使用） ---
-        // PlayerPrefs には線形 0〜1 の値を保存しておく（扱いやすい）
-        float bgmVolume = PlayerPrefs.GetFloat(BGM_KEY, 1f); // デフォルトはフル音量
+    /// <summary>
+    /// 起動時に前回保存した音量設定を AudioMixer に適用。
+    /// AudioMixer が Awake() 時点ではまだ初期化されていないため、
+    /// Start() で行うことで「初回起動時に音がMAXになる問題」を防ぐ。
+    /// </summary>
+    private void Start()
+    {
+        // PlayerPrefsから前回保存した音量を取得（初回起動時は1.0f）
+        float bgmVolume = PlayerPrefs.GetFloat(BGM_KEY, 1f);
         float seVolume = PlayerPrefs.GetFloat(SE_KEY, 1f);
 
-        // Mixer に適用（内部で dB に変換するメソッドを使う）
+        // 実際の音量をミキサーに反映
         SetBGMVolume(bgmVolume);
         SetSEVolume(seVolume);
 
-        // スライダーがシーン上にある場合は、UI を読み込んだ値で初期化しておく
-        // （スライダーが別シーンの UI の場合は、そのシーンに入ったときに値を反映する処理が必要）
-        if (bgmSlider != null)
-            bgmSlider.value = bgmVolume;
-        if (seSlider != null)
-            seSlider.value = seVolume;
+        // 初期設定中はOnValueChangedを無視
+        if (bgmSlider != null) bgmSlider.SetValueWithoutNotify(bgmVolume);
+        if (seSlider != null) seSlider.SetValueWithoutNotify(seVolume);
 
-        // ※ UGUI の Slider を使っている場合は、Inspector の OnValueChanged に
-        //    AudioManager.OnBGMVolumeChanged/OnSEVolumeChanged を割り当ててください。
-        //    UI Toolkit を使っているならコード上でイベント登録が必要です。
+        // ✅ 初期化完了（これ以降はイベント反応OK）
+        isInitializing = false;
     }
 
     /// <summary>
-    /// スライダー（UI）から呼ばれる public メソッド（Inspector に出るよう public にする）
-    /// Slider の OnValueChanged(float) に対応するシグネチャにする必要があります。
+    /// 🎚 BGMスライダーが変更されたときに呼ばれる。
+    /// ミキサーに反映し、PlayerPrefsに保存する。
     /// </summary>
-    /// <param name="value">線形の音量（0〜1）</param>
     public void OnBGMVolumeChanged(float value)
     {
-        // 実際の適用と保存を分けているのでテストしやすく、再利用性が上がる
+        if (isInitializing) return; // ← 初期化中なら無視
+
         SetBGMVolume(value);
-        PlayerPrefs.SetFloat(BGM_KEY, value); // 即保存（必要に応じて OnApplicationQuit でまとめて保存しても良い）
+        PlayerPrefs.SetFloat(BGM_KEY, value);
     }
 
     /// <summary>
-    /// SE 用のスライダーイベント
+    /// 🎚 SEスライダーが変更されたときに呼ばれる。
+    /// ミキサーに反映し、PlayerPrefsに保存する。
     /// </summary>
-    /// <param name="value">線形の音量（0〜1）</param>
     public void OnSEVolumeChanged(float value)
     {
+        if (isInitializing) return; // ← 初期化中なら無視
+
         SetSEVolume(value);
         PlayerPrefs.SetFloat(SE_KEY, value);
+
+        // 🔊 確認用SEを流す
+        if (testSE != null && Time.time - lastPlayTime > playCooldown)
+        {
+            PlaySE(testSE);
+            lastPlayTime = Time.time;
+        }
     }
 
     /// <summary>
-    /// 線形 0〜1 の値を dB に変換して AudioMixer にセットする（BGM）
+    /// BGM音量をAudioMixerに反映。
+    /// スライダー値（0〜1）をdB値（-80〜0）に変換して設定。
     /// </summary>
-    /// <param name="value">0〜1（線形）</param>
     private void SetBGMVolume(float value)
     {
-        // 小さい値で Mathf.Log10 が -inf にならないよう下限を設ける
-        // 0.0001 は -80dB 相当（ほぼ無音）なので十分小さい
-        float clamped = Mathf.Clamp(value, 0.0001f, 1f);
-
-        // dB 変換：
-        // 20 * log10(linear) で線形振幅をデシベルに変換する（AudioMixer は dB を期待）
-        float dB = Mathf.Log10(clamped) * 20f;
-
-        // AudioMixer 上で Expose したパラメータ名（例："BGMVolume"）に適用する
-        // ※ Expose 名は AudioMixer 側で設定しておくこと
+        float clamped = Mathf.Clamp(value, 0.0001f, 1f); // log10(0)防止
+        float dB = Mathf.Log10(clamped) * 20f;           // 対数変換で音量カーブを自然に
         audioMixer.SetFloat("BGMVolume", dB);
     }
 
     /// <summary>
-    /// 線形 0〜1 の値を dB に変換して AudioMixer にセットする（SE）
+    /// SE音量をAudioMixerに反映。
+    /// スライダー値（0〜1）をdB値（-80〜0）に変換して設定。
     /// </summary>
-    /// <param name="value">0〜1（線形）</param>
     private void SetSEVolume(float value)
     {
         float clamped = Mathf.Clamp(value, 0.0001f, 1f);
         float dB = Mathf.Log10(clamped) * 20f;
         audioMixer.SetFloat("SEVolume", dB);
+    }
+
+    /// <summary>
+    /// 🎵 SEを一度だけ再生する。
+    /// AudioSourceの音量はAudioMixerの「SEVolume」パラメータに従う。
+    /// </summary>
+    public void PlaySE(AudioClip clip)
+    {
+        if (clip == null || seSource == null) return;
+        seSource.PlayOneShot(clip);
     }
 }
