@@ -99,6 +99,15 @@ public class WireActionScript : MonoBehaviour
 
     #endregion
 
+    #region SE関連
+
+    /// <summary>
+    /// 死亡時のSE
+    /// </summary>
+    [SerializeField] private AudioClip wireSE;
+
+    #endregion
+
 
     private void Awake()
     {
@@ -302,6 +311,9 @@ public class WireActionScript : MonoBehaviour
         needle.transform.position = targetPosition;
         targetObject = hitObject;
         _hookedPosition = targetPosition;
+
+        // SEを再生
+        AudioManager.Instance?.PlaySE(wireSE);
 
         // LineRendererを有効化
         if (lineRenderer != null)

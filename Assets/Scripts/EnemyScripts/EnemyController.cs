@@ -32,6 +32,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// <summary>SpriteRenderer</summary>
     [SerializeField] private SpriteRenderer spriteRenderer;
 
+    /// <summary>
+    /// €–S‚ÌSE
+    /// </summary>
+    [SerializeField] private AudioClip deathSE;
+
     #endregion
 
     #region === Private Fields ===
@@ -177,6 +182,8 @@ public class EnemyController : MonoBehaviour, IDamageable
         // HP‚ª0ˆÈ‰º‚É‚È‚Á‚½‚ç€–SƒXƒe[ƒg‚Ö‘JˆÚ
         if (currentHP <= 0)
         {
+            // €–SSE‚ğÄ¶
+            AudioManager.Instance?.PlaySE(deathSE);
             stateMachine.ChangeState(stateMachineSO.deadState);
         }
     }

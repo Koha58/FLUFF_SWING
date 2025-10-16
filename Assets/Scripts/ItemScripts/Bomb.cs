@@ -1,23 +1,26 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// “Š‚°‚ç‚ê‚é”š’e‚Ì‹““®‚ğŠÇ—‚·‚éƒNƒ‰ƒXB
-/// - “Š‚°‚ç‚ê‚½ŒãA•¨—‰‰Z‚Å”ò‚Ô
-/// - ’nŒ`‚â“G‚É“–‚½‚é‚Æ”š”­‚·‚é
-/// - ”š”­ƒGƒtƒFƒNƒg‚ğÄ¶‚µA©g‚ğ”j‰ó‚·‚é
+/// æŠ•ã’ã‚‰ã‚Œã‚‹çˆ†å¼¾ã®æŒ™å‹•ã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
+/// - æŠ•ã’ã‚‰ã‚ŒãŸå¾Œã€ç‰©ç†æ¼”ç®—ã§é£›ã¶
+/// - åœ°å½¢ã‚„æ•µã«å½“ãŸã‚‹ã¨çˆ†ç™ºã™ã‚‹
+/// - çˆ†ç™ºã‚¨ãƒ•ã‚§ã‚¯ãƒˆãƒ»SEã‚’å†ç”Ÿã—ã€è‡ªèº«ã‚’ç ´å£Šã™ã‚‹
 /// </summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class Bomb : MonoBehaviour
 {
     private Rigidbody2D rb;
 
-    [Header("”š”­ƒGƒtƒFƒNƒg")]
+    [Header("çˆ†ç™ºã‚¨ãƒ•ã‚§ã‚¯ãƒˆ")]
     [SerializeField] private GameObject explosionEffectPrefab;
 
-    [Header("”š”­İ’è")]
-    private float explosionRadius = 1f;    // ”š”­”ÍˆÍ
-    private int explosionDamage;       // ”š”­ƒ_ƒ[ƒW
-    [SerializeField] private LayerMask damageableLayers;     // ƒ_ƒ[ƒW”»’è‘ÎÛƒŒƒCƒ„[
+    [Header("çˆ†ç™ºSEè¨­å®š")]
+    [SerializeField] private AudioClip explosionSE;  // â† â˜… ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼/æ•µã§å¤‰ãˆã‚‹SE
+
+    [Header("çˆ†ç™ºè¨­å®š")]
+    [SerializeField] private float explosionRadius = 1f;
+    [SerializeField] private LayerMask damageableLayers;
+    private int explosionDamage;
 
     private bool hasExploded = false;
 
@@ -32,35 +35,33 @@ public class Bomb : MonoBehaviour
         explosionDamage = damage;
     }
 
-    /// <summary>
-    /// Õ“Ë”»’èi’nŒ`E“G‚È‚Ç‚É“–‚½‚Á‚½‚ç”š”­j
-    /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Bomb collided with {other.gameObject.name}");
         if (hasExploded) return;
-
         Explode();
     }
 
-
     /// <summary>
-    /// ”š”­ˆ—
-    /// - ƒGƒtƒFƒNƒg¶¬
-    /// - ”ÍˆÍ“à‚Ìƒ_ƒ[ƒWˆ—
-    /// - ”š’eƒIƒuƒWƒFƒNƒg”jŠü
+    /// çˆ†ç™ºå‡¦ç†
     /// </summary>
     private void Explode()
     {
         hasExploded = true;
 
+        // ğŸµ çˆ†ç™ºSEã‚’å†ç”Ÿï¼ˆAudioManagerçµŒç”±ã§çµ±ä¸€ç®¡ç†ï¼‰
+        if (explosionSE != null)
+        {
+            AudioManager.Instance?.PlaySE(explosionSE);
+        }
+
+        // ğŸ’¥ çˆ†ç™ºã‚¨ãƒ•ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆ
         if (explosionEffectPrefab != null)
         {
             GameObject effect = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             Destroy(effect, 1.0f);
-            Destroy(gameObject);
         }
 
+        // ğŸ’¢ ç¯„å›²å†…ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«ãƒ€ãƒ¡ãƒ¼ã‚¸
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius, damageableLayers);
         foreach (var hit in hits)
         {
@@ -68,16 +69,13 @@ public class Bomb : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(explosionDamage);
-                Debug.Log("Destroying bomb gameobject.");
             }
         }
+
+        // ğŸ§¨ æœ€å¾Œã«è‡ªåˆ†ã‚’ç ´å£Š
+        Destroy(gameObject);
     }
 
-
-
-    /// <summary>
-    /// ƒGƒfƒBƒ^ã‚Å”š”­”ÍˆÍ‚ğ‰Â‹‰»iGizmo•\¦j
-    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

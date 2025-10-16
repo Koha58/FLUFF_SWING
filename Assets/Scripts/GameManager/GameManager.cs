@@ -86,6 +86,20 @@ public class GameManager : MonoBehaviour
         isGameEnded = true;
         Debug.Log("Goal reached! Stage Clear!");
 
+        // 🟢 プレイヤー操作を停止
+        var playerMove = playerTransform.GetComponent<PlayerMove>();
+        if (playerMove != null)
+        {
+            playerMove.enabled = false;
+        }
+
+        // 攻撃なども止めたい場合
+        var playerAttack = playerTransform.GetComponent<PlayerAttack>();
+        if (playerAttack != null)
+        {
+            playerAttack.enabled = false;
+        }
+
         // プレイヤーの向きに応じたゴールアニメーションを再生
         var playerController = playerTransform.GetComponent<PlayerAnimatorController>();
         if (playerController != null)

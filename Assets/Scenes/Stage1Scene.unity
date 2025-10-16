@@ -14810,8 +14810,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -5193081529779109497, guid: 31fae0cc7d4333447b2db0aa68a7ea03, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 971247e0c34513a428b063be4e4fc492, type: 3}
-  m_Resource: {fileID: 8300000, guid: 971247e0c34513a428b063be4e4fc492, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
+  m_Resource: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.5
   m_Pitch: 1
@@ -15921,6 +15921,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 8cb664153ee7f7647a46dd93c8d286f7, type: 2}
     - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: damageSE
+      value: 
+      objectReference: {fileID: 8300000, guid: 2f796f23ade1aa241bf90536f5a4c80e, type: 3}
+    - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: healthUI
       value: 
       objectReference: {fileID: 68877112}
@@ -15936,6 +15940,10 @@ PrefabInstance:
       propertyPath: needle
       value: 
       objectReference: {fileID: 1717996901}
+    - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: wireSE
+      value: 
+      objectReference: {fileID: 8300000, guid: 56a8b2dec3211eb439eb16d2d955290e, type: 3}
     - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: needlePivot
       value: 

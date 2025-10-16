@@ -25,6 +25,11 @@ public class EnemyThrowAttack : MonoBehaviour
     [SerializeField] private Transform player;
 
     /// <summary>
+    /// 投げるときのSE
+    /// </summary>
+    [SerializeField] private AudioClip throwSE;
+
+    /// <summary>
     /// 投げる力の最小値（内部固定値）。
     /// </summary>
     private float minThrowForce = 4f;
@@ -118,5 +123,18 @@ public class EnemyThrowAttack : MonoBehaviour
             Debug.LogWarning("Bomb prefab does not have Bomb script!");
         }
     }
+
+    /// <summary>
+    /// 投げモーションの途中（アニメーションイベント）で呼ばれるSE再生用。
+    /// </summary>
+    public void PlayThrowSE()
+    {
+        if (throwSE != null)
+        {
+            AudioManager.Instance?.PlaySE(throwSE);
+            Debug.Log("PlayThrowSE() called early.");
+        }
+    }
+
 
 }

@@ -198,6 +198,7 @@ MonoBehaviour:
   stateMachineSO: {fileID: 11400000, guid: ef8d677f3b16f7e4ebf374ee8d6e0ee5, type: 2}
   hasDeadAnimation: 0
   spriteRenderer: {fileID: 1858306949512397081}
+  deathSE: {fileID: 8300000, guid: 7cba4bd6331af3d4c82bb426449f64a8, type: 3}
 --- !u!114 &7759506973284153664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,3 +230,4 @@ MonoBehaviour:
   bombPrefab: {fileID: 9171000065244376544, guid: f3be7ff786ff38143aee78de35f3d9f1, type: 3}
   status: {fileID: 11400000, guid: 7f5c68e3f748e3646ac70d1f582b3ac4, type: 2}
   player: {fileID: 0}
+  throwSE: {fileID: 8300000, guid: 5eccd6477bd9a98499e33eb32079a525, type: 3}

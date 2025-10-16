@@ -166,6 +166,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   explosionEffectPrefab: {fileID: 5791263284452230019, guid: 5385f31915f74d9409a471fb1ceda12e, type: 3}
+  explosionSE: {fileID: 8300000, guid: 84366d04e5f6dac4c8af9fd135a3011d, type: 3}
+  explosionRadius: 1
   damageableLayers:
     serializedVersion: 2
     m_Bits: 512
