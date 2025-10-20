@@ -260,6 +260,18 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #endregion
 
+    #region SE管理
+
+    // --------------------------------------------------------------
+    // 【SE管理】
+    // 着地時に再生
+    // --------------------------------------------------------------
+    [SerializeField] private AudioClip landingSE;
+    [SerializeField] private AudioClip[] footstepSEs;
+    private int lastFootstepIndex = -1;
+
+    #endregion
+
 
     private void Awake()
     {
@@ -279,7 +291,6 @@ public class PlayerAnimatorController : MonoBehaviour
             if (_grappleTimer <= 0f)
             {
                 _justGrappled = false;
-                //SetPlayerState(PlayerState.Idle, 1.0f, 0f);
 
                 if (_pendingWireTransition)
                 {
@@ -634,6 +645,31 @@ public class PlayerAnimatorController : MonoBehaviour
         {
             SetPlayerState(PlayerState.Idle, direction);
         }
+    }
+
+    /// <summary>
+    /// 移動SE再生
+    /// </summary>
+    public void PlayFootstepSE()
+    {
+        if (footstepSEs == null || footstepSEs.Length == 0) return;
+
+        int index;
+        do
+        {
+            index = Random.Range(0, footstepSEs.Length);
+        } while (index == lastFootstepIndex && footstepSEs.Length > 1);
+
+        lastFootstepIndex = index;
+        AudioManager.Instance?.PlaySE(footstepSEs[index]);
+    }
+
+    /// <summary>
+    /// 着地SE再生
+    /// </summary>
+    public void PlayLandingSE()
+    {
+        AudioManager.Instance?.PlaySE(landingSE);
     }
 
     /// <summary>

@@ -13130,6 +13130,7 @@ MonoBehaviour:
   resultDelay: 2
   pauseDelayAfterResult: 0.5
   clearSE: {fileID: 8300000, guid: a26ea29adc55af549ba6adfc563098bb, type: 3}
+  gameOverSE: {fileID: 8300000, guid: a5d39ebdba42b1144ab4d83f453d75f0, type: 3}
   pauseOpenSE: {fileID: 8300000, guid: e4a83ce9589e1b04a976bcd2155044bf, type: 3}
   pauseCloseSE: {fileID: 8300000, guid: 07002b499f3b9514d84600b00469280b, type: 3}
 --- !u!4 &929820029
@@ -15936,6 +15937,26 @@ PrefabInstance:
       propertyPath: rangedAttackSE
       value: 
       objectReference: {fileID: 8300000, guid: 6a8cbf2ac12309649b3ed65a664c9a93, type: 3}
+    - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: landingSE
+      value: 
+      objectReference: {fileID: 8300000, guid: 30ee4c37b63577444a0b6fdc7952e5fd, type: 3}
+    - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: footstepSEs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: 'footstepSEs.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 308447d5dee257647a2673ff5497db86, type: 3}
+    - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: 'footstepSEs.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: d05de288bcb64ef4ba99972bbb097695, type: 3}
+    - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: 'footstepSEs.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: a327bbdeb90bf4a44949dd02da30cc9d, type: 3}
     - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: needle
       value: 

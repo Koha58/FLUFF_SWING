@@ -37,6 +37,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     [SerializeField] private AudioClip deathSE;
 
+    /// <summary>
+    /// ワイヤーカット時のSE
+    /// </summary>
+    [SerializeField] private AudioClip cutSE;
+
     #endregion
 
     #region === Private Fields ===
@@ -346,4 +351,12 @@ public class EnemyController : MonoBehaviour, IDamageable
     }
 
     #endregion
+
+    /// <summary>
+    /// ワイヤーカットSE再生
+    /// </summary>
+    public void PlayCutSE()
+    {
+        AudioManager.Instance?.PlaySE(cutSE);
+    }
 }

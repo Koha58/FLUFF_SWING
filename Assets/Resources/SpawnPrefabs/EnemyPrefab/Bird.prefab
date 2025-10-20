@@ -197,6 +197,7 @@ MonoBehaviour:
   hasDeadAnimation: 0
   spriteRenderer: {fileID: 4891722097327311955}
   deathSE: {fileID: 8300000, guid: 7cba4bd6331af3d4c82bb426449f64a8, type: 3}
+  cutSE: {fileID: 8300000, guid: c93c8a08b3d427441acb8f9d3ccae911, type: 3}
 --- !u!114 &2599123870922762031
 MonoBehaviour:
   m_ObjectHideFlags: 0

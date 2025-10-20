@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour
     private readonly float pausedTimeScale = 0.0f;
 
     [Header("SE設定")]
-    [SerializeField] private AudioClip clearSE;         // ステージクリア時のSE
+    [SerializeField] private AudioClip clearSE;      // ステージクリア時のSE
+    [SerializeField] private AudioClip gameOverSE;   // ゲームオーバー時のSE
     [SerializeField] private AudioClip pauseOpenSE;  // ポーズメニューを開いた時のSE
     [SerializeField] private AudioClip pauseCloseSE; // ポーズメニューを閉じた時のSE
 
@@ -146,10 +147,15 @@ public class GameManager : MonoBehaviour
         // 結果に応じたUIを表示
         GameResultUIController.Instance.ShowResult(result);
 
-        // ゲームクリア時のみSEを再生
+        // ゲームクリア時のSEを再生
         if (result == GameResult.Clear && clearSE != null)
         {
             AudioManager.Instance.PlaySE(clearSE);
+        }
+        // ゲームオーバー時のSEを再生
+        else
+        {
+            AudioManager.Instance.PlaySE(gameOverSE);
         }
 
         // UI表示後に一時停止処理を遅延実行
