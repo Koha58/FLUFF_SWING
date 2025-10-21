@@ -12,6 +12,17 @@ public class Plyerscrool : MonoBehaviour
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
+    #region SE管理
+
+    // --------------------------------------------------------------
+    // 【SE管理】
+    // 着地時に再生
+    // --------------------------------------------------------------
+    [SerializeField] private AudioClip[] footstepSEs;
+    private int lastFootstepIndex = -1;
+
+    #endregion
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -32,5 +43,19 @@ public class Plyerscrool : MonoBehaviour
         // スプライト反転（元の絵が左向きだから右に進むときはflipX = true）
         spriteRenderer.flipX = rb.linearVelocity.x < 0;
 
+    }
+
+    public void PlayFootstepSE()
+    {
+        if (footstepSEs == null || footstepSEs.Length == 0) return;
+
+        int index;
+        do
+        {
+            index = Random.Range(0, footstepSEs.Length);
+        } while (index == lastFootstepIndex && footstepSEs.Length > 1);
+
+        lastFootstepIndex = index;
+        AudioManager.Instance?.PlaySE(footstepSEs[index]);
     }
 }
