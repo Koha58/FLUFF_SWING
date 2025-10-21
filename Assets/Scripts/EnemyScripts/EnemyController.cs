@@ -42,6 +42,11 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     [SerializeField] private AudioClip cutSE;
 
+    /// <summary>
+    /// ƒ‚ƒOƒ‰”ò‚Ño‚µ/ö‚è‚ÌSE
+    /// </summary>
+    [SerializeField] private AudioClip popSE;
+
     #endregion
 
     #region === Private Fields ===
@@ -358,5 +363,13 @@ public class EnemyController : MonoBehaviour, IDamageable
     public void PlayCutSE()
     {
         AudioManager.Instance?.PlaySE(cutSE);
+    }
+
+    /// <summary>
+    /// ”ò‚Ño‚µ/ö‚èSEÄ¶
+    /// </summary>
+    public void PlayPopSE()
+    {
+        AudioManager.Instance?.PlaySE(popSE);
     }
 }

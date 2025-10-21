@@ -14689,6 +14689,10 @@ MonoBehaviour:
   bgmSource: {fileID: 1314980016}
   seSource: {fileID: 1314980015}
   testSE: {fileID: 8300000, guid: 841db6c7743ce544f95b76f53bef5cc9, type: 3}
+  seClips:
+  - {fileID: 8300000, guid: ab3c4b9f2d0fad44eb56be8a5a3abfb8, type: 3}
+  - {fileID: 8300000, guid: c604c9ff7d6aafd48969047e9e9cca4b, type: 3}
+  - {fileID: 8300000, guid: 95d5c209a2a0e65498b1e59e67996d44, type: 3}
 --- !u!4 &1314980014
 Transform:
   m_ObjectHideFlags: 0
@@ -15948,15 +15952,15 @@ PrefabInstance:
     - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: 'footstepSEs.Array.data[0]'
       value: 
-      objectReference: {fileID: 8300000, guid: 308447d5dee257647a2673ff5497db86, type: 3}
+      objectReference: {fileID: 8300000, guid: 91b139ed16549524294075e500b4b136, type: 3}
     - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: 'footstepSEs.Array.data[1]'
       value: 
-      objectReference: {fileID: 8300000, guid: d05de288bcb64ef4ba99972bbb097695, type: 3}
+      objectReference: {fileID: 8300000, guid: a8bed024f412975479b62afdef95cf67, type: 3}
     - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: 'footstepSEs.Array.data[2]'
       value: 
-      objectReference: {fileID: 8300000, guid: a327bbdeb90bf4a44949dd02da30cc9d, type: 3}
+      objectReference: {fileID: 8300000, guid: b75b04129d12f0c42ac16446eac1c566, type: 3}
     - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: needle
       value: 
