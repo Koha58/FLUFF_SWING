@@ -1,171 +1,117 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// “GƒLƒƒƒ‰ƒNƒ^[‚Ì§ŒäƒNƒ‰ƒX
-/// EƒXƒe[ƒ^ƒXŠÇ—
-/// Eó‘Ô‘JˆÚ(StateMachine)
-/// Eƒ_ƒ[ƒWˆ—
-/// Eƒv[ƒ‹•Ô‹p
+/// æ•µã‚­ãƒ£ãƒ©ã‚¯ã‚¿ãƒ¼ã®åˆ¶å¾¡ã‚¯ãƒ©ã‚¹
+/// ãƒ»ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ç®¡ç†
+/// ãƒ»çŠ¶æ…‹é·ç§»(StateMachine)
+/// ãƒ»ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†
+/// ãƒ»ãƒ—ãƒ¼ãƒ«è¿”å´
 /// </summary>
 public class EnemyController : MonoBehaviour, IDamageable
 {
+    #region === Constants ===
+    private const float DEFAULT_GRAVITY = 1f;           // é€šå¸¸Dynamicæ•µã®é‡åŠ›
+    private const float ZERO_VELOCITY = 0f;            // RigidbodyåˆæœŸåŒ–ç”¨ã®é€Ÿåº¦
+    private const int DEFAULT_DIRECTION = -1;          // åˆæœŸæ–¹å‘ï¼ˆå·¦å‘ãï¼‰
+    #endregion
+
     #region === SerializeFields ===
 
-    /// <summary>“G‚Ìí—Ş</summary>
-    [SerializeField] private EnemyType enemyType;
+    [Header("åŸºæœ¬æƒ…å ±")]
+    [SerializeField] private EnemyType enemyType;                       // æ•µã®ç¨®é¡
+    [SerializeField] private CharacterBase characterData;               // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹å‚ç…§å…ƒãƒ‡ãƒ¼ã‚¿
+    [SerializeField] private CharacterStatus status;                    // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹æƒ…å ±ï¼ˆHPãªã©ï¼‰
+    [SerializeField] private EnemyAnimationController animationController; // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³åˆ¶å¾¡ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
+    [SerializeField] private EnemyStateMachineSO stateMachineSO;        // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³è¨­å®šãƒ‡ãƒ¼ã‚¿
+    [SerializeField] private bool hasDeadAnimation = true;              // æ­»äº¡ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®æœ‰ç„¡
+    [SerializeField] private SpriteRenderer spriteRenderer;             // SpriteRenderer
 
-    /// <summary>ƒXƒe[ƒ^ƒXQÆŒ³ƒf[ƒ^</summary>
-    [SerializeField] private CharacterBase characterData;
+    [Header("åŸºæœ¬è¨­å®š")]
+    public bool keepDynamicBody = false; // Dynamicã®ã¾ã¾ã«ã™ã‚‹æ•µãªã‚‰true
 
-    /// <summary>ƒXƒe[ƒ^ƒXî•ñiHP‚È‚Çj</summary>
-    [SerializeField] private CharacterStatus status;
-
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“§ŒäƒRƒ“ƒ|[ƒlƒ“ƒg</summary>
-    [SerializeField] private EnemyAnimationController animationController;
-
-    /// <summary>ƒXƒe[ƒgƒ}ƒVƒ“İ’èƒf[ƒ^</summary>
-    [SerializeField] private EnemyStateMachineSO stateMachineSO;
-
-    /// <summary>€–SƒAƒjƒ[ƒVƒ‡ƒ“‚Ì—L–³</summary>
-    [SerializeField] private bool hasDeadAnimation = true;
-
-    /// <summary>SpriteRenderer</summary>
-    [SerializeField] private SpriteRenderer spriteRenderer;
-
-    /// <summary>
-    /// €–S‚ÌSE
-    /// </summary>
-    [SerializeField] private AudioClip deathSE;
-
-    /// <summary>
-    /// ƒƒCƒ„[ƒJƒbƒg‚ÌSE
-    /// </summary>
-    [SerializeField] private AudioClip cutSE;
-
-    /// <summary>
-    /// ƒ‚ƒOƒ‰”ò‚Ño‚µ/ö‚è‚ÌSE
-    /// </summary>
-    [SerializeField] private AudioClip popSE;
+    [Header("ã‚µã‚¦ãƒ³ãƒ‰")]
+    [SerializeField] private AudioClip deathSE;  // æ­»äº¡æ™‚SE
+    [SerializeField] private AudioClip cutSE;    // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚«ãƒƒãƒˆæ™‚SE
+    [SerializeField] private AudioClip popSE;    // ãƒ¢ã‚°ãƒ©é£›ã³å‡ºã—/æ½œã‚Šæ™‚SE
+    [SerializeField] private AudioClip rabbitSE; // ã‚¦ã‚µã‚®ç§»å‹•æ™‚SE
 
     #endregion
 
     #region === Private Fields ===
 
-    /// <summary>“Gê—p‚ÌƒXƒe[ƒgƒ}ƒVƒ“</summary>
-    private StateMachine<EnemyController> stateMachine;
-
-    /// <summary>Œ»İ‚ÌHP</summary>
-    private int currentHP;
-
-    /// <summary>ƒLƒƒƒ‰ƒNƒ^[‚ÌˆÚ“®‘¬“x</summary>
-    private float moveSpeed;
-
-    /// <summary>ƒpƒgƒ[ƒ‹ŠJnˆÊ’uXÀ•W</summary>
-    private float patrolStartX;
-
-    /// <summary>ƒpƒgƒ[ƒ‹•ûŒüi1:‰E, -1:¶j</summary>
-    private int patrolDirection = -1;
-
-    private WireActionScript wireToCut; // š Wire‚ğˆê•Û‚·‚é
+    private StateMachine<EnemyController> stateMachine; // æ•µå°‚ç”¨ã®ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³
+    private int currentHP;                               // ç¾åœ¨ã®HP
+    private float moveSpeed;                             // ç§»å‹•é€Ÿåº¦
+    private float patrolStartX;                          // ãƒ‘ãƒˆãƒ­ãƒ¼ãƒ«é–‹å§‹ä½ç½®X
+    private int patrolDirection = DEFAULT_DIRECTION;     // ãƒ‘ãƒˆãƒ­ãƒ¼ãƒ«æ–¹å‘ï¼ˆ1:å³, -1:å·¦ï¼‰
+    private WireActionScript wireToCut;                 // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’ä¸€æ™‚ä¿æŒ
+    private int originalSortingOrder;                   // å…ƒã®SpriteRenderer.sortingOrder
 
     #endregion
 
     #region === Properties ===
 
-    /// <summary>“G‚Ìí—Ş‚ğŠO•”‚ÉŒöŠJ</summary>
-    public EnemyType Type => enemyType;
-
-    /// <summary>ƒXƒe[ƒgƒ}ƒVƒ“İ’èSO‚ğŠO•”‚ÉŒöŠJ</summary>
-    public EnemyStateMachineSO StateMachineSO => stateMachineSO;
-
-    /// <summary>€–SƒAƒjƒ[ƒVƒ‡ƒ“‚Ì—L–³</summary>
-    public bool HasDeadAnimation => hasDeadAnimation;
-
-    /// <summary>ˆÚ“®‘¬“x</summary>
-    public float MoveSpeed => moveSpeed;
-
-    /// <summary>ƒpƒgƒ[ƒ‹ŠJnˆÊ’uX</summary>
-    public float PatrolStartX
-    {
-        get => patrolStartX;
-        set => patrolStartX = value;
-    }
-
-    /// <summary>ƒpƒgƒ[ƒ‹•ûŒü</summary>
-    public int PatrolDirection
-    {
-        get => patrolDirection;
-        set => patrolDirection = value;
-    }
-
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“’†‚ÌˆÚ“®–³Œø‰»</summary>
-    public bool IsMovementDisabledByAnimation { get; private set; }
-
-    /// <summary>
-    /// •ûŒüó‘Ô‚ğŠO•”‚©‚çƒAƒNƒZƒX‚³‚¹‚é
-    /// </summary>
-    public int Direction { get; set; } = -1; // ¶Œü‚«‚ÅŠJn
+    public EnemyType Type => enemyType;                       // æ•µã®ç¨®é¡
+    public EnemyStateMachineSO StateMachineSO => stateMachineSO; // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³è¨­å®šSO
+    public bool HasDeadAnimation => hasDeadAnimation;        // æ­»äº¡ã‚¢ãƒ‹ãƒ¡æœ‰ç„¡
+    public float MoveSpeed => moveSpeed;                     // ç§»å‹•é€Ÿåº¦
+    public float PatrolStartX { get => patrolStartX; set => patrolStartX = value; }
+    public int PatrolDirection { get => patrolDirection; set => patrolDirection = value; }
+    public bool IsMovementDisabledByAnimation { get; private set; } // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ä¸­ã®ç§»å‹•ç„¡åŠ¹åŒ–
+    public int Direction { get; set; } = DEFAULT_DIRECTION;          // æ–¹å‘çŠ¶æ…‹ (-1:å·¦, 1:å³)
+    public int OriginalSortingOrder => originalSortingOrder;         // å…ƒã®sortingOrder
 
     #endregion
 
     #region === Unity Callbacks ===
 
-    /// <summary>
-    /// ƒXƒe[ƒgƒ}ƒVƒ“‰Šú‰» & ƒXƒe[ƒ^ƒXİ’è
-    /// </summary>
     private void Awake()
     {
-        // ƒXƒe[ƒgƒ}ƒVƒ“‚ğ©g‚ğ‘ÎÛ‚É‰Šú‰»
+        // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³åˆæœŸåŒ–
         stateMachine = new StateMachine<EnemyController>(this);
 
-        // ƒLƒƒƒ‰ƒNƒ^[ƒf[ƒ^‚©‚çˆÚ“®‘¬“x‚ğæ“¾
+        // ç§»å‹•é€Ÿåº¦ã‚’CharacterBaseã‹ã‚‰å–å¾—
         moveSpeed = characterData.moveSpeed;
 
-        // SpriteRenderer‚ª‚È‚¢ê‡‚Íì¬‚·‚é
+        // SpriteRenderer ãŒæœªè¨­å®šã®å ´åˆã¯å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰å–å¾—
         if (spriteRenderer == null)
-        {
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        }
+
+        // å…ƒã®sortingOrderã‚’ä¿å­˜
+        if (spriteRenderer != null)
+            originalSortingOrder = spriteRenderer.sortingOrder;
     }
 
-    /// <summary>
-    /// —LŒø‰»‚ÉHP‰Šú‰» & ŠJnƒXƒe[ƒg‚ğİ’è
-    /// </summary>
     private void OnEnable()
     {
-        // HP‚ğÅ‘å’l‚ÉƒŠƒZƒbƒg
+        // HPã‚’æœ€å¤§å€¤ã«ãƒªã‚»ãƒƒãƒˆ
         currentHP = status.maxHP;
 
-        // ƒXƒe[ƒgƒ}ƒVƒ“İ’è‚ª‚È‚¢ê‡‚ÍƒGƒ‰[
+        // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³ãŒè¨­å®šã•ã‚Œã¦ã„ãªã„å ´åˆã¯ã‚¨ãƒ©ãƒ¼
         if (stateMachineSO == null)
         {
-            Debug.LogError("StateMachineSO‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñI");
+            Debug.LogError("StateMachineSOãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ï¼");
             return;
         }
 
-        // ˆÚ“®ƒXƒe[ƒg‚ğg‚¤ê‡‚ÍˆÚ“®ƒXƒe[ƒg‚ÅŠJn
+        // é–‹å§‹ã‚¹ãƒ†ãƒ¼ãƒˆã‚’æ±ºå®š
         if (stateMachineSO.usesMove && stateMachineSO.moveState != null)
         {
-            stateMachine.ChangeState(stateMachineSO.moveState);
+            stateMachine.ChangeState(stateMachineSO.moveState); // ç§»å‹•ã‚¹ãƒ†ãƒ¼ãƒˆé–‹å§‹
         }
-        // ‚»‚¤‚Å‚È‚¯‚ê‚ÎUŒ‚ƒXƒe[ƒg‚ÅŠJn
         else if (stateMachineSO.attackState != null)
         {
-            stateMachine.ChangeState(stateMachineSO.attackState);
+            stateMachine.ChangeState(stateMachineSO.attackState); // æ”»æ’ƒã‚¹ãƒ†ãƒ¼ãƒˆé–‹å§‹
         }
-        // ŠJnƒXƒe[ƒg‚ª–³‚¯‚ê‚ÎƒGƒ‰[
         else
         {
-            Debug.LogError("ŠJnƒXƒe[ƒg‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñI");
+            Debug.LogError("é–‹å§‹ã‚¹ãƒ†ãƒ¼ãƒˆãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ï¼");
         }
     }
 
-    /// <summary>
-    /// ƒXƒe[ƒgƒ}ƒVƒ“XV
-    /// </summary>
     private void Update()
     {
-        // ƒXƒe[ƒgƒ}ƒVƒ“‚Ì–ˆƒtƒŒ[ƒ€XV‚ğŒÄ‚Ño‚·
+        // ã‚¹ãƒ†ãƒ¼ãƒˆãƒã‚·ãƒ³ã®æ¯ãƒ•ãƒ¬ãƒ¼ãƒ æ›´æ–°
         stateMachine.Update(Time.deltaTime);
     }
 
@@ -174,115 +120,131 @@ public class EnemyController : MonoBehaviour, IDamageable
     #region === Enemy Logic ===
 
     /// <summary>
-    /// ƒ_ƒ[ƒW‚ğó‚¯‚é
-    /// Patrolƒ^ƒCƒv‚ÍƒAƒjƒ[ƒVƒ‡ƒ“’†‚Í–³“G
+    /// ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†
+    /// Patrolã‚¿ã‚¤ãƒ—ã¯ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ä¸­ã§ãªã„å ´åˆã¯ç„¡åŠ¹åŒ–
     /// </summary>
     public void TakeDamage(int damage)
     {
-        Debug.Log($"TakeDamage called. Type={Type}, IsMovementDisabledByAnimation={IsMovementDisabledByAnimation}");
-
-        // Patrolƒ^ƒCƒv‚ÅAö‚èƒAƒjƒ[ƒVƒ‡ƒ“’†‚Å‚È‚¢ê‡‚Íƒ_ƒ[ƒW–³Œø
+        // Patrolã‚¿ã‚¤ãƒ—ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ä¸­ã§ãªã„å ´åˆã¯ç„¡åŠ¹åŒ–
         if (Type == EnemyType.Patrol && !IsMovementDisabledByAnimation)
             return;
 
-        // HP‚ğŒ¸­
+        // HPã‚’æ¸›å°‘
         currentHP -= damage;
-        Debug.Log($"{gameObject.name} took {damage} damage. Current HP: {currentHP}");
 
-        // HP‚ª0ˆÈ‰º‚É‚È‚Á‚½‚ç€–SƒXƒe[ƒg‚Ö‘JˆÚ
+        // HPãŒ0ä»¥ä¸‹ã«ãªã£ãŸã‚‰æ­»äº¡ã‚¹ãƒ†ãƒ¼ãƒˆã«é·ç§»
         if (currentHP <= 0)
         {
-            // €–SSE‚ğÄ¶
+            // æ­»äº¡SEã‚’å†ç”Ÿ
             AudioManager.Instance?.PlaySE(deathSE);
+
+            // æ­»äº¡ã‚¹ãƒ†ãƒ¼ãƒˆã«é·ç§»
             stateMachine.ChangeState(stateMachineSO.deadState);
         }
     }
 
-    /// <summary>
-    /// UŒ‚‰Â”\‚È‚çUŒ‚‚ğÀsi–¢À‘•j
-    /// </summary>
     public void AttackIfPossible()
     {
-        // TODO: UŒ‚ƒƒWƒbƒNÀ‘•—\’è
+        // TODO: æ”»æ’ƒãƒ­ã‚¸ãƒƒã‚¯ã‚’ã“ã“ã«å®Ÿè£…
     }
 
     /// <summary>
-    /// Player‚Æ‚ÌÚGˆ—
+    /// å½“ãŸã‚Šåˆ¤å®šå‡¦ç†
+    /// Player, Wire, Flipã‚¿ã‚°ã‚’åˆ¤å®š
     /// </summary>
-    /// <param name="collision"></param>
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼æ¥è§¦æ™‚
         if (collision.CompareTag("Player"))
         {
-            // Patrol‚ÅA‚©‚Âö‚è’†‚Í–³Œø‰»
+            // Patrolã§ã€ã‹ã¤ã‚¢ãƒ‹ãƒ¡ä¸­ã§ãªã„å ´åˆã¯ã‚¹ã‚­ãƒƒãƒ—
             if (Type == EnemyType.Patrol && !IsMovementDisabledByAnimation)
-            {
-                Debug.Log("Patrol enemy is disabled by animation. No damage dealt.");
-                return; // ƒXƒLƒbƒv
-            }
+                return;
 
-            // ‚»‚êˆÈŠO‚Íƒ_ƒ[ƒW‚ğ—^‚¦‚é
+            // Playerã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
             IDamageable damageable = collision.GetComponent<IDamageable>();
-            if (damageable != null)
-            {
-                damageable.TakeDamage(status.attack);
-                Debug.Log($"Enemy attacked Player for {status.attack} damage");
-            }
+            damageable?.TakeDamage(status.attack);
         }
 
-        if (collision.CompareTag("Wire"))
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥è§¦æ™‚ï¼ˆBirdã®ã¿ï¼‰
+        if (collision.CompareTag("Wire") && Type == EnemyType.Bird)
         {
-            // Bird‚ÉƒƒCƒ„[‚ªÚG‚µ‚½‚Æ‚«
-            if (Type == EnemyType.Bird)
+            // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã®Playerã‚’å–å¾—
+            var player = collision.GetComponentInParent<WireActionScript>();
+            if (player != null)
             {
-                // ƒƒCƒ„[‚Ì Player ‚ğæ“¾‚µ‚Ä CutWire ‚ğŒÄ‚Ô
-                var player = collision.GetComponentInParent<WireActionScript>();
-
-                if (player != null)
-                {
-                    wireToCut = player;  // © Wire‚ğŠo‚¦‚Ä‚¨‚­I
-
-                    // UŒ‚ƒXƒe[ƒg‚É‘JˆÚ
-                    stateMachine.ChangeState(stateMachineSO.cutState);
-                }
+                wireToCut = player;                  // ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚’ä¿æŒ
+                stateMachine.ChangeState(stateMachineSO.cutState); // æ”»æ’ƒã‚¹ãƒ†ãƒ¼ãƒˆã«é·ç§»
             }
         }
 
-        // "Flip"ƒ^ƒO‚ÉG‚ê‚½‚ç”½“]
+        // Flipã‚¿ã‚°ã§æ–¹å‘åè»¢
         if (collision.CompareTag("Flip"))
-        {
             ReverseDirection();
-        }
     }
 
     /// <summary>
-    /// •ûŒü‚Æ Sprite ‚ğ”½“]‚·‚é
+    /// æ–¹å‘åè»¢å‡¦ç†
     /// </summary>
     public void ReverseDirection()
     {
+        // æ–¹å‘ã‚’åè»¢
         Direction *= -1;
+
+        // Spriteã®FlipXã‚’æ›´æ–°
         UpdateSpriteFlip();
-        Debug.Log($"[EnemyController] •ûŒü”½“]: {Direction}");
     }
 
     /// <summary>
-    /// SpriteRenderer ‚Ì FlipX ‚ğ Direction ‚É‡‚í‚¹‚Äİ’è
+    /// SpriteRenderer ã®FlipXã‚’æ–¹å‘ã«åˆã‚ã›ã‚‹
     /// </summary>
     private void UpdateSpriteFlip()
     {
         if (spriteRenderer != null)
-        {
-            spriteRenderer.flipX = (Direction == 1);
-        }
+            spriteRenderer.flipX = (Direction == 1); // å³å‘ããªã‚‰flipX=true
     }
 
     /// <summary>
-    /// €–SŒãAƒv[ƒ‹‚Ö•Ô‹p
+    /// æ­»äº¡å¾Œãƒ—ãƒ¼ãƒ«ã«è¿”å´
     /// </summary>
     public void HandleDead()
     {
-        // EnemyPool‚É•Ô‹p‚µ‚Ä”ñƒAƒNƒeƒBƒu‰»
+        // EnemyPoolã«è¿”å´ã—ã¦éã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–
         EnemyPool.Instance.ReturnToPool(this);
+    }
+
+    /// <summary>
+    /// Enemyã‚’ãƒªã‚»ãƒƒãƒˆã—ã¦å†åˆ©ç”¨å¯èƒ½ã«ã™ã‚‹
+    /// Rigidbody, SpriteRenderer, Colliderã‚’åˆæœŸåŒ–
+    /// </summary>
+    public void ResetEnemy()
+    {
+        var rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            // ç§»å‹•ã‚’æ­¢ã‚ã‚‹
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = ZERO_VELOCITY;
+
+            if (keepDynamicBody)
+            {
+                rb.bodyType = RigidbodyType2D.Dynamic;
+                rb.gravityScale = DEFAULT_GRAVITY; // Dynamicã¯é‡åŠ›æœ‰åŠ¹
+            }
+            else
+            {
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                rb.gravityScale = ZERO_VELOCITY;   // Kinematicã¯é‡åŠ›ç„¡åŠ¹
+            }
+        }
+
+        // æ­»äº¡æ™‚ã®ä¸Šä¸‹åè»¢ã‚’è§£é™¤
+        if (spriteRenderer != null)
+            spriteRenderer.flipY = false;
+
+        // å…¨ã‚³ãƒ©ã‚¤ãƒ€ãƒ¼ã‚’å†æœ‰åŠ¹åŒ–
+        foreach (var c in GetComponents<Collider2D>())
+            c.enabled = true;
     }
 
     #endregion
@@ -290,86 +252,82 @@ public class EnemyController : MonoBehaviour, IDamageable
     #region === Animation Events ===
 
     /// <summary>
-    /// ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒgFˆÚ“®–³Œø‰»ON
+    /// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã‚‹ç§»å‹•ç„¡åŠ¹åŒ–ON
     /// </summary>
-    public void DisableMovementByAnimation()
-    {
-        // ˆÚ“®–³Œøƒtƒ‰ƒO‚ğON
-        IsMovementDisabledByAnimation = true;
-    }
+    public void DisableMovementByAnimation() => IsMovementDisabledByAnimation = true;
 
     /// <summary>
-    /// ƒAƒjƒ[ƒVƒ‡ƒ“ƒCƒxƒ“ƒgFˆÚ“®–³Œø‰»OFF
+    /// ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã‚‹ç§»å‹•ç„¡åŠ¹åŒ–OFF
     /// </summary>
-    public void EnableMovementByAnimation()
-    {
-        // ˆÚ“®–³Œøƒtƒ‰ƒO‚ğOFF
-        IsMovementDisabledByAnimation = false;
-    }
+    public void EnableMovementByAnimation() => IsMovementDisabledByAnimation = false;
 
     #endregion
 
     #region === State Control ===
 
-    /// <summary>
-    /// ƒAƒjƒ[ƒVƒ‡ƒ“§Œä‚ğæ“¾
-    /// </summary>
-    public EnemyAnimationController GetAnimationController()
-    {
-        return animationController;
-    }
+    public EnemyAnimationController GetAnimationController() => animationController;
 
     /// <summary>
-    /// UŒ‚ƒXƒe[ƒg‚ÉØ‚è‘Ö‚¦
+    /// æ”»æ’ƒã‚¹ãƒ†ãƒ¼ãƒˆã«åˆ‡ã‚Šæ›¿ãˆ
     /// </summary>
     public void SwitchToAttack()
     {
-        // UŒ‚’†‚ÍˆÚ“®–³Œø
-        DisableMovementByAnimation();
-
-        // UŒ‚ƒXƒe[ƒg‚É‘JˆÚ
+        DisableMovementByAnimation();               // æ”»æ’ƒä¸­ã¯ç§»å‹•ä¸å¯
         stateMachine.ChangeState(stateMachineSO.attackState);
     }
 
     /// <summary>
-    /// UŒ‚ƒAƒjƒ[ƒVƒ‡ƒ“I—¹‚ÉŒÄ‚Î‚ê‚é
+    /// æ”»æ’ƒã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çµ‚äº†æ™‚ã«å‘¼ã°ã‚Œã‚‹
     /// </summary>
     public void OnAttackAnimationEnd()
     {
-        EnableMovementByAnimation();  // ˆÚ“®–³Œø‚ğ‰ğœ
-        SwitchToMove();               // ƒXƒe[ƒg‚ğˆÚ“®‚É–ß‚·
-                                      // Wire‚ª‚ ‚ê‚ÎØ‚é
+        EnableMovementByAnimation();                // ç§»å‹•ã‚’å†åº¦æœ‰åŠ¹åŒ–
+        SwitchToMove();                             // ç§»å‹•ã‚¹ãƒ†ãƒ¼ãƒˆã«æˆ»ã™
+
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼ãŒã‚ã‚Œã°åˆ‡æ–­
         if (wireToCut != null)
         {
             wireToCut.CutWire();
-            wireToCut = null;  // –Y‚ê‚¸ƒNƒŠƒAI
+            wireToCut = null; // å¿˜ã‚Œãšã‚¯ãƒªã‚¢
         }
     }
 
     /// <summary>
-    /// ˆÚ“®ƒXƒe[ƒg‚ÉØ‚è‘Ö‚¦
+    /// ç§»å‹•ã‚¹ãƒ†ãƒ¼ãƒˆã«åˆ‡ã‚Šæ›¿ãˆ
     /// </summary>
-    public void SwitchToMove()
-    {
-        // ˆÚ“®ƒXƒe[ƒg‚É‘JˆÚ
-        stateMachine.ChangeState(stateMachineSO.moveState);
-    }
+    public void SwitchToMove() => stateMachine.ChangeState(stateMachineSO.moveState);
 
     #endregion
 
+    #region === SE Play ===
+
     /// <summary>
-    /// ƒƒCƒ„[ƒJƒbƒgSEÄ¶
+    /// ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚«ãƒƒãƒˆæ™‚ã®SEã‚’å†ç”Ÿã™ã‚‹
     /// </summary>
     public void PlayCutSE()
     {
+        // AudioManagerãŒå­˜åœ¨ã™ã‚Œã°å†ç”Ÿ
         AudioManager.Instance?.PlaySE(cutSE);
     }
 
     /// <summary>
-    /// ”ò‚Ño‚µ/ö‚èSEÄ¶
+    /// ãƒ¢ã‚°ãƒ©é£›ã³å‡ºã—/æ½œã‚Šæ™‚ã®SEã‚’å†ç”Ÿã™ã‚‹
     /// </summary>
     public void PlayPopSE()
     {
+        // AudioManagerãŒå­˜åœ¨ã™ã‚Œã°å†ç”Ÿ
         AudioManager.Instance?.PlaySE(popSE);
     }
+
+    /// <summary>
+    /// ã‚¦ã‚µã‚®ç§»å‹•æ™‚ã®SEã‚’å†ç”Ÿã™ã‚‹
+    /// </summary>
+    public void PlayRabbitSE()
+    {
+        // AudioManagerãŒå­˜åœ¨ã™ã‚Œã°å†ç”Ÿ
+        AudioManager.Instance?.PlaySE(rabbitSE);
+    }
+
+    #endregion
+
 }

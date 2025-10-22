@@ -101,7 +101,7 @@ public class PlayerMove : MonoBehaviour
         // ワイヤー接続中は移動アニメーション停止、そうでなければ入力に応じて更新
         if (wireActionScript.IsConnected)
         {
-            animatorController?.ResetMoveAnimation(moveInput);
+            animatorController?.ResetMoveAnimation();
         }
         else
         {
@@ -179,6 +179,29 @@ public class PlayerMove : MonoBehaviour
 
         currentGroundTile = null;
         return false;
+    }
+
+    /// <summary>
+    /// 地面までの距離を返す（Raycast結果の距離）
+    /// </summary>
+    public float DistanceToGround
+    {
+        get
+        {
+            Vector3 checkPos = groundCheck.position;
+            RaycastHit2D hit = Physics2D.Raycast(checkPos, Vector2.down, groundCheckRadius * 2f, groundLayer);
+            return hit.collider != null ? hit.distance : Mathf.Infinity;
+        }
+    }
+
+    /// <summary>
+    /// 「ほぼ接地」判定。距離が閾値以内ならtrue
+    /// </summary>
+    public bool IsAlmostGrounded(float threshold = 0.08f)
+    {
+        // Groundedがtrueなら常にtrueを返す（フレーム遅延対策）
+        if (isGrounded) return true;
+        return DistanceToGround < threshold;
     }
 
     #endregion

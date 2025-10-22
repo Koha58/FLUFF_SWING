@@ -41,6 +41,7 @@ public class SpawnManager : MonoBehaviour
                     string enemyName = System.IO.Path.GetFileName(entry.prefabName);
                     // EnemyPoolから該当の敵をプールから取得し、指定位置に生成
                     var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
+                    enemy.ResetEnemy();
                     if (enemy == null)
                     {
                         // 取得に失敗した場合は警告ログを出す

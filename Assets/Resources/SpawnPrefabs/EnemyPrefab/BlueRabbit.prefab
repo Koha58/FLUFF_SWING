@@ -81,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: -8236052470083284134, guid: 9a65582ca5c90284d9ba0fce1f10348c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -244,7 +244,11 @@ MonoBehaviour:
   stateMachineSO: {fileID: 11400000, guid: ac6deef4d90a13f40a1553b710488718, type: 2}
   hasDeadAnimation: 0
   spriteRenderer: {fileID: 7317189271110876857}
+  keepDynamicBody: 1
   deathSE: {fileID: 8300000, guid: 7cba4bd6331af3d4c82bb426449f64a8, type: 3}
+  cutSE: {fileID: 0}
+  popSE: {fileID: 0}
+  rabbitSE: {fileID: 8300000, guid: b13c3efd210806242afd66e7a54b09f1, type: 3}
 --- !u!114 &7766524606934555923
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29,6 +29,10 @@ public class WireActionScript : MonoBehaviour
     private Vector2 _hookedPosition;
     public Vector2 HookedPosition => _hookedPosition;
 
+    [SerializeField] private PlayerMove playerMove;
+
+    private bool isCuttingWire = false;
+
     #endregion
 
     #region 接続・物理関連
@@ -56,6 +60,11 @@ public class WireActionScript : MonoBehaviour
     [SerializeField] private PlayerAnimatorController animatorController;
 
     private const float SwingAnimationStopDelay = 0.2f;
+
+    // === ワイヤー切断クールダウン ===
+    private float _lastCutTime = -999f;  // 最後に切断した時間（初期値はかなり前）
+    [SerializeField] private float cutCooldown = 0.1f; // 切断連打防止用クールダウン（秒）
+
 
     /// <summary>
     /// ワイヤー切断後、スイングアニメーションを少し遅延させて停止させるコルーチン。
@@ -252,40 +261,57 @@ public class WireActionScript : MonoBehaviour
         currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
     }
 
-    /// <summary>
-    /// ワイヤーを切断し、物理的な接続と描画を解除する
-    /// </summary>
+
     public void CutWire()
     {
-        // DistanceJoint2D を無効化してワイヤー接続を解除
-        if (distanceJoint != null)
+        if (animatorController.CurrentState == PlayerAnimatorController.PlayerState.Landing)
         {
-            distanceJoint.enabled = false;
+            return;
         }
+
+        if (Time.time - _lastCutTime < cutCooldown) return;
+        _lastCutTime = Time.time;
+
+        isCuttingWire = true; // ✅ 攻撃無効フラグ
+
+        distanceJoint.enabled = false;
         targetObject = null;
-
-        // LineRendererを無効化
-        if (lineRenderer != null)
-        {
-            lineRenderer.enabled = false;
-            lineRenderer.positionCount = 0;
-        }
-
+        lineRenderer.enabled = false;
         SetNeedleVisible(false);
 
-        // 実行中の針発射コルーチンがあれば停止し、参照をクリア
         if (currentNeedleCoroutine != null)
         {
             StopCoroutine(currentNeedleCoroutine);
             currentNeedleCoroutine = null;
         }
 
-        // アニメーションの停止処理
-        animatorController.CancelPendingIdleTransition();
-        animatorController.StartCoroutine(DelayedStopSwingAnimation(lastSwingDirectionX));
-        animatorController?.UpdateJumpState(lastSwingDirectionX);
+        animatorController.ResetWireFlags();
+        StartCoroutine(HandleWireCutTransition());
+    }
 
-        Debug.Log("ワイヤーを切断しました");
+    private IEnumerator HandleWireCutTransition()
+    {
+        yield return new WaitForFixedUpdate();
+
+        bool groundedNow = playerMove != null && playerMove.IsGrounded;
+        bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(0.05f);
+
+        if (groundedNow || almostGroundedNow)
+        {
+            animatorController.ForceIdle(lastSwingDirectionX);
+        }
+        else
+        {
+            animatorController.ForceLanding(lastSwingDirectionX);
+            yield return new WaitForSeconds(0.2f);
+
+            if (playerMove != null && playerMove.IsGrounded)
+            {
+                animatorController.ForceIdle(lastSwingDirectionX);
+            }
+        }
+
+        isCuttingWire = false; // ✅ フラグ解除
     }
 
     /// <summary>

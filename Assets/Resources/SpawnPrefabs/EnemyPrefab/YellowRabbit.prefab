@@ -81,7 +81,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: -7657247197714557261, guid: 59781c78a406c2743a667f14b68e1dec, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -245,6 +245,9 @@ MonoBehaviour:
   hasDeadAnimation: 0
   spriteRenderer: {fileID: 1370554004792284304}
   deathSE: {fileID: 8300000, guid: 7cba4bd6331af3d4c82bb426449f64a8, type: 3}
+  cutSE: {fileID: 0}
+  popSE: {fileID: 0}
+  rabbitSE: {fileID: 8300000, guid: 2938bb122dd29ae4bb901178f69e2bdc, type: 3}
 --- !u!114 &8674018978880111537
 MonoBehaviour:
   m_ObjectHideFlags: 0
