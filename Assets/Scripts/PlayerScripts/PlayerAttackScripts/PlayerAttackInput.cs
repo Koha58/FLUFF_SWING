@@ -1,56 +1,62 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// ƒvƒŒƒCƒ„[‚ÌUŒ‚“ü—Í‚ğŠÇ—‚·‚éƒNƒ‰ƒXB
-/// Input System‚Ì"Attack"ƒAƒNƒVƒ‡ƒ“‚ğŠÄ‹‚µAUŒ‚ƒRƒ}ƒ“ƒh‚ğPlayerAttack‚Ö“`’B‚·‚éB
-/// ’n–Ê‚ÉÚ’n‚µ‚Ä‚¢‚éê‡‚Ì‚İUŒ‚‚ªÀs‚³‚ê‚éB
-/// </summary>
 public class PlayerAttackInput : MonoBehaviour
 {
-    /// <summary>UŒ‚ˆ—‚ğ’S“–‚·‚é PlayerAttack ƒRƒ“ƒ|[ƒlƒ“ƒg</summary>
     [SerializeField] private PlayerAttack playerAttack;
-
-    /// <summary>ƒvƒŒƒCƒ„[‚ÌÚ’nó‘Ô‚ğŠm”F‚·‚é‚½‚ß‚Ì PlayerMove ƒRƒ“ƒ|[ƒlƒ“ƒg</summary>
     [SerializeField] private PlayerMove playerMove;
+    [SerializeField] private PlayerAnimatorController animatorController;
 
-    /// <summary>UŒ‚“ü—ÍƒAƒNƒVƒ‡ƒ“iInput System‚Ì"Attack"j</summary>
     private InputAction attackAction;
+    private bool isLandingLocked = false; // â† è¿½åŠ ï¼šLandingä¸­ãƒ•ãƒ©ã‚°
 
-    [SerializeField] private PlayerAnimatorController animatorController; public PlayerAnimatorController AnimatorController => animatorController;
-
-    /// <summary>
-    /// ‰Šú‰»ˆ—iInput System‚©‚çƒAƒNƒVƒ‡ƒ“‚ğæ“¾‚µ‚ÄƒCƒxƒ“ƒg“o˜^j
-    /// </summary>
     private void Awake()
     {
-        // Input System‚©‚ç"Attack"ƒAƒNƒVƒ‡ƒ“‚ğæ“¾
         attackAction = InputSystem.actions.FindAction("Attack");
 
         if (attackAction != null)
         {
-            // "Attack"“ü—Í‚ª‚³‚ê‚½‚Æ‚«‚ÌƒR[ƒ‹ƒoƒbƒN‚ğ“o˜^
             attackAction.performed += ctx =>
             {
                 if (playerMove == null || playerAttack == null || animatorController == null) return;
 
-                // Ú’n‚µ‚Ä‚¢‚éê‡‚Ì‚İUŒ‚ˆ—‚ğÀs
-                if (playerMove != null && playerMove.IsGrounded && animatorController.CurrentState != PlayerAnimatorController.PlayerState.Landing)
+                // âœ… Animatorã«å•ã„åˆã‚ã›ã¦æ”»æ’ƒå¯èƒ½ã‹ç¢ºèª
+                if (!animatorController.CanAttackNow())
+                {
+                    Debug.Log("æ”»æ’ƒä¸å¯çŠ¶æ…‹ï¼ˆLanding, Attackä¸­ãªã©ï¼‰");
+                    return;
+                }
+
+                // âœ… Landingã‚¢ãƒ‹ãƒ¡ä¸­ã¯å®Œå…¨ã«å…¥åŠ›ç„¡è¦–
+                if (animatorController.IsPlayingLanding())
+                {
+                    Debug.Log("Landingã‚¢ãƒ‹ãƒ¡å†ç”Ÿä¸­ã®ãŸã‚æ”»æ’ƒä¸å¯");
+                    return;
+                }
+
+                // âœ… æ¥åœ°ã—ã¦ã„ã¦Landingã§ãªã‘ã‚Œã°æ”»æ’ƒ
+                if (playerMove.IsGrounded)
                 {
                     playerAttack.PerformAutoAttack();
                 }
                 else
                 {
-                    Debug.Log("‹ó’†‚Ü‚½‚ÍƒƒCƒ„[’†‚Ì‚½‚ßUŒ‚•s‰Â");
+                    Debug.Log("ç©ºä¸­ã¾ãŸã¯ãƒ¯ã‚¤ãƒ¤ãƒ¼ä¸­ã®ãŸã‚æ”»æ’ƒä¸å¯");
                 }
             };
 
-            // ƒAƒNƒVƒ‡ƒ“‚ğ—LŒø‰»
             attackAction.Enable();
         }
         else
         {
-            Debug.LogWarning("AttackƒAƒNƒVƒ‡ƒ“‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+            Debug.LogWarning("Attackã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“");
         }
+    }
+
+    private void Update()
+    {
+        // Animatorã®çŠ¶æ…‹ã‚’ç›£è¦–ã—ã¦Landingä¸­ã‹ã©ã†ã‹æ›´æ–°
+        var current = animatorController.CurrentState;
+        isLandingLocked = (current == PlayerAnimatorController.PlayerState.Landing);
     }
 }

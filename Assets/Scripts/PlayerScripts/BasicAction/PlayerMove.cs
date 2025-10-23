@@ -1,104 +1,104 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚Ì¶‰EˆÚ“®‚¨‚æ‚ÑÚ’n”»’è‚ğŠÇ—‚·‚éƒNƒ‰ƒXB
-/// - ’n–Ê‚É‚¢‚é‚Æ‚«‚Ì‚İˆÚ“®‰Â”\
-/// - ƒƒCƒ„[Ú‘±’†‚ÍˆÚ“®‚ğ–³Œø‰»
-/// - ’n–Ê‚Æ‚ÌÚG”»’è‚Í Raycast ‚É‚æ‚èÀ{
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å·¦å³ç§»å‹•ãŠã‚ˆã³æ¥åœ°åˆ¤å®šã‚’ç®¡ç†ã™ã‚‹ã‚¯ãƒ©ã‚¹ã€‚
+/// - åœ°é¢ã«ã„ã‚‹ã¨ãã®ã¿ç§»å‹•å¯èƒ½
+/// - ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šä¸­ã¯ç§»å‹•ã‚’ç„¡åŠ¹åŒ–
+/// - åœ°é¢ã¨ã®æ¥è§¦åˆ¤å®šã¯ Raycast ã«ã‚ˆã‚Šå®Ÿæ–½
 /// </summary>
-[RequireComponent(typeof(Rigidbody2D))] // Rigidbody2D ‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚È‚¢ê‡A©“®‚Å’Ç‰Á‚³‚ê‚é
+[RequireComponent(typeof(Rigidbody2D))] // Rigidbody2D ãŒã‚¢ã‚¿ãƒƒãƒã•ã‚Œã¦ã„ãªã„å ´åˆã€è‡ªå‹•ã§è¿½åŠ ã•ã‚Œã‚‹
 public class PlayerMove : MonoBehaviour
 {
-    #region === Inspectorİ’èEˆË‘¶ƒRƒ“ƒ|[ƒlƒ“ƒg ===
+    #region === Inspectorè¨­å®šãƒ»ä¾å­˜ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ ===
 
-    /// <summary>ƒƒCƒ„[ƒAƒNƒVƒ‡ƒ“‚Ìó‘Ô‚ğŠÇ—‚·‚éƒXƒNƒŠƒvƒg</summary>
+    /// <summary>ãƒ¯ã‚¤ãƒ¤ãƒ¼ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã®çŠ¶æ…‹ã‚’ç®¡ç†ã™ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆ</summary>
     [SerializeField] private WireActionScript wireActionScript;
 
-    /// <summary>ƒAƒjƒ[ƒVƒ‡ƒ“§Œä—pƒXƒNƒŠƒvƒg</summary>
+    /// <summary>ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³åˆ¶å¾¡ç”¨ã‚¹ã‚¯ãƒªãƒ—ãƒˆ</summary>
     [SerializeField] private PlayerAnimatorController animatorController;
 
-    /// <summary>ƒvƒŒƒCƒ„[ƒXƒe[ƒ^ƒXƒf[ƒ^iˆÚ“®‘¬“x‚È‚Çj</summary>
+    /// <summary>ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒ‡ãƒ¼ã‚¿ï¼ˆç§»å‹•é€Ÿåº¦ãªã©ï¼‰</summary>
     [SerializeField] private CharacterBase characterData;
 
-    /// <summary>’n–Ê”»’è—p‚ÌTransformiƒvƒŒƒCƒ„[‚Ì‘«Œ³j</summary>
+    /// <summary>åœ°é¢åˆ¤å®šç”¨ã®Transformï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¶³å…ƒï¼‰</summary>
     [SerializeField] private Transform groundCheck;
 
-    /// <summary>’n–Ê”»’è‚Å”»’è‘ÎÛ‚Æ‚·‚éƒŒƒCƒ„[</summary>
+    /// <summary>åœ°é¢åˆ¤å®šã§åˆ¤å®šå¯¾è±¡ã¨ã™ã‚‹ãƒ¬ã‚¤ãƒ¤ãƒ¼</summary>
     [SerializeField] private LayerMask groundLayer;
 
     #endregion
 
 
-    #region === “à•”ƒtƒB[ƒ‹ƒh ===
+    #region === å†…éƒ¨ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ ===
 
-    /// <summary>ƒvƒŒƒCƒ„[‚Ì•¨—‹““®‚ğ§Œä‚·‚é Rigidbody2D</summary>
+    /// <summary>ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç‰©ç†æŒ™å‹•ã‚’åˆ¶å¾¡ã™ã‚‹ Rigidbody2D</summary>
     private Rigidbody2D rb;
 
-    /// <summary>ˆÚ“®“ü—Í’li-1`1j</summary>
+    /// <summary>ç§»å‹•å…¥åŠ›å€¤ï¼ˆ-1ï½1ï¼‰</summary>
     private float moveInput;
 
-    /// <summary>’nã‚Å‚ÌˆÚ“®‘¬“xicharacterData‚©‚çæ“¾j</summary>
+    /// <summary>åœ°ä¸Šã§ã®ç§»å‹•é€Ÿåº¦ï¼ˆcharacterDataã‹ã‚‰å–å¾—ï¼‰</summary>
     private float moveSpeed;
 
-    /// <summary>Ú’n”»’è—p‚Ì”¼ŒaiOverlapCircle‚È‚Ç‚Ì”»’è”ÍˆÍj</summary>
+    /// <summary>æ¥åœ°åˆ¤å®šç”¨ã®åŠå¾„ï¼ˆOverlapCircleãªã©ã®åˆ¤å®šç¯„å›²ï¼‰</summary>
     private float groundCheckRadius = 0.5f;
 
-    /// <summary>Œ»İƒvƒŒƒCƒ„[‚ª’n–Ê‚ÉÚ’n‚µ‚Ä‚¢‚é‚©‚Ìƒtƒ‰ƒO</summary>
+    /// <summary>ç¾åœ¨ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒåœ°é¢ã«æ¥åœ°ã—ã¦ã„ã‚‹ã‹ã®ãƒ•ãƒ©ã‚°</summary>
     private bool isGrounded;
 
-    /// <summary>‘OƒtƒŒ[ƒ€‚Å‚ÌÚ’nó‘Ôió‘Ô•Ï‰»‚ÌŒŸ’m‚Ég—pj</summary>
+    /// <summary>å‰ãƒ•ãƒ¬ãƒ¼ãƒ ã§ã®æ¥åœ°çŠ¶æ…‹ï¼ˆçŠ¶æ…‹å¤‰åŒ–ã®æ¤œçŸ¥ã«ä½¿ç”¨ï¼‰</summary>
     private bool wasGrounded = false;
 
-    /// <summary>Šp‚Éƒnƒ}‚Á‚½Û‚É©“®ƒWƒƒƒ“ƒv‚·‚é‚½‚ß‚Ìã•ûŒü—Í</summary>
+    /// <summary>è§’ã«ãƒãƒã£ãŸéš›ã«è‡ªå‹•ã‚¸ãƒ£ãƒ³ãƒ—ã™ã‚‹ãŸã‚ã®ä¸Šæ–¹å‘åŠ›</summary>
     private float jumpPower = 3.0f;
 
-    /// <summary>Œ»İÚG‚µ‚Ä‚¢‚é’n–Ê‚ÌƒJƒXƒ^ƒ€ƒ^ƒCƒ‹iÚ’n”»’è‚ÉXVj</summary>
+    /// <summary>ç¾åœ¨æ¥è§¦ã—ã¦ã„ã‚‹åœ°é¢ã®ã‚«ã‚¹ã‚¿ãƒ ã‚¿ã‚¤ãƒ«ï¼ˆæ¥åœ°åˆ¤å®šæ™‚ã«æ›´æ–°ï¼‰</summary>
     private CustomTile currentGroundTile;
 
-    /// <summary>ˆÚ“®“ü—ÍƒAƒNƒVƒ‡ƒ“iInput System‚Ì"Move"j</summary>
+    /// <summary>ç§»å‹•å…¥åŠ›ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ï¼ˆInput Systemã®"Move"ï¼‰</summary>
     private InputAction moveAction;
 
     #endregion
 
 
-    #region === UnityƒCƒxƒ“ƒgƒƒ\ƒbƒh ===
+    #region === Unityã‚¤ãƒ™ãƒ³ãƒˆãƒ¡ã‚½ãƒƒãƒ‰ ===
 
     /// <summary>
-    /// ƒRƒ“ƒ|[ƒlƒ“ƒg‰Šú‰»ˆ—
+    /// ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆåˆæœŸåŒ–å‡¦ç†
     /// </summary>
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        // Input System‚©‚çMoveƒAƒNƒVƒ‡ƒ“‚ğæ“¾‚µ‚Ä—LŒø‰»
+        // Input Systemã‹ã‚‰Moveã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’å–å¾—ã—ã¦æœ‰åŠ¹åŒ–
         moveAction = InputSystem.actions.FindAction("Move");
         moveAction?.Enable();
 
-        // ƒXƒe[ƒ^ƒX‚©‚çˆÚ“®‘¬“x‚ğæ“¾
+        // ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‹ã‚‰ç§»å‹•é€Ÿåº¦ã‚’å–å¾—
         moveSpeed = characterData.moveSpeed;
     }
 
     /// <summary>
-    /// –ˆƒtƒŒ[ƒ€‚Ì“ü—Íæ“¾‚ÆÚ’n”»’èAƒAƒjƒ[ƒVƒ‡ƒ“§Œä
+    /// æ¯ãƒ•ãƒ¬ãƒ¼ãƒ ã®å…¥åŠ›å–å¾—ã¨æ¥åœ°åˆ¤å®šã€ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³åˆ¶å¾¡
     /// </summary>
     private void Update()
     {
-        // …•½•ûŒü‚ÌˆÚ“®“ü—Í‚ğæ“¾i-1‚©‚ç1j
+        // æ°´å¹³æ–¹å‘ã®ç§»å‹•å…¥åŠ›ã‚’å–å¾—ï¼ˆ-1ã‹ã‚‰1ï¼‰
         moveInput = moveAction?.ReadValue<Vector2>().x ?? 0f;
 
-        // Ú’n”»’è‚ğÀ{iRaycast‚Å‘«Œ³‚ğƒ`ƒFƒbƒNj
+        // æ¥åœ°åˆ¤å®šã‚’å®Ÿæ–½ï¼ˆRaycastã§è¶³å…ƒã‚’ãƒã‚§ãƒƒã‚¯ï¼‰
         isGrounded = CheckGrounded();
 
-        // Ú’nó‘Ô‚ª•Ï‰»‚µ‚½‚çƒƒO‚ğo‚·iƒfƒoƒbƒO—pj
+        // æ¥åœ°çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸã‚‰ãƒ­ã‚°ã‚’å‡ºã™ï¼ˆãƒ‡ãƒãƒƒã‚°ç”¨ï¼‰
         if (isGrounded != wasGrounded)
         {
-            Debug.Log("Ú’nó‘Ô‚ª•Ï‰»: isGrounded = " + isGrounded);
+            Debug.Log("æ¥åœ°çŠ¶æ…‹ãŒå¤‰åŒ–: isGrounded = " + isGrounded);
             wasGrounded = isGrounded;
         }
 
-        // ƒƒCƒ„[Ú‘±’†‚ÍˆÚ“®ƒAƒjƒ[ƒVƒ‡ƒ“’â~A‚»‚¤‚Å‚È‚¯‚ê‚Î“ü—Í‚É‰‚¶‚ÄXV
+        // ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šä¸­ã¯ç§»å‹•ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³åœæ­¢ã€ãã†ã§ãªã‘ã‚Œã°å…¥åŠ›ã«å¿œã˜ã¦æ›´æ–°
         if (wireActionScript.IsConnected)
         {
             animatorController?.ResetMoveAnimation();
@@ -110,59 +110,101 @@ public class PlayerMove : MonoBehaviour
     }
 
     /// <summary>
-    /// •¨—‰‰ZXViˆê’èŠÔŠu‚ÅŒÄ‚Î‚ê‚éj
-    /// ˆÚ“®ˆ—‚âƒWƒƒƒ“ƒv‚Ì•â•‚ğ‚±‚±‚ÅÀs
+    /// ç‰©ç†æ¼”ç®—æ›´æ–°ï¼ˆä¸€å®šé–“éš”ã§å‘¼ã°ã‚Œã‚‹ï¼‰
+    /// ç§»å‹•å‡¦ç†ã‚„ã‚¸ãƒ£ãƒ³ãƒ—ã®è£œåŠ©ã‚’ã“ã“ã§å®Ÿè¡Œ
     /// </summary>
     private void FixedUpdate()
     {
-        // ƒ_ƒ[ƒWƒAƒjƒÄ¶’†‚Ü‚½‚ÍƒƒCƒ„[Ú‘±’†‚ÍˆÚ“®•s‰Â‚É‚·‚é
+        // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚¢ãƒ‹ãƒ¡å†ç”Ÿä¸­ã¾ãŸã¯ãƒ¯ã‚¤ãƒ¤ãƒ¼æ¥ç¶šä¸­ã¯ç§»å‹•ä¸å¯ã«ã™ã‚‹
         if (animatorController.IsDamagePlaying || wireActionScript.IsConnected)
         {
             return;
         }
 
+        // æ”»æ’ƒä¸­ã¯ç§»å‹•ç„¡åŠ¹
+        if (animatorController.IsAttacking)
+        {
+            moveInput = 0f;
+            return;
+        }
+
+        // âœ… ã“ã“ã§ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çŠ¶æ…‹ã‚’ãƒã‚§ãƒƒã‚¯ã—ã¦ç§»å‹•ã‚’åˆ¶å¾¡
+        if (!CanMoveNow())
+        {
+            // ç§»å‹•ã‚’æ­¢ã‚ã‚‹ï¼ˆæ¨ªé€Ÿåº¦ã‚’0ã«ï¼‰
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
         if (isGrounded && !wireActionScript.IsConnected)
         {
-            // linearVelocity‚ğg‚Á‚Ä‘¬“x‚ğİ’èiY•ûŒü‚Í•Ûj
+            // é€šå¸¸ã®åœ°ä¸Šç§»å‹•å‡¦ç†
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
         }
 
         if (!isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f && moveInput != 0)
         {
-            // Špƒnƒ}‚è‘Îô‚Ì©“®ƒWƒƒƒ“ƒv
+            // è§’ãƒãƒã‚Šå¯¾ç­–ã®è‡ªå‹•ã‚¸ãƒ£ãƒ³ãƒ—
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, jumpPower);
         }
     }
+
+    /// <summary>
+    /// ç¾åœ¨ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çŠ¶æ…‹ã‹ã‚‰ã€Œç§»å‹•ã—ã¦è‰¯ã„ã‹ã€ã‚’åˆ¤å®šã™ã‚‹ã€‚
+    /// </summary>
+    private bool CanMoveNow()
+    {
+        if (animatorController == null) return true;
+
+        var state = animatorController.CurrentState;
+
+        if (state == PlayerAnimatorController.PlayerState.Landing && !isGrounded)
+            return true;
+
+        // âŒ ç§»å‹•ç¦æ­¢ã‚¹ãƒ†ãƒ¼ãƒˆä¸€è¦§
+        switch (state)
+        {
+            case PlayerAnimatorController.PlayerState.MeleeAttack:
+            case PlayerAnimatorController.PlayerState.RangedAttack:
+            case PlayerAnimatorController.PlayerState.Landing:
+            case PlayerAnimatorController.PlayerState.Damage:
+            case PlayerAnimatorController.PlayerState.Goal:
+                return false;
+        }
+
+        return true; // ãã‚Œä»¥å¤–ï¼ˆIdle, Run, Jumpãªã©ï¼‰ã¯ç§»å‹•OK
+    }
+
 
 
     #endregion
 
 
-    #region === Ú’n”»’èŠÖ˜Aƒƒ\ƒbƒh ===
+    #region === æ¥åœ°åˆ¤å®šé–¢é€£ãƒ¡ã‚½ãƒƒãƒ‰ ===
 
     /// <summary>
-    /// Raycast‚ğg‚Á‚ÄƒvƒŒƒCƒ„[‘«Œ³‚Ì’n–Ê‚ğ”»’è‚µA’n–Ê‚ÉÚ‚µ‚Ä‚¢‚é‚©‚ğ•Ô‚·B
-    /// ‚Ü‚½ÚG‚µ‚Ä‚¢‚éƒJƒXƒ^ƒ€ƒ^ƒCƒ‹‚ğXV‚·‚éB
+    /// Raycastã‚’ä½¿ã£ã¦ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼è¶³å…ƒã®åœ°é¢ã‚’åˆ¤å®šã—ã€åœ°é¢ã«æ¥ã—ã¦ã„ã‚‹ã‹ã‚’è¿”ã™ã€‚
+    /// ã¾ãŸæ¥è§¦ã—ã¦ã„ã‚‹ã‚«ã‚¹ã‚¿ãƒ ã‚¿ã‚¤ãƒ«ã‚’æ›´æ–°ã™ã‚‹ã€‚
     /// </summary>
-    /// <returns>’n–Ê‚ÉÚ’n‚µ‚Ä‚¢‚ê‚ÎtrueA‚»‚¤‚Å‚È‚¯‚ê‚Îfalse</returns>
+    /// <returns>åœ°é¢ã«æ¥åœ°ã—ã¦ã„ã‚Œã°trueã€ãã†ã§ãªã‘ã‚Œã°false</returns>
     private bool CheckGrounded()
     {
         Vector3 checkPos = groundCheck.position;
 
-        // ‰º•ûŒü‚ÉRaycast‚ğ”ò‚Î‚µ‚Ä’n–ÊƒŒƒCƒ„[‚É“–‚½‚é‚©”»’è
+        // ä¸‹æ–¹å‘ã«Raycastã‚’é£›ã°ã—ã¦åœ°é¢ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«å½“ãŸã‚‹ã‹åˆ¤å®š
         RaycastHit2D hit = Physics2D.Raycast(checkPos, Vector2.down, groundCheckRadius, groundLayer);
 
         if (hit.collider != null)
         {
-            // Tilemap‚ğæ“¾‚µA“–‚½‚Á‚½ƒ|ƒCƒ“ƒg‚Ìƒ^ƒCƒ‹î•ñ‚ğæ“¾‚·‚é
+            // Tilemapã‚’å–å¾—ã—ã€å½“ãŸã£ãŸãƒã‚¤ãƒ³ãƒˆã®ã‚¿ã‚¤ãƒ«æƒ…å ±ã‚’å–å¾—ã™ã‚‹
             Tilemap tilemap = hit.collider.GetComponent<Tilemap>();
 
             if (tilemap != null)
             {
-                // ƒ[ƒ‹ƒhÀ•W‚ğƒ^ƒCƒ‹À•W‚É•ÏŠ·
+                // ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã‚’ã‚¿ã‚¤ãƒ«åº§æ¨™ã«å¤‰æ›
                 Vector3Int cell = tilemap.WorldToCell(hit.point);
 
-                // ƒ^ƒCƒ‹‚ğæ“¾‚µACustomTile‚©‚Ç‚¤‚©”»’è
+                // ã‚¿ã‚¤ãƒ«ã‚’å–å¾—ã—ã€CustomTileã‹ã©ã†ã‹åˆ¤å®š
                 TileBase tile = tilemap.GetTile(cell);
                 if (tile is CustomTile customTile)
                 {
@@ -182,7 +224,7 @@ public class PlayerMove : MonoBehaviour
     }
 
     /// <summary>
-    /// ’n–Ê‚Ü‚Å‚Ì‹——£‚ğ•Ô‚·iRaycastŒ‹‰Ê‚Ì‹——£j
+    /// åœ°é¢ã¾ã§ã®è·é›¢ã‚’è¿”ã™ï¼ˆRaycastçµæœã®è·é›¢ï¼‰
     /// </summary>
     public float DistanceToGround
     {
@@ -195,11 +237,11 @@ public class PlayerMove : MonoBehaviour
     }
 
     /// <summary>
-    /// u‚Ù‚ÚÚ’nv”»’èB‹——£‚ªè‡’lˆÈ“à‚È‚çtrue
+    /// ã€Œã»ã¼æ¥åœ°ã€åˆ¤å®šã€‚è·é›¢ãŒé–¾å€¤ä»¥å†…ãªã‚‰true
     /// </summary>
     public bool IsAlmostGrounded(float threshold = 0.08f)
     {
-        // Grounded‚ªtrue‚È‚çí‚Étrue‚ğ•Ô‚·iƒtƒŒ[ƒ€’x‰„‘Îôj
+        // GroundedãŒtrueãªã‚‰å¸¸ã«trueã‚’è¿”ã™ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ é…å»¶å¯¾ç­–ï¼‰
         if (isGrounded) return true;
         return DistanceToGround < threshold;
     }
@@ -207,21 +249,21 @@ public class PlayerMove : MonoBehaviour
     #endregion
 
 
-    #region === ƒvƒƒpƒeƒBiŠO•”QÆ—pj ===
+    #region === ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ï¼ˆå¤–éƒ¨å‚ç…§ç”¨ï¼‰ ===
 
     /// <summary>
-    /// Œ»İÚG‚µ‚Ä‚¢‚éƒ^ƒCƒ‹‚Ìí—Şi’n–Ê‚Ìí—Ş‚ğ”»•Ê‰Â”\j
-    /// null‚Ìê‡‚Í’n–Ê‚È‚µ
+    /// ç¾åœ¨æ¥è§¦ã—ã¦ã„ã‚‹ã‚¿ã‚¤ãƒ«ã®ç¨®é¡ï¼ˆåœ°é¢ã®ç¨®é¡ã‚’åˆ¤åˆ¥å¯èƒ½ï¼‰
+    /// nullã®å ´åˆã¯åœ°é¢ãªã—
     /// </summary>
     public CustomTile.TileType? CurrentGroundType => currentGroundTile?.tileType;
 
     /// <summary>
-    /// Œ»İÚG‚µ‚Ä‚¢‚éƒ^ƒCƒ‹‚ÌƒCƒ“ƒXƒ^ƒ“ƒX
+    /// ç¾åœ¨æ¥è§¦ã—ã¦ã„ã‚‹ã‚¿ã‚¤ãƒ«ã®ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
     /// </summary>
     public CustomTile CurrentGroundTile => currentGroundTile;
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚ªŒ»İ’n–Ê‚ÉÚ’n‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒç¾åœ¨åœ°é¢ã«æ¥åœ°ã—ã¦ã„ã‚‹ã‹ã©ã†ã‹
     /// </summary>
     public bool IsGrounded => isGrounded;
 

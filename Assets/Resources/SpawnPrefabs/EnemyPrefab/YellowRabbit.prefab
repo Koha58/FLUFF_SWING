@@ -244,6 +244,7 @@ MonoBehaviour:
   stateMachineSO: {fileID: 11400000, guid: ac6deef4d90a13f40a1553b710488718, type: 2}
   hasDeadAnimation: 0
   spriteRenderer: {fileID: 1370554004792284304}
+  keepDynamicBody: 1
   deathSE: {fileID: 8300000, guid: 7cba4bd6331af3d4c82bb426449f64a8, type: 3}
   cutSE: {fileID: 0}
   popSE: {fileID: 0}
