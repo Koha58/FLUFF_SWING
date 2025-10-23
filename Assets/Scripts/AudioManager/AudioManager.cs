@@ -136,6 +136,19 @@ public class AudioManager : MonoBehaviour
             seSlider.onValueChanged.RemoveAllListeners();
             seSlider.onValueChanged.AddListener(OnSEVolumeChanged);
         }
+
+        // --- シーン内のスライダーを自動で探す ---
+        if (bgmSlider == null)
+        {
+            var foundBgmSlider = GameObject.Find("BGMSlider")?.GetComponent<Slider>();
+            if (foundBgmSlider != null) BindBGMSlider(foundBgmSlider);
+        }
+
+        if (seSlider == null)
+        {
+            var foundSeSlider = GameObject.Find("SESlider")?.GetComponent<Slider>();
+            if (foundSeSlider != null) BindSESlider(foundSeSlider);
+        }
     }
 
     //====================================================================

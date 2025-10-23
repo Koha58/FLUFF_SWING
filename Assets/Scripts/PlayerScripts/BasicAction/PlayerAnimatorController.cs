@@ -54,8 +54,8 @@ public class PlayerAnimatorController : MonoBehaviour
         if (currentPriority == PlayerStatePriority.High && newPriority < currentPriority)
             return false;
 
-        if (_isAttacking && newPriority <= PlayerStatePriority.Medium &&
-            newState != PlayerState.Damage && newState != PlayerState.Goal)
+        // 🔽 攻撃中はIdleやLandingなどLow優先度のステートに戻さない
+        if (_isAttacking && (newState == PlayerState.Idle || newState == PlayerState.Landing))
             return false;
 
         if (_pendingWireTransition && (newState == PlayerState.Landing || newState == PlayerState.Idle))
@@ -63,6 +63,7 @@ public class PlayerAnimatorController : MonoBehaviour
 
         return true;
     }
+
     #endregion
 
     #region アニメーション速度
@@ -98,7 +99,7 @@ public class PlayerAnimatorController : MonoBehaviour
     private const float MoveDelayTime = 0.1f;
     private const float GrappleTransitionTime = 0.3f;
     private const float FlipThreshold = 0.01f;
-    private const float LandingToIdleDelay = 0.2f;
+    private const float LandingToIdleDelay = 0.5f;
     [SerializeField] private PlayerAttack playerAttack;
     [SerializeField] private AudioClip landingSE;
     [SerializeField] private AudioClip[] footstepSEs;
@@ -273,6 +274,13 @@ public class PlayerAnimatorController : MonoBehaviour
     {
         yield return new WaitForSeconds(LandingToIdleDelay);
 
+        // 攻撃中ならIdleに戻さない
+        if (_isAttacking)
+        {
+            Debug.Log("[TransitionToIdleAfterLanding] 攻撃中のためIdle遷移をスキップ");
+            yield break;
+        }
+
         if (_pendingWireTransition)
         {
             SetPlayerState(PlayerState.Wire, _wireDirection, 0f, true);
@@ -293,8 +301,8 @@ public class PlayerAnimatorController : MonoBehaviour
             _pendingWireTransition = false; // スイング切断後は無視
             SetPlayerState(PlayerState.Idle, direction);
         }
-
     }
+
     #endregion
 
     public void OnWireCut(float swingDirection)
@@ -353,7 +361,13 @@ public class PlayerAnimatorController : MonoBehaviour
     {
         yield return new WaitForSeconds(LandingToIdleDelay);
 
-        // Landingが長引いてもIdleへ
+        // 攻撃中ならIdle強制遷移をスキップ
+        if (_isAttacking)
+        {
+            Debug.Log("[ForceTransitionToIdle] 攻撃中のためIdle強制遷移をスキップ");
+            yield break;
+        }
+
         if (_currentState == PlayerState.Landing || _currentState == PlayerState.Jump)
         {
             Debug.Log("[ForceTransitionToIdle] Landing → Idle 強制遷移(保険)");
@@ -362,7 +376,6 @@ public class PlayerAnimatorController : MonoBehaviour
             SetPlayerState(PlayerState.Idle, direction, 0f, true);
         }
     }
-
 
     public void ForceIdle(float directionX = 0f)
     {

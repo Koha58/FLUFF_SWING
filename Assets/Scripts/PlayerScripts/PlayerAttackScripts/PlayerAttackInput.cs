@@ -17,6 +17,8 @@ public class PlayerAttackInput : MonoBehaviour
     /// <summary>攻撃入力アクション（Input Systemの"Attack"）</summary>
     private InputAction attackAction;
 
+    [SerializeField] private PlayerAnimatorController animatorController; public PlayerAnimatorController AnimatorController => animatorController;
+
     /// <summary>
     /// 初期化処理（Input Systemからアクションを取得してイベント登録）
     /// </summary>
@@ -30,8 +32,10 @@ public class PlayerAttackInput : MonoBehaviour
             // "Attack"入力がされたときのコールバックを登録
             attackAction.performed += ctx =>
             {
+                if (playerMove == null || playerAttack == null || animatorController == null) return;
+
                 // 接地している場合のみ攻撃処理を実行
-                if (playerMove != null && playerMove.IsGrounded)
+                if (playerMove != null && playerMove.IsGrounded && animatorController.CurrentState != PlayerAnimatorController.PlayerState.Landing)
                 {
                     playerAttack.PerformAutoAttack();
                 }

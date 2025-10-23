@@ -15869,6 +15869,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1397125819297243590, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: animatorController
+      value: 
+      objectReference: {fileID: 1455774598}
     - target: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.93
@@ -15998,6 +16002,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: 56a8b2dec3211eb439eb16d2d955290e, type: 3}
     - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: playerMove
+      value: 
+      objectReference: {fileID: 1455774591}
+    - target: {fileID: 8833120021063234102, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: needlePivot
       value: 
       objectReference: {fileID: 1717996902}
@@ -16037,6 +16045,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
   m_PrefabInstance: {fileID: 1455774589}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1455774598 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+  m_PrefabInstance: {fileID: 1455774589}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3c2dc00b1eb0864a9f042ef8641d9f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1471509614
 GameObject:
   m_ObjectHideFlags: 0
