@@ -75,6 +75,9 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// </summary>
     public void PerformAutoAttack()
     {
+        // 攻撃入力を受け付け可能かチェック
+        if (!animatorController.CanAcceptAttackInput()) return;
+
         // 最も近い敵を検索
         var target = FindNearestEnemy();
 

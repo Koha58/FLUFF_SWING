@@ -64,6 +64,18 @@ public class PlayerAnimatorController : MonoBehaviour
         return true;
     }
 
+    public bool CanAttackNow()
+    {
+        // 攻撃中なら攻撃禁止
+        if (_isAttacking) return false;
+
+        return true;
+    }
+
+    public bool CanAcceptAttackInput()
+    {
+        return !_isAttacking && !_attackInputLocked;
+    }
     #endregion
 
     #region アニメーション速度
@@ -87,6 +99,10 @@ public class PlayerAnimatorController : MonoBehaviour
     // 現在の状態を外部から取得可能にする
     public PlayerState CurrentState => _currentState;
     private bool _isAttacking = false;
+    public bool IsAttacking => _isAttacking;
+
+    private bool _attackInputLocked = false; // 攻撃入力をブロックするフラグ
+
     public bool IsDamagePlaying { get; private set; }
     private bool _pendingWireTransition = false;
     private bool _justGrappled = false;
@@ -104,6 +120,8 @@ public class PlayerAnimatorController : MonoBehaviour
     [SerializeField] private AudioClip landingSE;
     [SerializeField] private AudioClip[] footstepSEs;
     private int lastFootstepIndex = -1;
+    private float lastFootstepTime = 0f;
+    private const float FootstepInterval = 0.25f; // 足音間隔(秒)
     #endregion
 
     private void Awake()
@@ -133,6 +151,15 @@ public class PlayerAnimatorController : MonoBehaviour
     {
         if (_animator == null) return;
         if (!force && _currentState == newState) return;
+
+        // 攻撃中なら再度攻撃ステートに遷移させない
+        if (_isAttacking && (newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack))
+        {
+            Debug.Log("[SetPlayerState] 攻撃中の再遷移をスキップ");
+            return;
+        }
+
+
         if (!CanTransitionTo(newState, force)) return;
 
         var oldState = _currentState;
@@ -231,16 +258,30 @@ public class PlayerAnimatorController : MonoBehaviour
     #endregion
 
     #region Attacks
-    public void PlayMeleeAttackAnimation(float direction) => SetPlayerState(PlayerState.MeleeAttack, direction, 0f);
+    public void PlayMeleeAttackAnimation(float direction)
+    {
+        if (_attackInputLocked) return; // すでに攻撃入力ロック中なら無視
+        _attackInputLocked = true;      // 入力ブロック
+        SetPlayerState(PlayerState.MeleeAttack, direction, 0f);
+    }
     public void OnMeleeAttackAnimationEnd()
     {
         _isAttacking = false;
+        _attackInputLocked = false;     // アニメ終了で解除
         SetPlayerState(PlayerState.Idle, 0f, 0f, true);
     }
-    public void PlayRangedAttackAnimation(float direction) => SetPlayerState(PlayerState.RangedAttack, direction, 0f);
+
+    public void PlayRangedAttackAnimation(float direction)
+    {
+        if (_attackInputLocked) return;
+        _attackInputLocked = true;
+        SetPlayerState(PlayerState.RangedAttack, direction, 0f);
+    }
+
     public void OnRangedAttackAnimationEnd()
     {
         _isAttacking = false;
+        _attackInputLocked = false;     // アニメ終了で解除
         SetPlayerState(PlayerState.Idle, 0f, 0f, true);
     }
     #endregion
@@ -411,6 +452,12 @@ public class PlayerAnimatorController : MonoBehaviour
         _cancelIdleTransition = false;
     }
 
+    public bool IsPlayingLanding()
+    {
+        AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+        return info.IsName("Landing") && info.normalizedTime < 1f;
+    }
+
 
     /// <summary>
     /// ジャンプやワイヤー移動時に移動方向の情報を更新
@@ -436,6 +483,7 @@ public class PlayerAnimatorController : MonoBehaviour
     public void PlayFootstepSE()
     {
         if (footstepSEs == null || footstepSEs.Length == 0) return;
+        if (Time.time - lastFootstepTime < FootstepInterval) return; // 間隔制限
 
         int index;
         do
@@ -444,6 +492,8 @@ public class PlayerAnimatorController : MonoBehaviour
         } while (index == lastFootstepIndex && footstepSEs.Length > 1);
 
         lastFootstepIndex = index;
+        lastFootstepTime = Time.time;
+
         AudioManager.Instance?.PlaySE(footstepSEs[index]);
     }
 
