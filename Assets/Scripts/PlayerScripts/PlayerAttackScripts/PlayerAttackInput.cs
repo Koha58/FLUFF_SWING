@@ -8,7 +8,6 @@ public class PlayerAttackInput : MonoBehaviour
     [SerializeField] private PlayerAnimatorController animatorController;
 
     private InputAction attackAction;
-    private bool isLandingLocked = false; // ← 追加：Landing中フラグ
 
     private void Awake()
     {
@@ -53,10 +52,5 @@ public class PlayerAttackInput : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        // Animatorの状態を監視してLanding中かどうか更新
-        var current = animatorController.CurrentState;
-        isLandingLocked = (current == PlayerAnimatorController.PlayerState.Landing);
-    }
+
 }

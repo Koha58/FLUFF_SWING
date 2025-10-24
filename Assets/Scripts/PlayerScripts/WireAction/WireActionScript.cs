@@ -11,122 +11,95 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class WireActionScript : MonoBehaviour
 {
-    #region 針とワイヤー関連
+    #region === 定数 ===
 
-    // 針孔位置用の子オブジェクト。ワイヤーの始点となる。
-    [SerializeField] private Transform needlePivot;
+    // ワイヤー描画関連
+    private const int WireSegmentCount = 10;              // ワイヤーのベジェ曲線分割数（滑らかな描画のため）
+    private const float NeedleStopDistance = 0.01f;      // 針が目標座標に到達したとみなす距離閾値
+    private const float SwingAnimationStopDelay = 0.2f;  // ワイヤー切断後、スイングアニメーションを停止するまでの遅延
 
-    // 針オブジェクト。プレイヤーから発射され、地面に刺さる。
-    [SerializeField] private GameObject needle;
+    // タイル判定関連
+    private const int MaxTileProbeSteps = 50;            // プレイヤー方向へタイル探索する最大ステップ数
+    private const float TileProbeStepSize = 0.1f;        // タイル探索時の1ステップ距離
+    private const float GroundCheckThreshold = 0.05f;    // "ほぼ接地"と判定する距離閾値
 
-    // LineRenderer はこのスクリプトが直接操作する。ワイヤーの描画に使用。
-    private LineRenderer lineRenderer;
+    // ワイヤー線の制御点
+    private const float BezierControlOffsetY = 1.5f;     // ベジェ曲線の中間制御点のY方向オフセット
 
-    // 針のRendererキャッシュ（表示切り替え用）
-    private Renderer needleRenderer;
+    // PreviewLineRenderer（ワイヤー接続予測線）関連
+    private const int PreviewLinePositions = 2;          // 予測線の頂点数
+    private const int PreviewLineStartIndex = 0;         // 予測線の始点インデックス
+    private const int PreviewLineEndIndex = 1;           // 予測線の終点インデックス
+    private const float PreviewLineRaycastDistance = 0f; // Raycast距離（0で点判定）
 
-    // 針が刺さった位置（外部から読み取り専用）。ワイヤーの終点となる。
-    private Vector2 _hookedPosition;
-    public Vector2 HookedPosition => _hookedPosition;
-
-    [SerializeField] private PlayerMove playerMove;
-
-    private bool isCuttingWire = false;
-
-    #endregion
-
-    #region 接続・物理関連
-
-    // 物理的なワイヤーの役割を果たすコンポーネント
-    private DistanceJoint2D distanceJoint;
-
-    // 接続対象のオブジェクト（針が刺さったTilemapなど）
-    private GameObject targetObject = null;
-
-    // 接続状態を外部から確認できるようにする
-    public bool IsConnected => distanceJoint.enabled;
+    // ワイヤー初期化関連
+    private const float ResetSwingDirectionX = 0f;       // 切断時のスイング方向初期値
 
     #endregion
 
-    #region プレイヤー・アニメーション関連
+    #region === SerializeField ===
 
-    // プレイヤーからの入力を受け取るハンドラ
-    [SerializeField] private WireInputHandler inputHandler;
+    [Header("針とワイヤー関連")]
+    [SerializeField] private Transform needlePivot;     // ワイヤー始点（プレイヤー手の位置）
+    [SerializeField] private GameObject needle;         // ワイヤー針オブジェクト
+    [SerializeField] private PlayerMove playerMove;     // プレイヤー移動制御コンポーネント
 
-    // アニメーションの始点として使用するプレイヤーの右手位置
-    [SerializeField] private Transform rightHandTransform;
+    [Header("プレイヤー・アニメーション関連")]
+    [SerializeField] private WireInputHandler inputHandler;           // 左右クリックなどの入力管理
+    [SerializeField] private Transform rightHandTransform;            // プレイヤー右手位置
+    [SerializeField] private PlayerAnimatorController animatorController; // アニメーション制御
 
-    // アニメーション制御スクリプト
-    [SerializeField] private PlayerAnimatorController animatorController;
+    [Header("ワイヤー設定")]
+    [SerializeField] private PlayerWireConfig config;   // ワイヤー物理・描画設定
+    [SerializeField] private float cutCooldown = 0.1f;  // ワイヤー切断のクールタイム（秒）
 
-    private const float SwingAnimationStopDelay = 0.2f;
+    [Header("ライン描画")]
+    [SerializeField] private LineRenderer previewLineRenderer; // 接続可能予測線描画用
 
-    // === ワイヤー切断クールダウン ===
-    private float _lastCutTime = -999f;  // 最後に切断した時間（初期値はかなり前）
-    [SerializeField] private float cutCooldown = 0.1f; // 切断連打防止用クールダウン（秒）
-
-
-    /// <summary>
-    /// ワイヤー切断後、スイングアニメーションを少し遅延させて停止させるコルーチン。
-    /// </summary>
-    private IEnumerator DelayedStopSwingAnimation(float directionX)
-    {
-        yield return new WaitForSeconds(SwingAnimationStopDelay);
-        animatorController.StopSwingAnimation(directionX);
-    }
+    [Header("SE")]
+    [SerializeField] private AudioClip wireSE;         // ワイヤー接続時の音
 
     #endregion
 
-    #region ライン描画・予測線
+    #region === プライベートフィールド ===
 
-    // 予測線（点線）
-    [SerializeField] private LineRenderer previewLineRenderer;
+    private LineRenderer lineRenderer;                 // 実際にワイヤーを描画するLineRenderer
+    private Renderer needleRenderer;                   // 針の描画ON/OFF用Renderer
+    private Coroutine currentNeedleCoroutine;          // 発射中の針コルーチンを管理
 
-    // ワイヤーのカーブ頂点数
-    private const int WireSegmentCount = 10;
+    private DistanceJoint2D distanceJoint;            // プレイヤーと接続点を固定するDistanceJoint2D
+    private GameObject targetObject = null;           // ワイヤー接続対象のGameObject
+    private Vector2 _hookedPosition;                  // ワイヤー接続座標（固定点）
 
-    #endregion
+    // ワイヤーやプレイヤー物理設定をキャッシュ
+    private float needleSpeed;                        // 針の移動速度
+    private float fixedWireLength;                    // ワイヤー固定長
+    private float playerGravityScale;                 // プレイヤーの重力倍率
+    private float rigidbodyLinearDamping;             // 線形減衰
+    private float rigidbodyAngularDamping;            // 回転減衰
+    private float swingInitialSpeed;                  // スイング初速
 
-    #region コルーチン管理
-
-    // 現在進行中の針移動コルーチン
-    private Coroutine currentNeedleCoroutine;
-
-    #endregion
-
-    #region 内部状態保持・定数
-
-    [SerializeField] private PlayerWireConfig config;
-    private float lastSwingDirectionX = 0f;
-    private const float NeedleStopDistance = 0.01f;
-    private float needleSpeed;
-    private float fixedWireLength;
-    private float playerGravityScale;
-    private float rigidbodyLinearDamping;
-    private float rigidbodyAngularDamping;
-    private float swingInitialSpeed;
+    private float lastSwingDirectionX = ResetSwingDirectionX; // 最後にスイングした方向X
+    private float _lastCutTime = -999f;                        // ワイヤー切断の最終時間（クールタイム用）
 
     #endregion
 
-    #region SE関連
-
-    /// <summary>
-    /// 死亡時のSE
-    /// </summary>
-    [SerializeField] private AudioClip wireSE;
-
+    #region === プロパティ ===
+    public bool IsConnected => distanceJoint.enabled; // ワイヤー接続中か
+    public Vector2 HookedPosition => _hookedPosition; // ワイヤー接続座標を外部公開
     #endregion
 
+    #region === Unityライフサイクル ===
 
     private void Awake()
     {
-        // 必要なコンポーネントを取得
+        // コンポーネント取得
         lineRenderer = GetComponent<LineRenderer>();
         distanceJoint = GetComponent<DistanceJoint2D>();
         needleRenderer = needle.GetComponent<Renderer>();
         animatorController = GetComponent<PlayerAnimatorController>();
 
-        // configから各種パラメータを取得
+        // 設定データからパラメータ読み込み
         needleSpeed = config.needleSpeed;
         fixedWireLength = config.fixedWireLength;
         playerGravityScale = config.playerGravityScale;
@@ -135,383 +108,362 @@ public class WireActionScript : MonoBehaviour
         swingInitialSpeed = config.swingInitialSpeed;
     }
 
-    private void Start()
-    {
-        // Start()では何もしない（ライフサイクルに合わせてOnEnableで初期化する）
-    }
-
-    void Update()
-    {
-        // 接続前にプレイヤーからマウス位置までの予測ライン（点線）を描画
-        UpdatePreviewLine();
-
-        // ワイヤー接続中、カーブワイヤーのラインを更新して表示
-        if (IsConnected)
-        {
-            UpdateBezierWireLine();
-        }
-    }
-
     private void OnEnable()
     {
-        // イベント登録
+        // 入力イベント登録
         inputHandler.OnLeftClick += HandleLeftClick;
         inputHandler.OnRightClick += HandleRightClick;
 
-        // オブジェクトが有効になった時点で状態をリセット
+        // 初期状態にリセット
         ResetState();
+    }
+
+    private void Update()
+    {
+        // マウス予測線を毎フレーム更新
+        UpdatePreviewLine();
+
+        // ワイヤー接続中はベジェ曲線で描画
+        if (IsConnected)
+            UpdateBezierWireLine();
     }
 
     private void OnDisable()
     {
-        // イベント解除
+        // 入力イベント解除
         inputHandler.OnLeftClick -= HandleLeftClick;
         inputHandler.OnRightClick -= HandleRightClick;
     }
 
-    /// <summary>
-    /// スクリプトの状態を完全にリセットし、初期状態に戻す
-    /// </summary>
-    public void ResetState()
-    {
-        // 既存のワイヤーを切断
-        CutWire();
+    #endregion
 
-        // 針の見た目を確実に非表示に
-        SetNeedleVisible(false);
+    #region === ワイヤー操作 ===
 
-        // 予測線も確実に非表示に
-        if (previewLineRenderer != null)
-        {
-            previewLineRenderer.enabled = false;
-            previewLineRenderer.positionCount = 0;
-        }
-
-        // 実行中の針発射コルーチンがあれば停止し、参照をクリア
-        if (currentNeedleCoroutine != null)
-        {
-            StopCoroutine(currentNeedleCoroutine);
-        }
-        currentNeedleCoroutine = null;
-
-        // 最後にスイングした方向もリセット
-        lastSwingDirectionX = 0f;
-    }
-
-    /// <summary>
-    /// 左クリックの入力を処理し、ワイヤーを接続する
-    /// </summary>
+    /// <summary>左クリック時のワイヤー接続処理</summary>
     private void HandleLeftClick()
     {
-        // 接続中なら無視
-        if (IsConnected)
-            return;
+        if (IsConnected) return; // 接続中は何もしない
 
-        // マウスのワールド座標を取得
+        // マウス位置をワールド座標に変換
         Vector3 mouseWorldPos = GetMouseWorldPosition();
 
-        // マウス座標で2Dレイキャスト
+        // マウス座標にTilemapがあるか判定
         RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
         if (hit.collider == null) return;
 
-        // ヒットしたオブジェクトから Tilemap を取得
+        // Tilemap取得（親も含める）
         Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
         if (tilemap == null) return;
 
-        // ヒットした位置のタイル座標を取得
+        // クリック地点のセルを取得
         Vector3Int cellPos = tilemap.WorldToCell(hit.point);
-
-        // 該当のタイルを取得
         TileBase tile = tilemap.GetTile(cellPos);
 
-        // Ground タイプのカスタムタイルなら接続処理を行う
-        if (tile is CustomTile customTile && customTile.tileType == CustomTile.TileType.Ground)
+        // 地面タイプならワイヤー接続を試みる
+        if ((tile is CustomTile customTile && customTile.tileType == CustomTile.TileType.Ground) ||
+            (tile is ITileWithType tileWithType && tileWithType.tileType == CustomTile.TileType.Ground))
         {
+            // プレイヤー方向に沿って接地面を補正
             Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
-            TryConnectWire(adjustedTarget, hit.collider.gameObject);
-        }
-        else if (tile is ITileWithType tileWithType && tileWithType.tileType == CustomTile.TileType.Ground)
-        {
-            Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+
+            // ワイヤー接続開始
             TryConnectWire(adjustedTarget, hit.collider.gameObject);
         }
     }
 
-    /// <summary>
-    /// 右クリックの入力を処理し、ワイヤーを切断する
-    /// </summary>
+    /// <summary>右クリック時のワイヤー切断処理</summary>
     private void HandleRightClick()
     {
         if (IsConnected)
-        {
-            CutWire();
-        }
+            CutWire(); // ワイヤー切断
     }
 
-    /// <summary>
-    /// ワイヤー接続を試みる
-    /// </summary>
-    private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
-    {
-        // 接続中 or 針を飛ばしている最中は無視
-        if (IsConnected || currentNeedleCoroutine != null)
-            return;
-
-        SetNeedleVisible(true);
-        currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
-    }
-
-
+    /// <summary>ワイヤー切断処理</summary>
     public void CutWire()
     {
+        // 着地中は切断を無効化
         if (animatorController.CurrentState == PlayerAnimatorController.PlayerState.Landing)
-        {
             return;
-        }
 
+        // クールタイム判定
         if (Time.time - _lastCutTime < cutCooldown) return;
         _lastCutTime = Time.time;
 
-        isCuttingWire = true; // ✅ 攻撃無効フラグ
-
+        // DistanceJoint2Dを無効化してワイヤーを切断
         distanceJoint.enabled = false;
         targetObject = null;
         lineRenderer.enabled = false;
         SetNeedleVisible(false);
 
+        // 発射中の針コルーチン停止
         if (currentNeedleCoroutine != null)
         {
             StopCoroutine(currentNeedleCoroutine);
             currentNeedleCoroutine = null;
         }
 
+        // アニメーションフラグリセット
         animatorController.ResetWireFlags();
+
+        // 切断後アニメーション遷移
         StartCoroutine(HandleWireCutTransition());
     }
 
+    /// <summary>ワイヤー切断後のアニメーション遷移</summary>
     private IEnumerator HandleWireCutTransition()
     {
+        // 物理更新後にアニメーション更新
         yield return new WaitForFixedUpdate();
 
+        // 接地判定
         bool groundedNow = playerMove != null && playerMove.IsGrounded;
-        bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(0.05f);
+        bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(GroundCheckThreshold);
 
         if (groundedNow || almostGroundedNow)
-        {
-            animatorController.ForceIdle(lastSwingDirectionX);
-        }
+            animatorController.ForceIdle(lastSwingDirectionX); // 接地中はIdle
         else
         {
-            animatorController.ForceLanding(lastSwingDirectionX);
-            yield return new WaitForSeconds(0.2f);
-
+            animatorController.ForceLanding(lastSwingDirectionX); // 空中ならLanding
+            yield return new WaitForSeconds(SwingAnimationStopDelay); // スイング停止待機
             if (playerMove != null && playerMove.IsGrounded)
-            {
-                animatorController.ForceIdle(lastSwingDirectionX);
-            }
+                animatorController.ForceIdle(lastSwingDirectionX); // 着地後Idle
         }
-
-        isCuttingWire = false; // ✅ フラグ解除
     }
 
-    /// <summary>
-    /// 針を目標位置まで飛ばし、ワイヤーを接続するコルーチン
-    /// </summary>
+    #endregion
+
+    #region === 針発射・接続 ===
+
+    /// <summary>ワイヤー接続を試みる</summary>
+    private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
+    {
+        if (IsConnected || currentNeedleCoroutine != null) return;
+
+        // 針表示ON
+        SetNeedleVisible(true);
+
+        // 発射コルーチン開始
+        currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
+    }
+
+    /// <summary>針を目標座標まで飛ばしてワイヤー接続する</summary>
     private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
     {
-        SetNeedleVisible(true);
-        // 針の発射位置をプレイヤーの位置に設定
-        needle.transform.position = transform.position;
+        SetNeedleVisible(true);                    // 針を表示
+        needle.transform.position = transform.position; // 初期位置をプレイヤー位置に設定
 
-        // 針が目標に到達するまで移動
+        // 針を目標位置まで移動
         while (Vector2.Distance(needle.transform.position, targetPosition) > NeedleStopDistance)
         {
-            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
-            // 針の向きを進行方向に合わせる
-            needle.transform.up = -direction;
-            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed * Time.deltaTime);
-            yield return null;
+            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized; // 移動方向
+            needle.transform.up = -direction; // 針の向きを進行方向に設定
+            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed * Time.deltaTime); // 移動
+            yield return null; // 次フレームまで待機
         }
 
-        // 針が目標に刺さった位置を固定
+        // 到達後座標を調整
         needle.transform.position = targetPosition;
         targetObject = hitObject;
         _hookedPosition = targetPosition;
 
-        // SEを再生
+        // 接続音再生
         AudioManager.Instance?.PlaySE(wireSE);
 
-        // LineRendererを有効化
+        // ワイヤー描画ON
         if (lineRenderer != null)
-        {
             lineRenderer.enabled = true;
-        }
 
-        // DistanceJoint2Dの設定
+        // DistanceJoint2D設定
         if (distanceJoint != null)
         {
-            distanceJoint.enabled = false; // 一時的に無効化
+            distanceJoint.enabled = false;
             distanceJoint.connectedBody = null;
             distanceJoint.connectedAnchor = _hookedPosition;
             distanceJoint.maxDistanceOnly = true;
             distanceJoint.distance = fixedWireLength;
-            distanceJoint.enabled = true; // 再び有効化して接続完了
+            distanceJoint.enabled = true;
         }
 
+        // プレイヤーにスイング初速を付与
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            // 物理パラメータをスイング用に調整
             rb.gravityScale = playerGravityScale;
             rb.linearDamping = rigidbodyLinearDamping;
             rb.angularDamping = rigidbodyAngularDamping;
 
-            // スイングの初期速度を計算し、適用
+            // スイング方向計算（接続点との接線方向）
             Vector2 dir = (_hookedPosition - (Vector2)transform.position).normalized;
             Vector2 tangent = new Vector2(-dir.y, dir.x);
             tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent;
-
-            // Rigidbody2D.velocity を Rigidbody2D.linearVelocity に修正
             rb.linearVelocity = tangent * swingInitialSpeed;
         }
 
-        // アニメーションを再生
+        // アニメーション再生
         Vector2 dirForAnimation = (_hookedPosition - (Vector2)transform.position).normalized;
         lastSwingDirectionX = dirForAnimation.x;
         animatorController.PlayGrappleSwingAnimation(dirForAnimation.x);
+
+        // コルーチン終了
         currentNeedleCoroutine = null;
     }
 
-    /// <summary>
-    /// ワイヤー接続中にベジエ曲線を描画するメソッド。
-    /// </summary>
+    #endregion
+
+    #region === ライン描画 ===
+
+    /// <summary>接続中のワイヤーをベジェ曲線で描画</summary>
     private void UpdateBezierWireLine()
     {
-        // ワイヤーが未接続なら描画しない
         if (lineRenderer == null || !distanceJoint.enabled) return;
 
-        lineRenderer.positionCount = WireSegmentCount + 1;
+        lineRenderer.positionCount = WireSegmentCount + 1; // 線分数+1
+        Vector3 start = rightHandTransform.position;       // ワイヤー始点
+        Vector3 end = needlePivot.position;               // ワイヤー終点（針位置）
+        Vector3 controlPoint = (start + end) / 2 + Vector3.down * BezierControlOffsetY; // 中間制御点
 
-        Vector3 start = rightHandTransform.position; // プレイヤーの手を始点にする
-        Vector3 end = needlePivot.position;          // 地面に刺さった針孔の位置
-
-        // ベジェ曲線の制御点（中間の膨らみ）
-        Vector3 controlPoint = (start + end) / 2 + Vector3.down * 1.5f;
-
+        // ベジェ曲線の各頂点計算
         for (int i = 0; i <= WireSegmentCount; i++)
         {
-            float t = i / (float)WireSegmentCount;
-            Vector3 point = Mathf.Pow(1 - t, 2) * start + 2 * (1 - t) * t * controlPoint + Mathf.Pow(t, 2) * end;
+            float t = i / (float)WireSegmentCount; // 0~1の補間値
+            Vector3 point = Mathf.Pow(1 - t, 2) * start + 2 * (1 - t) * t * controlPoint + Mathf.Pow(t, 2) * end; // 二次ベジェ
             lineRenderer.SetPosition(i, point);
         }
     }
 
-
-    /// <summary>
-    /// ワイヤー発射前の予測線を描画するメソッド。
-    /// </summary>
+    /// <summary>マウス位置に基づくワイヤー接続予測線描画</summary>
     private void UpdatePreviewLine()
     {
-        // ワイヤー接続中は予測ライン非表示
+        // 発射中は予測線を非表示
         if (needleRenderer != null && needleRenderer.enabled)
         {
             if (previewLineRenderer != null)
-            {
                 previewLineRenderer.enabled = false;
-            }
             return;
         }
 
+        // マウスワールド座標取得
         Vector3 mouseWorldPos = GetMouseWorldPosition();
-        // 地面レイヤーとの衝突判定（ゼロ距離Raycast）
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f, LayerMask.GetMask("Ground"));
+
+        // 点判定で接続可能な地形を探す
+        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, PreviewLineRaycastDistance, LayerMask.GetMask("Ground"));
 
         if (hit.collider != null)
         {
+            // プレイヤー方向に沿って接地面補正
             Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+
+            // 予測線描画
             if (previewLineRenderer != null)
             {
-                previewLineRenderer.positionCount = 2;
-                previewLineRenderer.SetPosition(0, transform.position); // 予測線の始点
-                previewLineRenderer.SetPosition(1, adjustedTarget); // 予測線の終点
+                previewLineRenderer.positionCount = PreviewLinePositions;
+                previewLineRenderer.SetPosition(PreviewLineStartIndex, transform.position);
+                previewLineRenderer.SetPosition(PreviewLineEndIndex, adjustedTarget);
                 previewLineRenderer.enabled = true;
             }
         }
         else
         {
             if (previewLineRenderer != null)
-            {
                 previewLineRenderer.enabled = false;
-            }
         }
     }
 
-    /// <summary>
-    /// 針の表示/非表示を切り替える
-    /// </summary>
+    #endregion
+
+    #region === アニメーション・補助 ===
+
+    /// <summary>スイング停止アニメーションを遅延して再生</summary>
+    private IEnumerator DelayedStopSwingAnimation(float directionX)
+    {
+        yield return new WaitForSeconds(SwingAnimationStopDelay); // 遅延
+        animatorController.StopSwingAnimation(directionX);
+    }
+
+    #endregion
+
+    #region === ユーティリティ ===
+
+    /// <summary>針の表示切替</summary>
     private void SetNeedleVisible(bool visible)
     {
         if (needleRenderer != null)
             needleRenderer.enabled = visible;
     }
 
-    /// <summary>
-    /// マウスのスクリーン座標をワールド座標に変換する
-    /// </summary>
+    /// <summary>マウススクリーン座標をワールド座標に変換</summary>
     private Vector3 GetMouseWorldPosition()
     {
         Vector3 mousePosition = Input.mousePosition;
-        mousePosition.z = -Camera.main.transform.position.z;
+        mousePosition.z = -Camera.main.transform.position.z; // カメラZ位置補正
         return Camera.main.ScreenToWorldPoint(mousePosition);
     }
 
     /// <summary>
-    /// プレイヤーからクリック位置に向かって、地面の正確な表面を探索する。
-    /// Tilemapの内側から外側への境界を見つけることで、ワイヤーの刺さる位置を正確にする。
+    /// プレイヤー方向に沿ってクリック位置から地面を探す
+    /// Tilemap用の微調整
     /// </summary>
     private Vector2 FindSurfaceAlongPlayerDirectionTilemap(Vector2 clickPosition)
     {
         Vector2 playerPos = transform.position;
-        Vector2 directionToPlayer = (playerPos - clickPosition).normalized;
+        Vector2 directionToPlayer = (playerPos - clickPosition).normalized; // プレイヤー方向
         Vector2 probePosition = clickPosition;
-        Vector2 lastInsidePosition = clickPosition;
+        Vector2 lastInsidePosition = clickPosition; // 最後にタイル内にあった座標
         bool wasInside = true;
         bool foundSurface = false;
 
-        // Tilemap を取得（コライダーから探索）
+        // Tilemap取得
         RaycastHit2D hit = Physics2D.Raycast(clickPosition, Vector2.zero);
         if (hit.collider == null) return clickPosition;
 
         Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
         if (tilemap == null) return clickPosition;
 
-        // Tilemap 内から外への境界を探索
-        for (int i = 0; i < 50; i++)
+        // タイル探索
+        for (int i = 0; i < MaxTileProbeSteps; i++)
         {
             Vector3Int cellPos = tilemap.WorldToCell(probePosition);
             TileBase tile = tilemap.GetTile(cellPos);
             bool isInside = (tile != null);
 
+            // タイル境界を見つけたら終了
             if (wasInside && !isInside)
             {
                 foundSurface = true;
                 break;
             }
 
-            if (isInside)
-                lastInsidePosition = probePosition;
+            // 最後にタイル内にあった座標を更新
+            if (isInside) lastInsidePosition = probePosition;
 
-            probePosition += directionToPlayer * 0.1f;
+            // 次ステップ
+            probePosition += directionToPlayer * TileProbeStepSize;
             wasInside = isInside;
         }
 
-        if (foundSurface)
-        {
-            return lastInsidePosition;
-        }
-        else
-        {
-            return clickPosition;
-        }
+        return foundSurface ? lastInsidePosition : clickPosition;
     }
+
+    /// <summary>ワイヤー状態を初期化</summary>
+    public void ResetState()
+    {
+        CutWire();               // ワイヤー切断
+        SetNeedleVisible(false); // 針非表示
+
+        // 予測線を非表示
+        if (previewLineRenderer != null)
+        {
+            previewLineRenderer.enabled = false;
+            previewLineRenderer.positionCount = 0;
+        }
+
+        // 発射中コルーチン停止
+        if (currentNeedleCoroutine != null)
+            StopCoroutine(currentNeedleCoroutine);
+
+        currentNeedleCoroutine = null;
+        lastSwingDirectionX = ResetSwingDirectionX;
+    }
+
+    #endregion
 }

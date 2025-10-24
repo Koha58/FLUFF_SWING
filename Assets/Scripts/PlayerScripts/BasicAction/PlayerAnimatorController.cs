@@ -263,6 +263,7 @@ public class PlayerAnimatorController : MonoBehaviour
         if (_attackInputLocked) return; // すでに攻撃入力ロック中なら無視
         _attackInputLocked = true;      // 入力ブロック
         SetPlayerState(PlayerState.MeleeAttack, direction, 0f);
+        StartCoroutine(AttackTimeout());
     }
     public void OnMeleeAttackAnimationEnd()
     {
@@ -283,7 +284,14 @@ public class PlayerAnimatorController : MonoBehaviour
         _isAttacking = false;
         _attackInputLocked = false;     // アニメ終了で解除
         SetPlayerState(PlayerState.Idle, 0f, 0f, true);
+        StartCoroutine(AttackTimeout());
     }
+
+    public bool IsInAttackState()
+    {
+        return CurrentState == PlayerState.MeleeAttack || CurrentState == PlayerState.RangedAttack;
+    }
+
     #endregion
 
     #region Damage / Goal
@@ -458,7 +466,15 @@ public class PlayerAnimatorController : MonoBehaviour
         return info.IsName("Landing") && info.normalizedTime < 1f;
     }
 
-
+    private IEnumerator AttackTimeout()
+    {
+        yield return new WaitForSeconds(1.2f); // 攻撃アニメの長さに合わせる
+        if (_isAttacking)
+        {
+            Debug.LogWarning("攻撃アニメが終了しなかったため強制解除");
+            OnMeleeAttackAnimationEnd();
+        }
+    }
     /// <summary>
     /// ジャンプやワイヤー移動時に移動方向の情報を更新
     /// </summary>
