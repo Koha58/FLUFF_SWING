@@ -4,13 +4,11 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
-using System.Security.Cryptography.X509Certificates;
-// 10/23追加ここから
-using System.Text.RegularExpressions;
-// 10/23追加ここまで
 
 public class SelectManager : MonoBehaviour
 {
+    #region インスペクター
+
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
 
@@ -27,10 +25,12 @@ public class SelectManager : MonoBehaviour
 
     private string nextStageName;
 
-    // 10/23追加ここから
-    [Header("各ステージのロック")]
+    [Header("各ステージのロック")]   // 各ボタンのLock（子オブジェクト）をリストに設定
     [SerializeField] private GameObject[] stageLocks;
-    // 10/23追加ここまで
+
+    #endregion
+
+    #region パネルの初期設定・ロックの状態更新
 
     private void Start()
     {
@@ -38,13 +38,10 @@ public class SelectManager : MonoBehaviour
         if (setPanel != null)
             setPanel.SetActive(false);
 
-        // 10/23追加ここから
         // --- ステージロックの状態を更新 ---
         UpdateStageLocks();
-        // 10/23追加ここまで
     }
 
-    // 10/23追加ここから
     // ======== 各ステージのロック状態を更新 =========
     private void UpdateStageLocks()
     {
@@ -53,24 +50,28 @@ public class SelectManager : MonoBehaviour
         for (int i = 0; i < stageLocks.Length; i++)
         {
             bool unlocked = i <= clearedStage; // クリア済み + 1 ステージまで解放
+                                               // 初回起動時ステージ１解放
             if (stageLocks[i] != null)
                 stageLocks[i].SetActive(!unlocked); // 非表示 = 解放済み
         }
     }
-    // 10/23追加ここまで
+
+    #endregion
+
+    #region ステージ遷移
 
     // ======== ステージ遷移 =========
     public void SelectStage(String StageName)
     {
-        // 10/23追加ここから
         // --- ロックチェック ---
         int stageIndex = GetStageIndex(StageName);
         if (stageIndex >= 0 && stageLocks[stageIndex] != null && stageLocks[stageIndex].activeSelf)
         {
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySE(offClickSE);
             Debug.Log(StageName + " はロック中です。");
             return;
         }
-        // 10/23追加ここまで
 
         nextStageName = StageName;
 
@@ -79,14 +80,52 @@ public class SelectManager : MonoBehaviour
             AudioManager.Instance.PlaySE(onClickSE);
 
         // 効果音の長さ分だけ待ってからシーン移動
-        float delay = onClickSE != null ? onClickSE.length : 0.2f;
+        float delay = onClickSE != null ? onClickSE.length : 0.1f;
         Invoke(nameof(LoadNextScene), delay);
     }
 
+    // シーン移動用
     private void LoadNextScene()
     {
         SceneManager.LoadScene(nextStageName);
     }
+
+    // ======== Stage名 → Index変換 ========
+    private int GetStageIndex(string stageName)
+    {
+        // 例：Stage1, Stage2,... を前提
+        if (stageName.StartsWith("Stage"))
+        {
+            if (int.TryParse(stageName.Replace("Stage", ""), out int num))
+                return num - 1; // 配列は0始まりなので調整
+        }
+        return -1;
+    }
+
+    // ========タイトルに戻る========
+    public void TitleBack(String StageName)
+    {
+        nextStageName = StageName;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(offClickSE);
+
+        float delay = offClickSE != null ? offClickSE.length : 0.1f;
+        Invoke(nameof(LoadNextScene), delay);
+    }
+
+    // ======== アプリ終了 =========
+    public void OnApplicationQuit()
+    {
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(offClickSE);
+
+        Application.Quit();
+    }
+
+    #endregion
+
+    #region パネルの表示・非表示切り替え
 
     // ======== パネル表示 =========
     public void OnPanel()
@@ -114,50 +153,8 @@ public class SelectManager : MonoBehaviour
         Debug.Log("設定パネル非表示");
     }
 
-    // ========タイトルに戻る========
-    public void TitleBack(String StageName)
-    {
-        nextStageName = StageName;
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(offClickSE);
-
-        float delay = offClickSE != null ? offClickSE.length : 0.2f;
-        Invoke(nameof(LoadNextScene), delay);
-    }
-
-    // ======== アプリ終了 =========
-    public void OnApplicationQuit()
-    {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(offClickSE);
-
-        Application.Quit();
-    }
-
-    // 10/23追加ここから
-    // ======== Stage名 → Index変換 ========
-    private int GetStageIndex(string stageName)
-    {
-        if (string.IsNullOrWhiteSpace(stageName)) return -1;
-
-        // 大文字小文字無視して「Stage」から始まるかチェック
-        if (!stageName.StartsWith("Stage", StringComparison.OrdinalIgnoreCase))
-            return -1;
-
-        // 「Stage」以降にある連続した数字を抽出
-        Match m = Regex.Match(stageName, @"Stage(\d+)");    // 要修正
-        if (m.Success)
-        {
-            int num = int.Parse(m.Groups[1].Value);
-            return num - 1; // 配列は0始まり
-        }
-
-        return -1;
-    }
-    // 10/23追加ここまで
+    #endregion
 }
-
 
 //// ステージセレクト>SceneManagerで使用
 
@@ -165,7 +162,6 @@ public class SelectManager : MonoBehaviour
 //using UnityEngine;
 //using UnityEngine.SceneManagement;
 //using UnityEngine.Audio;
-//using System.Security.Cryptography.X509Certificates;
 
 //public class SelectManager : MonoBehaviour
 //{
