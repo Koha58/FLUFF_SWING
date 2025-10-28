@@ -69,6 +69,16 @@ public class PlayerHealthUI : MonoBehaviour
     /// <param name="currentHP">現在のプレイヤーHP</param>
     public void UpdateHealth(int currentHP)
     {
+        // ハート数が足りなければ自動で追加
+        while (heartIcons.Count < currentHP)
+        {
+            int i = heartIcons.Count;
+            GameObject heart = Instantiate(heartPrefab, heartPanel);
+            RectTransform rt = heart.GetComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(startOffsetX + i * heartSpacing, startOffsetY);
+            heartIcons.Add(heart);
+        }
+
         for (int i = 0; i < heartIcons.Count; i++)
         {
             // 現在HP以下なら表示、それ以降は非表示に

@@ -136,7 +136,25 @@ public class GameResultUIController : MonoBehaviour
     public void ClickNext()
     {
         ResumeGameTime();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        // 現在のシーンインデックスを取得
+        int currentIndex = SceneManager.GetActiveScene().buildIndex;
+
+        // ビルド設定に登録されているシーン数を取得
+        int totalScenes = SceneManager.sceneCountInBuildSettings;
+
+        // 次のシーンインデックスを算出
+        int nextIndex = currentIndex + 1;
+
+        if (nextIndex < totalScenes)
+        {
+            // 次のステージをロード
+            SceneManager.LoadScene(nextIndex);
+        }
+        else
+        {
+            // 最後のステージならタイトル（またはセレクト）へ戻る
+            SceneManager.LoadScene(TitleSceneName);
+        }
     }
 
     /// <summary>

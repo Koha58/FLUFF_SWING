@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// SpawnDataSO に基づいて、プレハブをシーンにスポーンするマネージャー。
@@ -20,8 +21,9 @@ public class SpawnManager : MonoBehaviour
     /// </summary>
     void Start()
     {
-        // Resources/SpawnData フォルダから SpawnDataSO を読み込む
-        var spawnData = Resources.Load<SpawnDataSO>("SpawnData/SpawnDataSO");
+        string sceneName = SceneManager.GetActiveScene().name;
+        var spawnData = Resources.Load<SpawnDataSO>($"SpawnData/{sceneName}");
+
 
         // データが存在しない場合はエラーを出力して処理を中断
         if (spawnData == null)
