@@ -5,60 +5,63 @@ using UnityEngine;
 /// プレイヤーのアニメーション全体を制御するクラス。
 /// Animatorパラメータ(State / SpeedMultiplier)を管理し、
 /// 移動・攻撃・ワイヤー・ダメージ・着地などの状態を統合的に制御する。
+/// プレイヤーの**見た目と音**の制御を担当する。
 /// </summary>
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimatorController : MonoBehaviour
 {
     #region === Animator本体 ===
-    private Animator _animator; // プレイヤーのAnimatorコンポーネント
+    private Animator _animator; // プレイヤーのAnimatorコンポーネント本体
     #endregion
 
     #region === Animatorパラメータ名 ===
     /// <summary>
-    /// Animatorコントローラ内で使用するパラメータ名を定数化
+    /// Animatorコントローラ内で使用するパラメータ名を定数化。
+    /// 文字列リテラル誤りを防ぎ、コードの可読性を向上させる。
     /// </summary>
     private static class AnimatorParams
     {
-        public const string State = "State";
-        public const string SpeedMultiplier = "speedMultiplier";
+        public const string State = "State"; // プレイヤーの現在の状態(Int)
+        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション再生速度の倍率(Float)
     }
     #endregion
 
     #region === 定数定義 ===
     /// <summary>
-    /// 各アニメーションの再生スピード倍率
+    /// 各アニメーションの再生スピード倍率を定義。
+    /// アニメーションの「テンポ」を調整するために使用される。
     /// </summary>
     private static class AnimatorSpeeds
     {
-        public const float RunMin = 0.5f;
-        public const float RunMax = 3.0f;
-        public const float Swing = 1.5f;
-        public const float Grapple = 1.5f;
-        public const float Landing = 1.0f;
-        public const float MeleeAttack = 1.0f;
-        public const float RangedAttack = 1.0f;
-        public const float Damage = 1.0f;
-        public const float Goal = 1.0f;
-        public const float Idle = 1.0f;
+        public const float RunMin = 0.5f;   // 最小移動速度でのRunアニメーション倍率
+        public const float RunMax = 3.0f;   // 最大移動速度でのRunアニメーション倍率
+        public const float Swing = 1.5f;    // ワイヤースイング時のアニメーション倍率
+        public const float Grapple = 1.5f;  // グラップル開始時のアニメーション倍率（Jumpと併用）
+        public const float Landing = 1.0f;  // 着地アニメーション倍率
+        public const float MeleeAttack = 1.0f; // 近接攻撃アニメーション倍率
+        public const float RangedAttack = 1.0f; // 遠距離攻撃アニメーション倍率
+        public const float Damage = 1.0f;   // ダメージアニメーション倍率
+        public const float Goal = 1.0f;     // ゴールアニメーション倍率
+        public const float Idle = 1.0f;     // 待機アニメーション倍率
     }
 
     /// <summary>
-    /// アニメーション遷移・入力検出・演出タイミングに関する定数
+    /// アニメーション遷移・入力検出・演出タイミングに関する定数。
     /// </summary>
     private static class Timings
     {
-        public const float MoveThreshold = 0.05f;          // 移動入力がこれ以上で「移動中」と判定
-        public const float MoveDelayTime = 0.1f;           // 移動停止判定までの遅延
-        public const float GrappleTransitionTime = 0.3f;   // グラップル→ワイヤー切替までの遅延
-        public const float FlipThreshold = 0.01f;          // 左右反転を行う入力の閾値
-        public const float LandingToIdleDelay = 0.5f;      // 着地後Idleに戻るまでの時間
-        public const float FootstepInterval = 0.25f;       // 足音再生の間隔
-        public const float DamageResetDelay = 1.0f;        // ダメージ終了後Idleへ戻すまでの時間
-        public const float AttackTimeout = 1.2f;           // 攻撃が終わらなかった場合に強制終了する時間
+        public const float MoveThreshold = 0.05f;           // 移動入力がこれ以上（絶対値）で「移動中」と判定する閾値
+        public const float MoveDelayTime = 0.1f;            // 入力が途切れてから「停止中(Idle)」と判定するまでの遅延時間
+        public const float GrappleTransitionTime = 0.3f;    // グラップル（Jumpアニメ）からワイヤー（Wireアニメ）へ切り替わるまでの時間
+        public const float FlipThreshold = 0.01f;           // 左右反転を行う入力の最小閾値
+        public const float LandingToIdleDelay = 0.5f;       // 着地後、自動的にIdleに戻るまでの時間
+        public const float FootstepInterval = 0.25f;        // 足音を再生する最小間隔
+        public const float DamageResetDelay = 1.0f;         // ダメージアニメーション終了後、強制的にIdleへ戻すまでの時間
+        public const float AttackTimeout = 1.2f;            // 攻撃アニメーションが正常終了しなかった場合に強制終了する時間
     }
 
     /// <summary>
-    /// 方向値を定義（左右・なし）
+    /// 方向値を定義（左右・なし）。スプライト反転や攻撃方向決定に使用。
     /// </summary>
     private static class Directions
     {
@@ -68,7 +71,7 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 汎用スピード定数（今後の拡張用）
+    /// 汎用スピード定数（主に引数のデフォルト値として使用）。
     /// </summary>
     private static class Speeds
     {
@@ -76,87 +79,89 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// デフォルト初期値
+    /// デフォルト初期値。
     /// </summary>
     private static class Defaults
     {
-        public const int LastFootstepIndexDefault = -1;
-        public const float TimeZero = 0f;
+        public const int LastFootstepIndexDefault = -1; // 足音のインデックス初期値
+        public const float TimeZero = 0f; // 時間の初期値（0秒）
     }
     #endregion
 
     #region === プレイヤーステート ===
     /// <summary>
-    /// プレイヤーのアニメーション状態
-    /// AnimatorのIntパラメータ「State」と同期
+    /// プレイヤーのアニメーション状態。
+    /// AnimatorのIntパラメータ「State」と同期し、アニメーション切り替えを行う。
     /// </summary>
     public enum PlayerState
     {
-        Idle = 0,
-        Run = 1,
-        Jump = 2,
-        Wire = 3,
-        Landing = 4,
-        MeleeAttack = 5,
-        RangedAttack = 6,
-        Damage = 7,
-        Goal = 8
+        Idle = 0, // 待機
+        Run = 1, // 走行
+        Jump = 2, // ジャンプ・落下・グラップル初期
+        Wire = 3, // ワイヤースイング中
+        Landing = 4, // 着地
+        MeleeAttack = 5, // 近接攻撃
+        RangedAttack = 6, // 遠距離攻撃
+        Damage = 7, // ダメージ
+        Goal = 8 // ゴール
     }
 
     /// <summary>
-    /// ステートの優先度
-    /// ダメージ・ゴールなどは他ステートを上書き
+    /// ステートの優先度。
+    /// 優先度が高いステート（例: ダメージ、ゴール）は、低いステートからの遷移を上書きできる。
     /// </summary>
     private enum PlayerStatePriority { Low, Medium, High }
     #endregion
 
     #region === 変数・フラグ類 ===
     [Header("参照")]
-    [SerializeField] private PlayerAttack playerAttack; // 攻撃処理スクリプト参照
-    [SerializeField] private AudioClip landingSE;       // 着地音
-    [SerializeField] private AudioClip[] footstepSEs;   // 足音候補
+    [SerializeField] private PlayerAttack playerAttack; // 攻撃処理スクリプトへの参照（アニメーションイベント用）
+    [SerializeField] private AudioClip landingSE;        // 着地音SEのクリップ
+    [SerializeField] private AudioClip[] footstepSEs;    // 足音SEのクリップ候補（ランダム再生用）
 
-    private PlayerState _currentState = PlayerState.Idle;   // 現在の状態
-    public PlayerState CurrentState => _currentState;
+    private PlayerState _currentState = PlayerState.Idle;    // 現在のアニメーション状態
+    public PlayerState CurrentState => _currentState; // 外部公開用プロパティ
 
-    private bool _isAttacking = false;               // 攻撃中フラグ
-    public bool IsAttacking => _isAttacking;
+    private PlayerState _previousState = PlayerState.Idle; // ダメージ前のステートを保持
 
-    private bool _attackInputLocked = false;         // 攻撃入力を一時ロックする
-    public bool IsDamagePlaying { get; private set; } // ダメージ中フラグ
+    private bool _isAttacking = false;              // 攻撃アニメーション再生中フラグ（攻撃判定の持続などにも使用）
+    public bool IsAttacking => _isAttacking; // 外部公開用プロパティ
 
-    private bool _pendingWireTransition = false;     // ワイヤー遷移待ちフラグ
-    private bool _justGrappled = false;              // グラップル直後フラグ
-    private bool _cancelIdleTransition = false;      // Idle遷移キャンセルフラグ
-    private bool _isMoving = false;                  // 移動中フラグ
+    private bool _attackInputLocked = false;        // 攻撃入力の一時ロックフラグ（連打防止やアニメーション終了までの待ちに使用）
+    public bool IsDamagePlaying { get; private set; } // ダメージアニメーション再生中フラグ（外部から読み取り可能）
 
-    private float _grappleTimer = Defaults.TimeZero; // グラップル遷移用タイマー
-    private float _wireDirection = Directions.None;  // ワイヤー方向
-    private float _moveStopTimer = Defaults.TimeZero;// 停止検出タイマー
-    private int lastFootstepIndex = Defaults.LastFootstepIndexDefault; // 前回の足音インデックス
-    private float lastFootstepTime = Defaults.TimeZero;                // 前回足音再生時刻
+    private bool _pendingWireTransition = false;    // 攻撃などの後にワイヤー状態に遷移するのを待っているフラグ
+    private bool _justGrappled = false;             // グラップル（ジャンプアニメ）開始直後フラグ（タイマーでの自動ワイヤー遷移制御用）
+    private bool _cancelIdleTransition = false;     // Idleへの自動遷移（Landing後など）をキャンセルするフラグ
+    private bool _isMoving = false;                 // 移動入力が継続しているかどうかのフラグ
 
-    private bool _attackInput_locked; // 使用されていない旧フラグ（将来的に削除可）
+    private float _grappleTimer = Defaults.TimeZero; // グラップル（Jump）からワイヤー（Wire）へ自動遷移するためのタイマー
+    private float _wireDirection = Directions.None;  // ワイヤー方向（スプライト反転保持用）
+    private float _moveStopTimer = Defaults.TimeZero;// 移動入力停止を検出するためのタイマー
+    private int lastFootstepIndex = Defaults.LastFootstepIndexDefault; // 前回再生した足音SEのインデックス
+    private float lastFootstepTime = Defaults.TimeZero;              // 前回足音を再生したUnity時間
     #endregion
 
     #region === Unityイベント ===
     private void Awake()
     {
-        // Animator取得
+        // 必須コンポーネントであるAnimatorを取得
         _animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        // グラップル直後は一定時間後にワイヤーへ自動遷移
+        // グラップル開始直後の処理：JumpアニメーションからWireアニメーションへ自動遷移
         if (_justGrappled)
         {
             _grappleTimer -= Time.deltaTime;
             if (_grappleTimer <= Defaults.TimeZero)
             {
+                // タイマー切れ
                 _justGrappled = false;
                 if (_pendingWireTransition)
                 {
+                    // 遷移待ちフラグが立っていればWireへ切り替え
                     SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
                     _pendingWireTransition = false;
                 }
@@ -167,37 +172,38 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region === ステート管理 ===
     /// <summary>
-    /// ステートごとの優先度を返す
+    /// ステートごとの優先度を返す。
     /// </summary>
     private PlayerStatePriority GetStatePriority(PlayerState state)
     {
-        return state switch
+        return state switch // C# 8.0以降のswitch式を使用し、簡潔に優先度を定義
         {
-            PlayerState.Damage or PlayerState.Goal => PlayerStatePriority.High,
-            PlayerState.Wire or PlayerState.Jump or PlayerState.MeleeAttack or PlayerState.RangedAttack => PlayerStatePriority.Medium,
-            _ => PlayerStatePriority.Low
+            PlayerState.Damage or PlayerState.Goal => PlayerStatePriority.High, // ダメージとゴールは最高優先度で他の状態を上書き
+            PlayerState.Wire or PlayerState.Jump or PlayerState.MeleeAttack or PlayerState.RangedAttack => PlayerStatePriority.Medium, // 攻撃、ジャンプ、ワイヤーは中優先度
+            _ => PlayerStatePriority.Low // その他（Idle, Run, Landing）は低優先度
         };
     }
 
     /// <summary>
-    /// 遷移可能かどうか判定（優先度や特殊状態を考慮）
+    /// 指定された新しいステートへの遷移が可能かどうかを判定する。
+    /// 優先度や現在の特殊状態（攻撃中、ワイヤー遷移待ち）を考慮する。
     /// </summary>
     private bool CanTransitionTo(PlayerState newState, bool force = false)
     {
-        if (force) return true;
+        if (force) return true; // force=true の場合は強制的に遷移を許可
 
         var currentPriority = GetStatePriority(_currentState);
         var newPriority = GetStatePriority(newState);
 
-        // High優先度中はそれ以下の遷移を無効化
+        // High優先度（Damage/Goal）中に、それ以下の優先度の遷移を無効化
         if (currentPriority == PlayerStatePriority.High && newPriority < currentPriority)
             return false;
 
-        // 攻撃中はIdle/Landingへの遷移を制限
+        // 攻撃中は、IdleやLandingへの遷移を制限（攻撃アニメーション終了まで待つ）
         if (_isAttacking && (newState == PlayerState.Idle || newState == PlayerState.Landing))
             return false;
 
-        // ワイヤー遷移中は特定ステートを禁止
+        // ワイヤー遷移待ち（_pendingWireTransition）中は、Landing/Idleへの遷移を禁止（ワイヤーへの遷移を優先）
         if (_pendingWireTransition && (newState == PlayerState.Landing || newState == PlayerState.Idle))
             return false;
 
@@ -205,42 +211,51 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻撃可能かどうか
+    /// 攻撃アニメーションを開始できる状態か（現在攻撃中でないか）
     /// </summary>
     public bool CanAttackNow() => !_isAttacking;
 
     /// <summary>
-    /// 攻撃入力を受け付けられるか
+    /// 攻撃入力を受け付けられる状態か（攻撃中でなく、入力ロックもかかっていないか）
     /// </summary>
     public bool CanAcceptAttackInput() => !_isAttacking && !_attackInputLocked;
     #endregion
 
     #region === ステート遷移 ===
     /// <summary>
-    /// プレイヤーの状態を変更し、アニメーションや速度倍率を反映
+    /// プレイヤーの状態を変更し、Animatorのパラメータ（StateとSpeedMultiplier）を更新する。
     /// </summary>
+    /// <param name="newState">新しいアニメーション状態</param>
+    /// <param name="direction">スプライト反転に使用する方向（通常は移動入力）</param>
+    /// <param name="speed">Runアニメーションの速度倍率計算に使用する入力速度</param>
+    /// <param name="force">遷移可能判定を無視して強制的に遷移するか</param>
     public void SetPlayerState(PlayerState newState, float direction = Directions.None, float speed = Speeds.None, bool force = false)
     {
         if (_animator == null) return;
+        // 既に同じ状態への遷移を試みた場合は、force=trueでない限り無視
         if (!force && _currentState == newState) return;
+        // 攻撃中に攻撃を連続で開始しようとした場合は無視
         if (_isAttacking && (newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack)) return;
+        // 遷移可能判定（優先度など）に引っかかった場合は無視
         if (!CanTransitionTo(newState, force)) return;
 
         var oldState = _currentState;
-        _currentState = newState;
+        _currentState = newState; // 状態の更新
         Debug.Log($"[SetPlayerState] {oldState} -> {newState}");
 
+        // 攻撃中フラグの更新
         _isAttacking = newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack;
 
-        // Animatorへステート反映
+        // Animatorへステート（Int）を反映
         _animator.SetInteger(AnimatorParams.State, (int)newState);
 
         // スプライト反転
         FlipSprite(direction);
 
-        // スピード倍率設定（動作ごとに個別調整）
+        // スピード倍率設定（Stateごとの固定値、またはRunのように変数）
         float speedMultiplier = newState switch
         {
+            // Run状態は入力速度に応じてMin～Max間で線形補間
             PlayerState.Run => Mathf.Lerp(AnimatorSpeeds.RunMin, AnimatorSpeeds.RunMax, Mathf.Clamp01(Mathf.Abs(speed))),
             PlayerState.Jump => AnimatorSpeeds.Grapple,
             PlayerState.Wire => AnimatorSpeeds.Swing,
@@ -249,39 +264,43 @@ public class PlayerAnimatorController : MonoBehaviour
             PlayerState.RangedAttack => AnimatorSpeeds.RangedAttack,
             PlayerState.Damage => AnimatorSpeeds.Damage,
             PlayerState.Goal => AnimatorSpeeds.Goal,
-            _ => AnimatorSpeeds.Idle
+            _ => AnimatorSpeeds.Idle // その他の状態（Idleなど）
         };
         _animator.SetFloat(AnimatorParams.SpeedMultiplier, speedMultiplier);
 
-        // 状態ごとの追加処理
+        // 状態ごとの追加処理（コルーチン開始、SE再生など）
         if (newState == PlayerState.Landing) PlayLandingSE();
-        if (newState == PlayerState.Run) PlayFootstepSE();
-        if (newState == PlayerState.Damage) StartCoroutine(ResetFromDamage(Timings.DamageResetDelay));
-        if (newState == PlayerState.Landing) StartCoroutine(TransitionToIdleAfterLanding(direction));
+        if (newState == PlayerState.Run) PlayFootstepSE(); // 初回Runアニメーション開始時の足音（連続再生はUpdateMoveAnimationで制御）
+        if (newState == PlayerState.Damage) StartCoroutine(ResetFromDamage(Timings.DamageResetDelay)); // ダメージ後の自動復帰
+        if (newState == PlayerState.Landing) StartCoroutine(TransitionToIdleAfterLanding(direction)); // 着地後の自動Idle遷移
     }
     #endregion
 
     #region === 移動アニメーション制御 ===
     /// <summary>
-    /// 移動入力に応じてRun/Idleを切り替える
+    /// 移動入力に応じてRun/Idleを切り替え、スプライトの左右反転を行う。
+    /// プレイヤーの移動処理から毎フレーム呼ばれることを想定。
     /// </summary>
+    /// <param name="moveInput">移動入力値（-1.0～1.0）</param>
     public void UpdateMoveAnimation(float moveInput)
     {
-        // 特定状態中は移動アニメーションを無効化
+        // 特定状態中は移動アニメーションの更新を無効化
         if (_pendingWireTransition || _isAttacking || IsDamagePlaying ||
-            _currentState == PlayerState.Wire || _currentState == PlayerState.Landing)
+            _currentState == PlayerState.Wire || _currentState == PlayerState.Landing || _currentState == PlayerState.Jump)
             return;
 
-        // 移動判定
+        // 移動判定ロジック
         if (Mathf.Abs(moveInput) > Timings.MoveThreshold)
         {
+            // 移動入力あり
             _isMoving = true;
-            _moveStopTimer = Defaults.TimeZero;
+            _moveStopTimer = Defaults.TimeZero; // 停止タイマーをリセット
         }
         else
         {
+            // 移動入力なし
             _moveStopTimer += Time.deltaTime;
-            if (_moveStopTimer > Timings.MoveDelayTime) _isMoving = false;
+            if (_moveStopTimer > Timings.MoveDelayTime) _isMoving = false; // 一定時間入力がなければ「停止中」と判定
         }
 
         // スプライト反転処理
@@ -290,79 +309,107 @@ public class PlayerAnimatorController : MonoBehaviour
         // ステート更新
         if (_isMoving)
         {
+            // 移動中
             SetPlayerState(PlayerState.Run, moveInput, Mathf.Abs(moveInput));
-            PlayFootstepSE();
+            PlayFootstepSE(); // 足音再生を試みる（Timings.FootstepIntervalで制御される）
         }
-        else if (_currentState != PlayerState.Landing && _currentState != PlayerState.Wire)
+        // 停止中かつ現在状態がLanding/Wire以外であればIdleへ（Jumpは別途処理が必要な場合があるため除外）
+        else if (_currentState != PlayerState.Landing && _currentState != PlayerState.Wire && _currentState != PlayerState.Jump)
             SetPlayerState(PlayerState.Idle, moveInput, Speeds.None);
     }
 
     /// <summary>
-    /// スプライトの左右反転
+    /// スプライト（TransformのlocalScale.x）の左右反転を行う。
     /// </summary>
+    /// <param name="moveInput">反転方向決定に使用する入力値（正:右, 負:左）</param>
     private void FlipSprite(float moveInput)
     {
-        if (Mathf.Abs(moveInput) < Timings.FlipThreshold) return;
+        if (Mathf.Abs(moveInput) < Timings.FlipThreshold) return; // 閾値以下の入力は無視
+
         var scale = transform.localScale;
+        // 入力方向に応じてlocalScale.xの符号を決定（絶対値は維持）
         scale.x = Mathf.Sign(moveInput) * Mathf.Abs(scale.x);
         transform.localScale = scale;
     }
 
     /// <summary>
-    /// 移動停止時にIdleへ戻す
+    /// 外部から移動停止を強制し、Run状態であればIdleへ戻す。
     /// </summary>
     public void ResetMoveAnimation()
     {
         _isMoving = false;
         _moveStopTimer = Defaults.TimeZero;
         if (_currentState == PlayerState.Run)
+            // 現在の向きを維持してIdleへ遷移
             SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left);
     }
     #endregion
 
     #region === ワイヤー関連アニメーション ===
     /// <summary>
-    /// グラップル発射後にジャンプ→ワイヤーへ移行する流れを再現
+    /// グラップル発射後にジャンプ（Jumpアニメ）→ワイヤー（Wireアニメ）へ移行する流れを開始する。
     /// </summary>
+    /// <param name="swingDirection">スイング方向</param>
     public void PlayGrappleSwingAnimation(float swingDirection)
     {
-        _justGrappled = true;
-        _grappleTimer = Timings.GrappleTransitionTime;
-        StopAllCoroutines();
-        SetPlayerState(PlayerState.Jump, swingDirection);
-        _pendingWireTransition = true;
         _wireDirection = swingDirection;
+
+        // すでにワイヤー中なら無視
+        if (_currentState == PlayerState.Wire) return;
+
+        // 攻撃中なら、攻撃アニメーション終了後にワイヤーへ移行するようフラグをセットし、現在の攻撃アニメーションの終了を待つ。
+        if (_isAttacking)
+        {
+            Debug.Log("[PlayGrappleSwingAnimation] Attack in progress, deferring wire transition.");
+            _pendingWireTransition = true;
+            _justGrappled = false; // タイマーでの強制移行は行わない
+            return;
+        }
+
+        // 攻撃中でなければ通常の Jump → Wire 遷移処理
+        Debug.Log("[PlayGrappleSwingAnimation] Normal wire transition started.");
+        _justGrappled = true; // タイマーでの自動遷移を有効化
+        _pendingWireTransition = true;
+        _grappleTimer = Timings.GrappleTransitionTime; // 自動遷移タイマーを設定
+
+        // まずJump状態へ遷移（グラップル発射アニメーションを兼ねる）
+        SetPlayerState(PlayerState.Jump, swingDirection, Speeds.None, true);
     }
 
     /// <summary>
-    /// スイングを停止し着地アニメーションへ移行
+    /// スイングを停止し着地アニメーションへ移行。
     /// </summary>
+    /// <param name="swingDirection">最後の移動方向</param>
     public void StopSwingAnimation(float swingDirection)
     {
         _pendingWireTransition = false;
         _justGrappled = false;
         if (_currentState != PlayerState.Landing)
+            // 強制的にLanding状態へ遷移
             SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true);
     }
 
     /// <summary>
-    /// ワイヤー切断時の挙動
+    /// ワイヤー切断時（プレイヤーがワイヤーを離した/ワイヤーが切れた）の挙動。
     /// </summary>
+    /// <param name="swingDirection">切断時の移動方向</param>
     public void OnWireCut(float swingDirection)
     {
-        if (_currentState == PlayerState.Landing) return;
+        if (_currentState == PlayerState.Landing) return; // すでに着地中なら何もしない
 
-        ResetWireFlags();
+        ResetWireFlags(); // ワイヤー関連のフラグをリセット
+
         if (_currentState == PlayerState.Wire)
         {
-            StopAllCoroutines();
-            SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true);
+            StopAllCoroutines(); // 実行中のコルーチン（特にIdle遷移系）を全て停止
+            SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true); // Landing状態へ強制遷移
+            // ForceTransitionToIdleでLanding後のIdle遷移を確実に実行
             StartCoroutine(ForceTransitionToIdle(swingDirection));
         }
     }
 
     /// <summary>
-    /// ワイヤー関係の内部フラグをリセット
+    /// ワイヤー関係の内部フラグをリセット。
     /// </summary>
     public void ResetWireFlags()
     {
@@ -374,49 +421,120 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region === 攻撃アニメーション ===
     /// <summary>
-    /// 近接攻撃開始
+    /// 近接攻撃アニメーションを開始。
     /// </summary>
+    /// <param name="direction">攻撃方向（スプライト反転用）</param>
     public void PlayMeleeAttackAnimation(float direction)
     {
-        if (_attackInputLocked) return;
-        _attackInputLocked = true;
+        if (_attackInputLocked) return; // 入力ロック中は受け付けない
+        _attackInputLocked = true; // 入力ロック開始
         SetPlayerState(PlayerState.MeleeAttack, direction, Speeds.None);
-        StartCoroutine(AttackTimeout());
+        StartCoroutine(AttackTimeout()); // 攻撃強制終了タイマー開始
     }
 
     /// <summary>
-    /// 近接攻撃アニメーション終了時に呼ばれる
+    /// 近接攻撃アニメーション終了時にアニメーターイベントから呼ばれる。
     /// </summary>
     public void OnMeleeAttackAnimationEnd()
     {
         _isAttacking = false;
         _attackInputLocked = false;
-        SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
+        // AttackTimeoutコルーチンは攻撃終了時に自動的に停止するが、念のためStopAllCoroutines()で確実に停止させても良い
+
+        if (_pendingWireTransition)
+        {
+            Debug.Log("[OnMeleeAttackAnimationEnd] Wire transition deferred: Attack → Idle → Jump → Wire");
+
+            // 近接攻撃アニメーションから直接Jumpアニメーションへ遷移するのは不自然なため、
+            // 一旦Idleを経由し、次のフレームでJump→Wireへ遷移するコルーチンを開始。
+            StartCoroutine(DelayedWireTransition(_wireDirection));
+        }
+        else
+        {
+            // 待機状態へ戻す
+            SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
+        }
     }
 
+
     /// <summary>
-    /// 遠距離攻撃開始
+    /// 遠距離攻撃アニメーションを開始。
     /// </summary>
+    /// <param name="direction">攻撃方向（スプライト反転用）</param>
     public void PlayRangedAttackAnimation(float direction)
     {
-        if (_attackInputLocked) return;
-        _attackInputLocked = true;
+        if (_attackInputLocked) return; // 入力ロック中は受け付けない
+        _attackInputLocked = true; // 入力ロック開始
         SetPlayerState(PlayerState.RangedAttack, direction, Speeds.None);
+        StartCoroutine(AttackTimeout());
     }
 
     /// <summary>
-    /// 遠距離攻撃終了時に呼ばれる
+    /// 遠距離攻撃アニメーション終了時にアニメーターイベントから呼ばれる。
     /// </summary>
     public void OnRangedAttackAnimationEnd()
     {
         _isAttacking = false;
         _attackInputLocked = false;
-        SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
-        StartCoroutine(AttackTimeout());
+
+        if (_pendingWireTransition)
+        {
+            Debug.Log("[OnRangedAttackAnimationEnd] Wire transition executed after ranged attack.");
+            _pendingWireTransition = false;
+            // 遠距離攻撃は硬直が短いため、Idleを経由せずにJumpへ直接遷移しても問題ないと判断される場合がある。
+            SetPlayerState(PlayerState.Jump, _wireDirection, Speeds.None, true);
+            StartCoroutine(TransitionToWireAfterJump()); // JumpからWireへの自動遷移コルーチン開始
+        }
+        else
+        {
+            // 待機状態へ戻す
+            SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
+        }
     }
 
     /// <summary>
-    /// 現在攻撃中かどうか
+    /// 近接攻撃終了後、Idleを経由してJump→Wireへ遷移するための遅延コルーチン。
+    /// </summary>
+    private IEnumerator DelayedWireTransition(float swingDirection)
+    {
+        // 攻撃終了処理（OnMeleeAttackAnimationEnd）で_pendingWireTransitionがfalseになっていないことを保証
+        _pendingWireTransition = true;
+
+        // Attack → Idle にまず戻る（自然な遷移のため）
+        SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
+
+        // 1フレーム待ってから Jump → Wire に移行
+        yield return null;
+
+        // Jump状態へ遷移（グラップル開始アニメ）
+        SetPlayerState(PlayerState.Jump, swingDirection, Speeds.None, true);
+        // JumpからWireへの自動遷移コルーチンを開始
+        StartCoroutine(TransitionToWireAfterJump());
+    }
+
+
+    /// <summary>
+    /// Jump状態から一定時間後にWire状態へ強制遷移させるコルーチン。
+    /// </summary>
+    private IEnumerator TransitionToWireAfterJump()
+    {
+        yield return new WaitForSeconds(Timings.GrappleTransitionTime);
+
+        // タイマー経過時点でまだJump状態であれば、Wireへ遷移
+        if (_currentState == PlayerState.Jump)
+        {
+            Debug.Log("[TransitionToWireAfterJump] Forcing Wire transition after Jump.");
+            SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
+        }
+
+        // 遷移処理完了（または不要）
+        _pendingWireTransition = false;
+        _justGrappled = false;
+    }
+
+
+    /// <summary>
+    /// 現在、近接/遠距離攻撃アニメーションが再生中かどうか。
     /// </summary>
     public bool IsInAttackState() =>
         CurrentState == PlayerState.MeleeAttack || CurrentState == PlayerState.RangedAttack;
@@ -424,23 +542,28 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region === ダメージ・ゴール関連 ===
     /// <summary>
-    /// ダメージアニメーション再生
+    /// ダメージアニメーション再生を開始する。
     /// </summary>
+    /// <param name="direction">被ダメージ時のノックバック方向（スプライト反転用）</param>
     public void PlayDamageAnimation(float direction)
     {
-        if (_isAttacking || _attackInput_locked)
+        _previousState = _currentState; // ←元のステートを保存
+
+        // 攻撃中にダメージを受けた場合、攻撃を強制終了
+        if (_isAttacking)
         {
             _isAttacking = false;
             _attackInputLocked = false;
-            StopAllCoroutines();
+            StopAllCoroutines(); // 攻撃タイムアウトやIdle遷移コルーチンなどを全て停止
         }
 
-        IsDamagePlaying = true;
+        IsDamagePlaying = true; // ダメージ中フラグON
+        // ダメージ状態へ遷移（SetPlayerState内でResetFromDamageコルーチンが開始される）
         SetPlayerState(PlayerState.Damage, direction, Speeds.None);
     }
 
     /// <summary>
-    /// ダメージアニメーション終了時に呼ばれる
+    /// ダメージアニメーション終了時にアニメーターイベントから呼ばれる。
     /// </summary>
     public void OnDamageAnimationEnd()
     {
@@ -448,52 +571,90 @@ public class PlayerAnimatorController : MonoBehaviour
         _isAttacking = false;
         _attackInputLocked = false;
 
+        // まず、ワイヤー遷移待ちがある場合はWireへ
         if (_pendingWireTransition)
+        {
             SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
-        else
+            _pendingWireTransition = false;
+            _justGrappled = false;
+            return;
+        }
+
+        // ワイヤー切断やLanding済みの場合はIdleに戻す
+        if (_currentState != PlayerState.Wire && !IsPlayingLanding())
+        {
             SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
+        }
+        // Wire中かつまだワイヤーが接続されていればWireに復帰
+        else if (_currentState == PlayerState.Wire)
+        {
+            SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
+        }
+        else if (IsPlayingLanding())
+        {
+            // Landing中ならLandingステートを維持したままIdle遷移コルーチンに任せる
+            StartCoroutine(TransitionToIdleAfterLanding(transform.localScale.x > 0 ? Directions.Right : Directions.Left));
+        }
     }
 
+
     /// <summary>
-    /// ゴールアニメーション再生
+    /// ゴールアニメーション再生を開始する。
     /// </summary>
+    /// <param name="direction">ゴール時の向き</param>
     public void PlayGoalAnimation(float direction) =>
         SetPlayerState(PlayerState.Goal, direction, Speeds.None);
     #endregion
 
     #region === コルーチン ===
     /// <summary>
-    /// ダメージ終了後に自動でIdleへ戻す
+    /// ダメージアニメーションが終了した後、指定時間経過で自動的にIdleへ戻す。
+    /// アニメーションイベントが呼ばれなかった場合の保険も兼ねる。
     /// </summary>
     private IEnumerator ResetFromDamage(float delay)
     {
         yield return new WaitForSeconds(delay);
         IsDamagePlaying = false;
+        // 現在のステートに応じて遷移先を決定
         if (_currentState == PlayerState.Damage)
-            SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
+        {
+            if (_previousState == PlayerState.Wire || _pendingWireTransition)
+            {
+                // ワイヤー中ならWireに戻す
+                SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
+            }
+            else
+            {
+                // それ以外はIdleへ
+                SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
+            }
+        }
     }
 
     /// <summary>
-    /// 着地後、一定時間後にIdleへ自動遷移
+    /// 着地後、一定時間後にIdleへ自動遷移するコルーチン。
     /// </summary>
     public IEnumerator TransitionToIdleAfterLanding(float direction)
     {
         yield return new WaitForSeconds(Timings.LandingToIdleDelay);
 
-        if (_isAttacking) yield break;
+        if (_isAttacking) yield break; // 着地直後に攻撃が開始された場合は中断
 
         if (_pendingWireTransition)
         {
+            // 着地中にワイヤー入力があった場合はIdleを経由せずWireへ遷移
             SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
             yield break;
         }
 
         if (_cancelIdleTransition)
         {
+            // Idle遷移がキャンセルされた場合、再度一定時間待機（再判定）
             _cancelIdleTransition = false;
             yield return new WaitForSeconds(Timings.LandingToIdleDelay);
         }
 
+        // 待機時間経過後、まだLanding状態であればIdleへ遷移
         if (_currentState == PlayerState.Landing)
         {
             _pendingWireTransition = false;
@@ -502,26 +663,33 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻撃中に一定時間経過で強制終了する
+    /// 攻撃アニメーション中に一定時間経過した場合、強制的に攻撃を終了しIdleへ戻すコルーチン。
+    /// アニメーションイベントが呼ばれなかった場合のエラー回避。
     /// </summary>
     private IEnumerator AttackTimeout()
     {
         yield return new WaitForSeconds(Timings.AttackTimeout);
         if (_isAttacking)
         {
+            // タイムアウト発生
             _isAttacking = false;
             _attackInputLocked = false;
+            Debug.LogWarning("Attack animation timed out. Forcing Idle transition.");
+            // 攻撃中にコルーチンが停止しなかった場合、Idleへ強制遷移
             SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
         }
     }
 
     /// <summary>
-    /// 一定時間後に強制的にIdleへ戻す（着地などで使用）
+    /// 一定時間後に強制的にIdleへ戻す（着地やワイヤー切断後のリカバリなどで使用）。
     /// </summary>
+    /// <param name="direction">Idle遷移時の向き</param>
     private IEnumerator ForceTransitionToIdle(float direction)
     {
         yield return new WaitForSeconds(Timings.LandingToIdleDelay);
-        if (_isAttacking) yield break;
+        if (_isAttacking) yield break; // 攻撃中なら中断
+
+        // LandingまたはJump状態であればIdleへ強制遷移
         if (_currentState == PlayerState.Landing || _currentState == PlayerState.Jump)
         {
             _cancelIdleTransition = false;
@@ -533,24 +701,27 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region === サウンド関連 ===
     /// <summary>
-    /// 足音をランダムに再生
+    /// 足音をランダムに再生。足音の間隔（Timings.FootstepInterval）で制御される。
     /// </summary>
     public void PlayFootstepSE()
     {
         if (footstepSEs == null || footstepSEs.Length == 0) return;
+        // 前回再生から一定時間が経過していなければ再生しない
         if (Time.time - lastFootstepTime < Timings.FootstepInterval) return;
 
         int index;
+        // 前回と同じSEが連続で再生されないようにランダムにインデックスを選択（SEが2種類以上の場合）
         do { index = Random.Range(0, footstepSEs.Length); }
         while (index == lastFootstepIndex && footstepSEs.Length > 1);
 
         lastFootstepIndex = index;
         lastFootstepTime = Time.time;
+        // AudioManagerクラスのインスタンスを通じてSEを再生
         AudioManager.Instance?.PlaySE(footstepSEs[index]);
     }
 
     /// <summary>
-    /// 着地音を再生
+    /// 着地音を再生。
     /// </summary>
     public void PlayLandingSE() =>
         AudioManager.Instance?.PlaySE(landingSE);
@@ -558,60 +729,77 @@ public class PlayerAnimatorController : MonoBehaviour
 
     #region === 補助関数 ===
     /// <summary>
-    /// 強制的にLandingアニメーションへ切り替え
+    /// 強制的にLandingアニメーションへ切り替え、その後Idleへ自動遷移させる。
     /// </summary>
+    /// <param name="direction">着地時の向き</param>
     public void ForceLanding(float direction)
     {
         if (_currentState == PlayerState.Landing) return;
+
+        // ワイヤー関連のフラグと移動フラグをリセット
         ResetWireFlags();
         _isMoving = false;
         _moveStopTimer = Defaults.TimeZero;
-        StopAllCoroutines();
+
+        StopAllCoroutines(); // 実行中のコルーチンを全て停止
+
         SetPlayerState(PlayerState.Landing, direction, Speeds.None, true);
+        // Landing後のIdle遷移コルーチンを開始
         StartCoroutine(ForceTransitionToIdle(direction));
     }
 
     /// <summary>
-    /// 強制的にIdleへ戻す（コルーチン全停止）
+    /// 強制的にIdleへ戻し、関連するコルーチンとフラグをリセットする。
     /// </summary>
+    /// <param name="directionX">Idle時の向き（任意）</param>
     public void ForceIdle(float directionX = Directions.None)
     {
-        StopAllCoroutines();
+        StopAllCoroutines(); // 全コルーチン停止
+
+        // 関連フラグをリセット
         _cancelIdleTransition = false;
         _pendingWireTransition = false;
         _justGrappled = false;
+
+        // Idleへ強制遷移
         SetPlayerState(PlayerState.Idle, directionX, Speeds.None, true);
     }
 
     /// <summary>
-    /// ジャンプ中のアニメーション更新
+    /// Jump中のアニメーション更新（主にスプライト反転を更新）。
     /// </summary>
+    /// <param name="directionX">移動入力方向</param>
     public void UpdateJumpState(float directionX)
     {
         FlipSprite(directionX);
+        // 既にJump状態ならSetPlayerState内のチェックで無視されるが、スプライト反転は行われる。
         SetPlayerState(PlayerState.Jump, directionX, Speeds.None);
     }
 
     /// <summary>
-    /// 現在Landingアニメーションが再生中か
+    /// 現在Landingアニメーションが再生中かどうかをAnimatorStateInfoから判定。
     /// </summary>
+    /// <returns>Landingアニメーション再生中（ただし終了前）であればtrue</returns>
     public bool IsPlayingLanding()
     {
         AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(0);
+        // "Landing"という名前のアニメーションが再生中で、かつ再生時間（normalizedTime）が1.0未満（終了前）
         return info.IsName("Landing") && info.normalizedTime < 1f;
     }
 
     /// <summary>
-    /// Idle遷移のキャンセル
+    /// Idleへの自動遷移（Landing後など）をキャンセルするフラグをセット。
     /// </summary>
     public void CancelPendingIdleTransition() => _cancelIdleTransition = true;
 
     /// <summary>
-    /// 爆弾投擲イベント（アニメーションイベントから呼ばれる）
+    /// 遠距離攻撃アニメーションの特定のフレームでAnimatorイベントから呼ばれ、爆弾を投擲する。
     /// </summary>
     public void ThrowBombEvent()
     {
+        // 現在のスプライトの向きを取得
         float dir = transform.localScale.x > 0 ? Directions.Right : Directions.Left;
+        // PlayerAttackスクリプトの爆弾投擲メソッドを呼び出す
         playerAttack.ThrowBomb(dir);
     }
     #endregion

@@ -13728,7 +13728,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949c570dcfd3a1848b5e09eea1f9dc9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDataResourcePath: SpawnData/SpawnDataSO
   player: {fileID: 1455774592}
 --- !u!4 &1057728925
 Transform:
@@ -18121,10 +18120,10 @@ SceneRoots:
   - {fileID: 1316840243}
   - {fileID: 929820029}
   - {fileID: 1314980014}
+  - {fileID: 1057728925}
   - {fileID: 1452453854}
   - {fileID: 1933231630}
   - {fileID: 1588681624}
-  - {fileID: 1057728925}
   - {fileID: 16813794}
   - {fileID: 1561313806}
   - {fileID: 1924517066}

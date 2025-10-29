@@ -7888,7 +7888,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949c570dcfd3a1848b5e09eea1f9dc9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDataResourcePath: SpawnData/SpawnDataSO
   player: {fileID: 1455774592}
 --- !u!4 &1057728925
 Transform:

@@ -757,7 +757,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 6
-      m_TileSpriteIndex: 23
+      m_TileSpriteIndex: 24
       m_TileMatrixIndex: 7
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -826,10 +826,10 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 1
-    m_Data: {fileID: 7644753902735053038, guid: e1102e9feb2d57d41ba976c08b72b327, type: 3}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 7644753902735053038, guid: e1102e9feb2d57d41ba976c08b72b327, type: 3}
   m_TileMatrixArray:
   - m_RefCount: 0
     m_Data:
@@ -7848,7 +7848,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949c570dcfd3a1848b5e09eea1f9dc9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDataResourcePath: SpawnData/SpawnDataSO
   player: {fileID: 1455774592}
 --- !u!4 &1057728925
 Transform:

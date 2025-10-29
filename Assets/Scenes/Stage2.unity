@@ -6774,8 +6774,8 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 6
-      m_TileSpriteIndex: 22
-      m_TileMatrixIndex: 5
+      m_TileSpriteIndex: 24
+      m_TileMatrixIndex: 7
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
@@ -6845,12 +6845,12 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 21300000, guid: de0806eb442857e44a098bd931143830, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
   m_TileMatrixArray:
   - m_RefCount: 0
     m_Data:
@@ -6942,24 +6942,24 @@ Tilemap:
       e31: 6.85e-43
       e32: 6.9e-43
       e33: 6.87e-43
-  - m_RefCount: 1
+  - m_RefCount: 0
     m_Data:
-      e00: -1
-      e01: -0.00000008742278
-      e02: -0
-      e03: 0
-      e10: 0.00000008742278
-      e11: -1
+      e00: 0
+      e01: 0
+      e02: 0
+      e03: -2.7530437e-28
+      e10: 0
+      e11: 0
       e12: 0
-      e13: 0
+      e13: 2.3e-43
       e20: 0
-      e21: -0
-      e22: 1
+      e21: 0
+      e22: 0
       e23: 0
       e30: 0
       e31: 0
       e32: 0
-      e33: 1
+      e33: 0
   - m_RefCount: 0
     m_Data:
       e00: 2.35e-43
@@ -6978,24 +6978,24 @@ Tilemap:
       e31: 6.85e-43
       e32: 6.9e-43
       e33: 6.87e-43
-  - m_RefCount: 0
+  - m_RefCount: 1
     m_Data:
-      e00: 1.427e-42
-      e01: 0
-      e02: 1e-45
-      e03: -2.5749908e+29
-      e10: 0
-      e11: 0
+      e00: -1
+      e01: -0.00000008742278
+      e02: -0
+      e03: 0
+      e10: 0.00000008742278
+      e11: -1
       e12: 0
-      e13: 6.85e-43
-      e20: -0.022082597
-      e21: -2.5749908e+29
-      e22: 1.020975e-39
-      e23: 9.24802e-10
-      e30: 4.5915e-41
-      e31: 6.85e-43
-      e32: 6.9e-43
-      e33: 6.87e-43
+      e13: 0
+      e20: 0
+      e21: -0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
   m_TileColorArray:
   - m_RefCount: 1
     m_Data: {r: 1, g: 1, b: 1, a: 1}
@@ -7898,7 +7898,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949c570dcfd3a1848b5e09eea1f9dc9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDataResourcePath: SpawnData/SpawnDataSO
   player: {fileID: 1455774592}
 --- !u!4 &1057728925
 Transform:

@@ -1,82 +1,67 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 /// <summary>
-/// プレイヤーの一定範囲内だけ敵やコインをスポーン（プールから取得）する管理クラス。
-/// - Resources から SpawnDataSO を読み込んで使用。
-/// - プレイヤーの位置に応じて、範囲内のものだけスポーンし、
-///   範囲外になったらプールに戻す（もしくは破棄）。
+/// プレイヤーの周囲に SpawnDataSO のデータに基づいて
+/// オブジェクト（Enemy / Coin）をスポーンし、プレイヤーから離れたらプールに返却する管理クラス。
+/// オブジェクトプールを利用して効率的にスポーン管理を行う。
 /// </summary>
 public class SpawnManagerWithPool : MonoBehaviour
 {
-    /// <summary>
-    /// Resources内のSpawnDataSOのパス（拡張子なし）。
-    /// </summary>
-    public string spawnDataResourcePath = "SpawnData/SpawnDataSO";
-
-    /// <summary>
-    /// プレイヤーのTransform。位置取得に使用。
-    /// </summary>
+    /// <summary>プレイヤーの Transform。距離判定に使用</summary>
     public Transform player;
 
-    /// <summary>
-    /// プレイヤーからの距離。この範囲内のスポーン情報のみ管理・生成対象にする。
-    /// </summary>
+    /// <summary>プレイヤーからのスポーン有効範囲</summary>
     private float spawnRange = 15f;
 
-    /// <summary>
-    /// 実行時にResourcesから読み込んだスポーンデータ。
-    /// </summary>
+    /// <summary>現在のシーン用の SpawnDataSO</summary>
     private SpawnDataSO spawnData;
 
-    /// <summary>
-    /// スポーン済みのオブジェクト管理用。
-    /// IDをキーにし、現在スポーン中のGameObjectを保持する。
-    /// </summary>
-    private readonly System.Collections.Generic.Dictionary<int, GameObject> spawnedObjects = new();
+    /// <summary>生成済みオブジェクトを ID で管理</summary>
+    private readonly Dictionary<int, GameObject> spawnedObjects = new();
 
     /// <summary>
-    /// 起動時に一度呼ばれ、SpawnDataSOをResourcesから読み込む。
+    /// Start: シーン名に応じて SpawnDataSO をロード
     /// </summary>
     void Start()
     {
-        spawnData = Resources.Load<SpawnDataSO>(spawnDataResourcePath);
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        // Resources/SpawnData フォルダからシーン名の SpawnDataSO をロード
+        spawnData = Resources.Load<SpawnDataSO>($"SpawnData/{sceneName}");
 
         if (spawnData == null)
         {
-            Debug.LogError($"SpawnDataSOがResourcesから読み込めません: {spawnDataResourcePath}");
+            Debug.LogError($"SpawnDataSO が見つかりません: Resources/SpawnData/{sceneName}");
         }
     }
 
     /// <summary>
-    /// 毎フレーム呼ばれ、プレイヤーとの距離に応じてスポーン・回収を管理する。
-    /// 範囲内ならスポーンし、範囲外ならプールに返却または破棄。
+    /// Update: プレイヤーの位置に応じてオブジェクトのスポーン・回収を管理
     /// </summary>
     void Update()
     {
-        // プレイヤー・データが揃っていなければ何もしない
+        // プレイヤーやデータが無ければ処理しない
         if (player == null || spawnData == null) return;
 
         foreach (var entry in spawnData.entries)
         {
-            // プレイヤーからスポーン位置までの距離を計算
+            // プレイヤーとの距離を計算
             float distance = Vector3.Distance(player.position, entry.position);
 
-            // 距離が範囲内ならスポーン管理
             if (distance <= spawnRange)
             {
-                // まだスポーンしていなければスポーンする
+                // 範囲内でまだ生成されていなければスポーン
                 if (!spawnedObjects.ContainsKey(entry.id))
                 {
-                    GameObject obj = SpawnFromPool(entry);
-                    if (obj != null)
-                    {
-                        spawnedObjects.Add(entry.id, obj);
-                    }
+                    var obj = SpawnFromPool(entry);
+                    if (obj != null) spawnedObjects.Add(entry.id, obj);
                 }
             }
             else
             {
-                // 範囲外ならスポーン済みなら回収する
+                // 範囲外の場合、生成済みならプールに返却して管理から削除
                 if (spawnedObjects.TryGetValue(entry.id, out GameObject obj))
                 {
                     ReturnToPool(obj, entry);
@@ -87,23 +72,24 @@ public class SpawnManagerWithPool : MonoBehaviour
     }
 
     /// <summary>
-    /// SpawnDataEntryの内容に基づいて、プールからオブジェクトを取得してスポーンする。
+    /// SpawnDataEntry に応じてオブジェクトをプールから取得してスポーン
     /// </summary>
-    /// <param name="entry">スポーンデータのエントリ</param>
-    /// <returns>スポーンされたGameObject（失敗時はnull）</returns>
+    /// <param name="entry">SpawnDataEntry</param>
+    /// <returns>生成された GameObject、取得失敗なら null</returns>
     private GameObject SpawnFromPool(SpawnDataEntry entry)
     {
         string type = entry.type.ToLower();
 
         if (type == "enemy")
         {
-            // prefabNameからファイル名だけ抽出
+            // Enemy は EnemyPool から取得
             string enemyName = System.IO.Path.GetFileName(entry.prefabName);
             var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
             return enemy ? enemy.gameObject : null;
         }
         else if (type == "coin")
         {
+            // Coin は CoinPoolManager から取得
             return CoinPoolManager.Instance.GetCoin(entry.position);
         }
         else
@@ -114,34 +100,29 @@ public class SpawnManagerWithPool : MonoBehaviour
     }
 
     /// <summary>
-    /// スポーン済みオブジェクトをプールに戻す（もしくは破棄）する処理。
+    /// オブジェクトをプールに返却
     /// </summary>
-    /// <param name="obj">対象のGameObject</param>
-    /// <param name="entry">対応するSpawnDataEntry</param>
+    /// <param name="obj">返却する GameObject</param>
+    /// <param name="entry">対応する SpawnDataEntry</param>
     private void ReturnToPool(GameObject obj, SpawnDataEntry entry)
     {
         if (entry.type == "enemy")
         {
+            // Enemy は EnemyController を経由してプールに返却
             var enemyCtrl = obj.GetComponent<EnemyController>();
             if (enemyCtrl != null)
-            {
-                // Enemyの場合はEnemyPoolに返却
                 EnemyPool.Instance.ReturnToPool(enemyCtrl);
-            }
             else
-            {
-                // コンポーネントがなければ破棄
-                Destroy(obj);
-            }
+                Destroy(obj); // 取得できなければ破棄
         }
         else if (entry.type == "coin")
         {
-            // Coinの場合はCoinPoolManagerに返却
+            // Coin は CoinPoolManager に返却
             CoinPoolManager.Instance.ReturnCoin(obj);
         }
         else
         {
-            // 未対応タイプは破棄
+            // 未知のタイプは破棄
             Destroy(obj);
         }
     }

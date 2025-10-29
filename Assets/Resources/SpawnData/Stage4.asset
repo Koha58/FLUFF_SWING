@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31640ce184efdd24fad2fee86b27d537, type: 3}
+  m_Name: Stage4
+  m_EditorClassIdentifier: 
+  entries:
+  - id: 1
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
+    position: {x: 4.586, y: -1.624, z: 0}
+  - id: 2
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
+    position: {x: 5.83, y: -1.624, z: 0}
+  - id: 3
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/Bird
+    position: {x: 3.439298, y: 0.5342882, z: 0}
+  - id: 4
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: 30, y: -1.392, z: 0}
+  - id: 5
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/Mole
+    position: {x: 11.56, y: -2, z: 0}
+  - id: 6
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 8, y: 0, z: 0}
+  - id: 7
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 10, y: 0, z: 0}
+  - id: 8
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 2, y: 0, z: 0}
+  - id: 9
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 1, y: 0, z: 0}
+  - id: 10
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: -3, y: 0, z: 0}
