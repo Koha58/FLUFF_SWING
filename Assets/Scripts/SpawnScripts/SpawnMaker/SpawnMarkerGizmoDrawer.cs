@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 
@@ -46,3 +48,4 @@ public class SpawnMarkerGizmoDrawer : Editor
         Handles.Label(marker.transform.position + Vector3.up * 0.6f, marker.prefabName);
     }
 }
+#endif
