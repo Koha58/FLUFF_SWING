@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 195332019529944671}
   - component: {fileID: 6417357197359671040}
   - component: {fileID: 8996202828860273277}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Shop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -7396212609765500252, guid: 49f655939b69298429efe2c3b1278ee9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 846594045558283490}
   - component: {fileID: 8266822425015104047}
   - component: {fileID: 5056972007707782228}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: SpeechBubble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -212,7 +212,7 @@ GameObject:
   - component: {fileID: 4730131020040300291}
   - component: {fileID: 6043678585022053757}
   - component: {fileID: 1978254489504936296}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: BalloonCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -313,7 +313,7 @@ GameObject:
   - component: {fileID: 5261590729053802268}
   - component: {fileID: 846552307485140351}
   - component: {fileID: 5583863450330885605}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: BalloonText
   m_TagString: Untagged
   m_Icon: {fileID: 0}

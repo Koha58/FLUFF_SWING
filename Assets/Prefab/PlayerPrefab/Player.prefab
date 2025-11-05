@@ -91,7 +91,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!114 &1070670844404692293
 MonoBehaviour:
@@ -617,11 +617,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needlePivot: {fileID: 0}
   needle: {fileID: 0}
+  playerMove: {fileID: 0}
   inputHandler: {fileID: 7456275956859514178}
   rightHandTransform: {fileID: 1536718697083452004}
   animatorController: {fileID: 8270167562489635135}
-  previewLineRenderer: {fileID: 0}
   config: {fileID: 11400000, guid: 909279e3580d73a49a7aad947c9bbc11, type: 2}
+  cutCooldown: 0.1
+  previewLineRenderer: {fileID: 0}
+  wireSE: {fileID: 0}
 --- !u!114 &8270167562489635135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -635,6 +638,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerAttack: {fileID: 8116928724460533575}
+  landingSE: {fileID: 0}
+  footstepSEs: []
 --- !u!114 &2968861513635815697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,6 +668,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAttack: {fileID: 8116928724460533575}
   playerMove: {fileID: 7758584978992543094}
+  animatorController: {fileID: 0}
 --- !u!114 &8116928724460533575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -680,6 +686,9 @@ MonoBehaviour:
   animatorController: {fileID: 8270167562489635135}
   healthUI: {fileID: 0}
   bombPrefab: {fileID: 7774223286052618049, guid: b8b9f4b877b9e3c418e563ad77e6e892, type: 3}
+  meleeAttackSE: {fileID: 0}
+  rangedAttackSE: {fileID: 0}
+  damageSE: {fileID: 0}
 --- !u!114 &7456275956859514178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,6 +721,8 @@ MonoBehaviour:
   triggerDistance: 3
   requiredCoinAmount: 5
   restoreDelay: 3
+  thankYouSE: {fileID: 0}
+  GetLifeSE: {fileID: 0}
 --- !u!1 &4337393497275992921
 GameObject:
   m_ObjectHideFlags: 0
