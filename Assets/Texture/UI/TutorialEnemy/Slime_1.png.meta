@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4e30b0d97d29fb045bb70c9c587a7093
+guid: 4fb3567dc77de7340ad388731bdfdb1d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5247734503988580436
-    second: RightKey_Push_0
+      213: 7766275899223206993
+    second: Slime_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 3500
+  spritePixelsToUnits: 1500
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RightKey_Push_0
+      name: Slime_1_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1000
-        height: 1000
+        x: 79
+        y: 99
+        width: 502
+        height: 362
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 450dcc94ab2b3d840800000000000000
-      internalID: 5247734503988580436
+      spriteID: 15c60e868ca57cb60800000000000000
+      internalID: 7766275899223206993
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RightKey_Push_0: 5247734503988580436
+      Slime_1_0: 7766275899223206993
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
