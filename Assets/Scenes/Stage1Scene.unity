@@ -10858,7 +10858,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1081, y: -356}
+  m_AnchoredPosition: {x: 4500, y: -380}
   m_SizeDelta: {x: 12288, y: 888}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &520728222
@@ -14382,7 +14382,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -5193081529779109497, guid: 31fae0cc7d4333447b2db0aa68a7ea03, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.5
@@ -15068,6 +15068,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shop
       objectReference: {fileID: 0}
+    - target: {fileID: 2620789765427170856, guid: d2f9e9f638f1e134e8b6c27bfb820bef, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4730131020040300291, guid: d2f9e9f638f1e134e8b6c27bfb820bef, type: 3}
       propertyPath: m_Camera
       value: 
@@ -15227,7 +15231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1440880048
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -15416,13 +15420,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 1455774590}
+  playerMove: {fileID: 1455774591}
   skyLayer: {fileID: 2050682644}
   middleLayer: {fileID: 520728222}
   frontLayer: {fileID: 1637774983}
-  skySpeed: {x: 0.002, y: 0}
-  middleSpeed: {x: 0.003, y: 0}
-  frontSpeed: {x: 0.015, y: 0}
-  accelerationTime: 0.3
+  skySpeed: 0.005
+  middleSpeed: 0.01
+  frontSpeed: 0.03
 --- !u!1001 &1455774589
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15881,7 +15885,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 710, y: -606}
+  m_AnchoredPosition: {x: 1500, y: -600}
   m_SizeDelta: {x: 8192, y: 1115.82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1637774983

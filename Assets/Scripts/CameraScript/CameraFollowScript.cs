@@ -26,7 +26,7 @@ public class CameraFollowScript : MonoBehaviour
     /// スムージングの時間
     /// (数が大きいほどゆっくり移動)
     /// </summary>
-    public float smoothTime = 0.5f;
+    public float smoothTime = 0.3f;
 
     /// <summary>
     /// SmoothDamp用
