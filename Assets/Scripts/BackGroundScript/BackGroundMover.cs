@@ -9,23 +9,22 @@ public class BackGroundMover : MonoBehaviour
 
     [Header("ワイヤーアクション状態管理")]
     [SerializeField] private WireActionScript wireActionScript;
+    [SerializeField] private PlayerMove playerMove; // プレイヤーの移動状態を参照
 
     [Header("背景レイヤー (奥 → 手前)")]
-    [SerializeField] private Image skyLayer;      // 一番奥（空）
-    [SerializeField] private Image middleLayer;   // 中間
-    [SerializeField] private Image frontLayer;    // 手前
+    [SerializeField] private Image skyLayer;
+    [SerializeField] private Image middleLayer;
+    [SerializeField] private Image frontLayer;
 
     [Header("スクロール速度（奥ほど遅く）")]
-    [SerializeField] private Vector2 skySpeed = new Vector2(0.002f, 0f);
-    [SerializeField] private Vector2 middleSpeed = new Vector2(0.005f, 0f);
-    [SerializeField] private Vector2 frontSpeed = new Vector2(0.01f, 0f);
-
-    [Header("加減速設定")]
-    [SerializeField] private float accelerationTime = 0.3f;
+    [SerializeField] private float skySpeed = 0.005f;
+    [SerializeField] private float middleSpeed = 0.01f;
+    [SerializeField] private float frontSpeed = 0.03f;
 
     private Material skyMat, middleMat, frontMat;
     private Vector2 skyOffset, middleOffset, frontOffset;
-    private Vector2 skyVelocity, middleVelocity, frontVelocity;
+
+    private Vector3 previousPlayerPos;
 
     private void Start()
     {
@@ -39,9 +38,12 @@ public class BackGroundMover : MonoBehaviour
         frontLayer.material = frontMat;
 
         Assert.IsNotNull(wireActionScript);
+        Assert.IsNotNull(playerMove);
         Assert.IsNotNull(skyLayer);
         Assert.IsNotNull(middleLayer);
         Assert.IsNotNull(frontLayer);
+
+        previousPlayerPos = playerMove.transform.position;
     }
 
     private void Update()
@@ -49,36 +51,45 @@ public class BackGroundMover : MonoBehaviour
         if (Time.timeScale == 0f) return;
 
         bool isConnected = wireActionScript.IsConnected;
-        Vector2 targetVelocity = Vector2.zero;
 
-        // ワイヤー非接続時のみ背景が動く
-        if (!isConnected)
+        // --- ワイヤー使用中は背景を止める ---
+        if (isConnected)
+            return;
+
+        // --- プレイヤーの実際の移動量を取得 ---
+        float deltaX = playerMove.transform.position.x - previousPlayerPos.x;
+        bool isActuallyMoving = Mathf.Abs(deltaX) > 0.0001f;
+
+        // --- 入力方向 ---
+        float moveDir = 0f;
+        if (Input.GetKey(KeyCode.A))
+            moveDir = 0.01f;
+        else if (Input.GetKey(KeyCode.D))
+            moveDir = -0.01f;
+
+        // --- 入力があっても移動していなければ背景は動かさない ---
+        if (!isActuallyMoving || moveDir == 0f)
         {
-            if (Input.GetKey(KeyCode.A))
-                targetVelocity = Vector2.left;
-            else if (Input.GetKey(KeyCode.D))
-                targetVelocity = Vector2.right;
+            previousPlayerPos = playerMove.transform.position;
+            return;
         }
 
-        // スムーズな加減速
-        skyVelocity = Vector2.Lerp(skyVelocity, targetVelocity * skySpeed, Time.deltaTime / accelerationTime);
-        middleVelocity = Vector2.Lerp(middleVelocity, targetVelocity * middleSpeed, Time.deltaTime / accelerationTime);
-        frontVelocity = Vector2.Lerp(frontVelocity, targetVelocity * frontSpeed, Time.deltaTime / accelerationTime);
+        // --- 背景をプレイヤーの移動方向と逆に動かす ---
+        skyOffset.x -= moveDir * skySpeed;
+        middleOffset.x -= moveDir * middleSpeed;
+        frontOffset.x -= moveDir * frontSpeed;
 
-        // オフセット更新
-        skyOffset += skyVelocity * Time.deltaTime;
-        middleOffset += middleVelocity * Time.deltaTime;
-        frontOffset += frontVelocity * Time.deltaTime;
-
-        // ループ
+        // --- ループ処理 ---
         skyOffset.x = Mathf.Repeat(skyOffset.x, k_maxLength);
         middleOffset.x = Mathf.Repeat(middleOffset.x, k_maxLength);
         frontOffset.x = Mathf.Repeat(frontOffset.x, k_maxLength);
 
-        // 適用
+        // --- 反映 ---
         skyMat.SetTextureOffset(k_propName, skyOffset);
         middleMat.SetTextureOffset(k_propName, middleOffset);
         frontMat.SetTextureOffset(k_propName, frontOffset);
+
+        previousPlayerPos = playerMove.transform.position;
     }
 
     private void OnDestroy()
@@ -89,7 +100,139 @@ public class BackGroundMover : MonoBehaviour
     }
 }
 
+#region 背景３層
+//using UnityEngine;
+//using UnityEngine.Assertions;
+//using UnityEngine.UI;
 
+//public class BackGroundMover : MonoBehaviour
+//{
+//    private const float k_maxLength = 1f;
+//    private const string k_propName = "_MainTex";
+
+//    [Header("プレイヤー参照")]
+//    [SerializeField] private Transform playerTransform;
+
+//    [Header("ワイヤーアクション状態管理")]
+//    [SerializeField] private WireActionScript wireActionScript;
+//    [SerializeField] private PlayerMove playerMove; // プレイヤーの接地判定参照
+
+//    [Header("背景レイヤー)")]
+//    [SerializeField] private Image skyLayer;      // 一番奥（空）
+//    [SerializeField] private Image middleLayer;   // 中間
+//    [SerializeField] private Image frontLayer;    // 手前
+
+//    [Header("スクロール速度")]
+//    [SerializeField] private float skySpeed = 0.005f;
+//    [SerializeField] private float middleSpeed = 0.01f;
+//    [SerializeField] private float frontSpeed = 0.02f;
+
+//    [Header("滑らかさ設定")]
+//    [SerializeField] private float accelerationTime = 0.2f;
+
+//    private Material skyMat, middleMat, frontMat;
+//    private Vector2 skyOffset, middleOffset, frontOffset;
+
+//    // 前フレーム位置・状態記録
+//    private Vector3 previousPlayerPos;
+//    private bool wasConnected = false;
+//    private bool wasGrounded = true;
+//    private bool backgroundFrozen = false; // 背景固定フラグ
+
+//    private void Start()
+//    {
+//        // 各レイヤーのマテリアルを複製して独立管理
+//        skyMat = new Material(skyLayer.material);
+//        middleMat = new Material(middleLayer.material);
+//        frontMat = new Material(frontLayer.material);
+
+//        skyLayer.material = skyMat;
+//        middleLayer.material = middleMat;
+//        frontLayer.material = frontMat;
+
+//        Assert.IsNotNull(playerTransform);
+//        Assert.IsNotNull(wireActionScript);
+//        Assert.IsNotNull(playerMove);
+
+//        previousPlayerPos = playerTransform.position;
+//    }
+
+//    private void Update()
+//    {
+//        if (Time.timeScale == 0f) return;
+
+//        bool isConnected = wireActionScript.IsConnected;
+//        bool isGrounded = playerMove.IsGrounded;
+
+//        // ワイヤー接続時：背景を止める
+//        if (isConnected)
+//        {
+//            backgroundFrozen = true;
+//            wasConnected = true;
+//            previousPlayerPos = playerTransform.position;
+//            return;
+//        }
+
+//        // ワイヤー解除後、空中にいる間は背景固定
+//        if (!isConnected && wasConnected && !isGrounded)
+//        {
+//            backgroundFrozen = true;
+//            previousPlayerPos = playerTransform.position;
+//            return;
+//        }
+
+//        // 着地時に背景を再開
+//        if (wasConnected && !isConnected && isGrounded && backgroundFrozen)
+//        {
+//            previousPlayerPos = playerTransform.position; // ここでリセット
+//            backgroundFrozen = false;                     // 背景再開
+//            wasConnected = false;
+//        }
+
+//        // 背景停止中は更新しない
+//        if (backgroundFrozen)
+//        {
+//            previousPlayerPos = playerTransform.position;
+//            wasGrounded = isGrounded;
+//            return;
+//        }
+
+//        // プレイヤー移動量に応じて背景スクロール
+//        float deltaX = playerTransform.position.x - previousPlayerPos.x;
+
+//        if (Mathf.Approximately(deltaX, 0f))
+//        {
+//            previousPlayerPos = playerTransform.position;
+//            wasGrounded = isGrounded;
+//            return;
+//        }
+
+//        skyOffset.x -= deltaX * skySpeed;
+//        middleOffset.x -= deltaX * middleSpeed;
+//        frontOffset.x -= deltaX * frontSpeed;
+
+//        skyOffset.x = Mathf.Repeat(skyOffset.x, k_maxLength);
+//        middleOffset.x = Mathf.Repeat(middleOffset.x, k_maxLength);
+//        frontOffset.x = Mathf.Repeat(frontOffset.x, k_maxLength);
+
+//        skyMat.SetTextureOffset(k_propName, skyOffset);
+//        middleMat.SetTextureOffset(k_propName, middleOffset);
+//        frontMat.SetTextureOffset(k_propName, frontOffset);
+
+//        previousPlayerPos = playerTransform.position;
+//        wasGrounded = isGrounded;
+//    }
+
+//    private void OnDestroy()
+//    {
+//        Destroy(skyMat);
+//        Destroy(middleMat);
+//        Destroy(frontMat);
+//    }
+//}
+#endregion
+
+#region 背景１層
 //using UnityEngine;
 //using UnityEngine.Assertions;
 //using UnityEngine.InputSystem.XR.Haptics;
@@ -174,3 +317,4 @@ public class BackGroundMover : MonoBehaviour
 //        m_copiedMaterial = null;
 //    }
 //}
+#endregion

@@ -55,10 +55,17 @@ MonoBehaviour:
       - rid: 3794361965127663635
       - rid: 3794361965127663636
       - rid: 3794361965127663637
+<<<<<<< HEAD
       - rid: 3794362014251352064
       - rid: 3794362014251352065
       - rid: 3794362014251352066
       - rid: 3794362014251352067
+=======
+      - rid: 7612935111072284672
+      - rid: 7612935111072284673
+      - rid: 7612935111072284674
+      - rid: 7612935111072284675
+>>>>>>> BackGroundMove_7
     m_RuntimeSettings:
       m_List: []
   m_AssetVersion: 8
@@ -259,12 +266,20 @@ MonoBehaviour:
         m_setupCS: {fileID: 7200000, guid: 33be2e9a5506b2843bdb2bdff9cad5e1, type: 3}
         m_preTaaCS: {fileID: 7200000, guid: a679dba8ec4d9ce45884a270b0e22dda, type: 3}
         m_taaCS: {fileID: 7200000, guid: 3923900e2b41b5e47bc25bfdcbcdc9e6, type: 3}
+<<<<<<< HEAD
     - rid: 3794362014251352064
+=======
+    - rid: 7612935111072284672
+>>>>>>> BackGroundMove_7
       type: {class: ScreenSpaceAmbientOcclusionPersistentResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_Shader: {fileID: 4800000, guid: 0849e84e3d62649e8882e9d6f056a017, type: 3}
         m_Version: 0
+<<<<<<< HEAD
     - rid: 3794362014251352065
+=======
+    - rid: 7612935111072284673
+>>>>>>> BackGroundMove_7
       type: {class: PostProcessData/TextureResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         blueNoise16LTex:
@@ -314,7 +329,11 @@ MonoBehaviour:
         smaaAreaTex: {fileID: 2800000, guid: d1f1048909d55cd4fa1126ab998f617e, type: 3}
         smaaSearchTex: {fileID: 2800000, guid: 51eee22c2a633ef4aada830eed57c3fd, type: 3}
         m_TexturesResourcesVersion: 0
+<<<<<<< HEAD
     - rid: 3794362014251352066
+=======
+    - rid: 7612935111072284674
+>>>>>>> BackGroundMove_7
       type: {class: ScreenSpaceAmbientOcclusionDynamicResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         m_BlueNoise256Textures:
@@ -326,7 +345,11 @@ MonoBehaviour:
         - {fileID: 2800000, guid: 3302065f671a8450b82c9ddf07426f3a, type: 3}
         - {fileID: 2800000, guid: 56a77a3e8d64f47b6afe9e3c95cb57d5, type: 3}
         m_Version: 0
+<<<<<<< HEAD
     - rid: 3794362014251352067
+=======
+    - rid: 7612935111072284675
+>>>>>>> BackGroundMove_7
       type: {class: PostProcessData/ShaderResources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
         stopNanPS: {fileID: 4800000, guid: 1121bb4e615ca3c48b214e79e841e823, type: 3}
