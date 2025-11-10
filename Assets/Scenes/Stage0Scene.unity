@@ -1538,7 +1538,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 949c570dcfd3a1848b5e09eea1f9dc9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnDataResourcePath: SpawnData/SpawnDataSO
   player: {fileID: 382275816}
 --- !u!1 &499009402
 GameObject:
@@ -1573,8 +1572,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resultDelay: 2
   pauseDelayAfterResult: 0.5
-  seAudioSource: {fileID: 499009406}
   clearSE: {fileID: 8300000, guid: a26ea29adc55af549ba6adfc563098bb, type: 3}
+  gameOverSE: {fileID: 0}
+  pauseOpenSE: {fileID: 0}
+  pauseCloseSE: {fileID: 0}
 --- !u!4 &499009404
 Transform:
   m_ObjectHideFlags: 0
@@ -1731,7 +1732,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 14e3f8d8c366fde45a009dee26480868, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 14e3f8d8c366fde45a009dee26480868, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.5
@@ -7405,7 +7406,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: STAGE1
+  m_text: STAGE0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 52cb9448b36e1154296732157c93a6db, type: 2}
   m_sharedMaterial: {fileID: 7868808197633715189, guid: 52cb9448b36e1154296732157c93a6db, type: 2}
@@ -9360,7 +9361,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 971247e0c34513a428b063be4e4fc492, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 971247e0c34513a428b063be4e4fc492, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.5
