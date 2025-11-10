@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TutorialWireAnimation
+  m_Name: Tutorial_Wire
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -27,8 +27,8 @@ AnimationClip:
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
-        time: 20.666666
-        value: {x: 0, y: 0, z: 0}
+        time: 3.9333334
+        value: {x: 0, y: 0, z: 150}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -38,14 +38,14 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
   m_PositionCurves:
   - curve:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: {x: -1.2799997, y: 0.55999994, z: 0}
+        value: {x: 1.363, y: -1.18, z: 0}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -53,8 +53,17 @@ AnimationClip:
         inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
-        time: 20.666666
-        value: {x: -1.2799997, y: 0.55999994, z: 0}
+        time: 3.9333334
+        value: {x: 1, y: -1.18, z: -0.9999467}
+        inSlope: {x: 0, y: 0, z: -0.006382254}
+        outSlope: {x: 0, y: 0, z: -0.006382254}
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
+        outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
+      - serializedVersion: 3
+        time: 3.95
+        value: {x: 1.5, y: -1.18, z: -1}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -64,9 +73,51 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
   m_ScaleCurves: []
   m_FloatCurves:
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: -0.87
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_AnchoredPosition.x
+    path: Inside/DemoCharacter
+    classID: 224
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.97
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_AnchoredPosition.y
+    path: Inside/DemoCharacter
+    classID: 224
+    script: {fileID: 0}
+    flags: 0
   - serializedVersion: 2
     curve:
       serializedVersion: 2
@@ -81,16 +132,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 7.5
-        value: 1
-        inSlope: Infinity
-        outSlope: Infinity
-        tangentMode: 103
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 20.666666
+        time: 3.9333334
         value: 1
         inSlope: Infinity
         outSlope: Infinity
@@ -102,7 +144,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_IsActive
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 1
     script: {fileID: 0}
     flags: 16
@@ -112,7 +154,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.397
+        value: 1.385
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -120,8 +162,26 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 20.683332
-        value: 1.397
+        time: 0.95
+        value: 2.04
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1.7833333
+        value: 1.61
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 2.8
+        value: 2.17
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -132,7 +192,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.x
-    path: WireKeyExplanation/Wire_Cursor
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Cursor
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -142,16 +202,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.683332
-        value: 0
+        value: -0.682
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -162,7 +213,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.y
-    path: WireKeyExplanation/Wire_Cursor
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Cursor
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -172,7 +223,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.102
+        value: 2.3
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -180,8 +231,26 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 20.699999
-        value: 1.102
+        time: 0.98333335
+        value: 2.7
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1.7833333
+        value: 2.3
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 2.8333333
+        value: 2.7
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -192,7 +261,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.x
-    path: WireKeyExplanation/Wire_Mouse
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Mouse
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -202,16 +271,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.108
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.699999
-        value: -0.108
+        value: -1.784
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -222,7 +282,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.y
-    path: WireKeyExplanation/Wire_Mouse
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Mouse
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -231,56 +291,50 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - time: 1
+    - time: 0.6666667
       value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
+    - time: 1.3333334
+      value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
     - time: 2
-      value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - time: 2.9833333
       value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
-    - time: 3.9833333
+    - time: 2.6666667
       value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - time: 4.9666667
+    - time: 3.3333333
       value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
-    - time: 5.9666667
-      value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - time: 6.866667
-      value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
-    - time: 7.5
+    - time: 3.9333334
       value: {fileID: -1711067127785148277, guid: a877210c2c52ee646a37d198516ed851, type: 3}
-    - time: 8.216666
+    - time: 4.366667
       value: {fileID: 3754914304970018405, guid: f00caa5d03aba47428ea4871a0f0506c, type: 3}
-    - time: 8.916667
+    - time: 4.9
       value: {fileID: -3834331205570957958, guid: ab689b553d3b65f42ac64323788596c7, type: 3}
-    - time: 9.966666
+    - time: 5.4666667
       value: {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
-    - time: 10.816667
+    - time: 6.2
       value: {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
-    - time: 11.683333
+    - time: 6.866667
       value: {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
-    - time: 12.35
+    - time: 7.4666667
       value: {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
-    - time: 13.2
+    - time: 8.133333
       value: {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
-    - time: 14
+    - time: 8.7
       value: {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
-    - time: 14.75
-      value: {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
-    - time: 15.583333
-      value: {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
-    - time: 16.283333
+    - time: 9.366667
       value: {fileID: 3973015025305269571, guid: 5cd3e2feeb91a7f44b260b7b8a8d1cf9, type: 3}
-    - time: 16.933332
+    - time: 9.833333
       value: {fileID: -7229211101138227833, guid: 3fa8d9f3a36884347bbc2433d1769ffc, type: 3}
-    - time: 17.75
+    - time: 10.283334
       value: {fileID: -8898143557891875634, guid: fa50a4261413dfb46b0db3359632c622, type: 3}
-    - time: 18.65
+    - time: 10.833333
       value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - time: 19.65
+    - time: 11.483334
       value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
-    - time: 20.65
+    - time: 12.5
       value: {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
+    - time: 13.15
+      value: {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
     attribute: m_Sprite
-    path: 
+    path: Inside/DemoCharacter
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -288,10 +342,8 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: 21300000, guid: b74600f5087c3014c8f1da3e1d947b3e, type: 3}
-    - time: 20.666666
-      value: {fileID: 21300000, guid: b74600f5087c3014c8f1da3e1d947b3e, type: 3}
     attribute: m_Sprite
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -299,10 +351,8 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: 21300000, guid: 6bd0e878b481d0f4da222759dd5cdde1, type: 3}
-    - time: 20.683332
-      value: {fileID: 21300000, guid: 6bd0e878b481d0f4da222759dd5cdde1, type: 3}
     attribute: m_Sprite
-    path: WireKeyExplanation/Wire_Cursor
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Cursor
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -310,14 +360,16 @@ AnimationClip:
     curve:
     - time: 0
       value: {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
-    - time: 7.5
+    - time: 3.45
       value: {fileID: -3254304005718266515, guid: a013d7634b298854faa93ae0ea12760b, type: 3}
-    - time: 8.05
+    - time: 3.8166666
       value: {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
-    - time: 20.699999
+    - time: 8.933333
+      value: {fileID: -4545295500155414478, guid: de9650abf5059a24096f86ab0ce94351, type: 3}
+    - time: 9.483334
       value: {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
     attribute: m_Sprite
-    path: WireKeyExplanation/Wire_Mouse
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Mouse
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -329,52 +381,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 941974994
-      attribute: 2086281974
-      script: {fileID: 0}
-      typeID: 1
-      customType: 0
-      isPPtrCurve: 0
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 0
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 941974994
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 1775844926
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 3046655686
-      attribute: 0
-      script: {fileID: 0}
-      typeID: 212
-      customType: 23
-      isPPtrCurve: 1
-      isIntCurve: 0
-      isSerializeReferenceCurve: 0
-    - serializedVersion: 2
-      path: 941974994
+      path: 649776378
       attribute: 1
       script: {fileID: 0}
       typeID: 4
@@ -383,7 +390,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 941974994
+      path: 649776378
       attribute: 4
       script: {fileID: 0}
       typeID: 4
@@ -392,7 +399,16 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1775844926
+      path: 649776378
+      attribute: 2086281974
+      script: {fileID: 0}
+      typeID: 1
+      customType: 0
+      isPPtrCurve: 0
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2315635814
       attribute: 1460864421
       script: {fileID: 0}
       typeID: 224
@@ -401,7 +417,61 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 1775844926
+      path: 174132302
+      attribute: 1460864421
+      script: {fileID: 0}
+      typeID: 224
+      customType: 28
+      isPPtrCurve: 0
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2316268708
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 649776378
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2315635814
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 174132302
+      attribute: 0
+      script: {fileID: 0}
+      typeID: 212
+      customType: 23
+      isPPtrCurve: 1
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2316268708
+      attribute: 1460864421
+      script: {fileID: 0}
+      typeID: 224
+      customType: 28
+      isPPtrCurve: 0
+      isIntCurve: 0
+      isSerializeReferenceCurve: 0
+    - serializedVersion: 2
+      path: 2316268708
       attribute: 538195251
       script: {fileID: 0}
       typeID: 224
@@ -410,8 +480,8 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3046655686
-      attribute: 1460864421
+      path: 2315635814
+      attribute: 538195251
       script: {fileID: 0}
       typeID: 224
       customType: 28
@@ -419,7 +489,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3046655686
+      path: 174132302
       attribute: 538195251
       script: {fileID: 0}
       typeID: 224
@@ -428,8 +498,6 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
-    - {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
     - {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
     - {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
     - {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
@@ -445,28 +513,26 @@ AnimationClip:
     - {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
     - {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
     - {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
-    - {fileID: 7761949544227160572, guid: 7f11b482d0086b840b56b29f4e3b22fe, type: 3}
-    - {fileID: 5066235825799837313, guid: ddad2754eb460ab4c9a5a2596ba44dcb, type: 3}
     - {fileID: 3973015025305269571, guid: 5cd3e2feeb91a7f44b260b7b8a8d1cf9, type: 3}
     - {fileID: -7229211101138227833, guid: 3fa8d9f3a36884347bbc2433d1769ffc, type: 3}
     - {fileID: -8898143557891875634, guid: fa50a4261413dfb46b0db3359632c622, type: 3}
     - {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
     - {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
     - {fileID: 236318301204818880, guid: d11b98c75ef1f274ebcd9a36728da75a, type: 3}
+    - {fileID: -7932310271096417038, guid: e7ad57db4d066994ea089f6a4733dab2, type: 3}
     - {fileID: 21300000, guid: b74600f5087c3014c8f1da3e1d947b3e, type: 3}
-    - {fileID: 21300000, guid: b74600f5087c3014c8f1da3e1d947b3e, type: 3}
-    - {fileID: 21300000, guid: 6bd0e878b481d0f4da222759dd5cdde1, type: 3}
     - {fileID: 21300000, guid: 6bd0e878b481d0f4da222759dd5cdde1, type: 3}
     - {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
     - {fileID: -3254304005718266515, guid: a013d7634b298854faa93ae0ea12760b, type: 3}
     - {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
+    - {fileID: -4545295500155414478, guid: de9650abf5059a24096f86ab0ce94351, type: 3}
     - {fileID: -357421434760999972, guid: 75cd133426848b248aa26eeb908c95f3, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 20.716665
+    m_StopTime: 13.166666
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -488,16 +554,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -1.2799997
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: -1.2799997
+        value: -0.87
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -507,9 +564,9 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: m_LocalPosition.x
-    path: WireKeyExplanation/Needle
-    classID: 4
+    attribute: m_AnchoredPosition.x
+    path: Inside/DemoCharacter
+    classID: 224
     script: {fileID: 0}
     flags: 0
   - serializedVersion: 2
@@ -518,16 +575,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.55999994
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: 0.55999994
+        value: 1.97
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -537,129 +585,9 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: m_LocalPosition.y
-    path: WireKeyExplanation/Needle
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: m_LocalPosition.z
-    path: WireKeyExplanation/Needle
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.x
-    path: WireKeyExplanation/Needle
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.y
-    path: WireKeyExplanation/Needle
-    classID: 4
-    script: {fileID: 0}
-    flags: 0
-  - serializedVersion: 2
-    curve:
-      serializedVersion: 2
-      m_Curve:
-      - serializedVersion: 3
-        time: 0
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.666666
-        value: 0
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    attribute: localEulerAnglesRaw.z
-    path: WireKeyExplanation/Needle
-    classID: 4
+    attribute: m_AnchoredPosition.y
+    path: Inside/DemoCharacter
+    classID: 224
     script: {fileID: 0}
     flags: 0
   - serializedVersion: 2
@@ -676,16 +604,7 @@ AnimationClip:
         inWeight: 0
         outWeight: 0
       - serializedVersion: 3
-        time: 7.5
-        value: 1
-        inSlope: Infinity
-        outSlope: Infinity
-        tangentMode: 103
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - serializedVersion: 3
-        time: 20.666666
+        time: 3.9333334
         value: 1
         inSlope: Infinity
         outSlope: Infinity
@@ -697,7 +616,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_IsActive
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 1
     script: {fileID: 0}
     flags: 16
@@ -707,16 +626,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.397
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.683332
-        value: 1.397
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -726,9 +636,30 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: m_AnchoredPosition.x
-    path: WireKeyExplanation/Wire_Cursor
-    classID: 224
+    attribute: localEulerAnglesRaw.x
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: localEulerAnglesRaw.y
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
     script: {fileID: 0}
     flags: 0
   - serializedVersion: 2
@@ -745,8 +676,8 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 20.683332
-        value: 0
+        time: 3.9333334
+        value: 150
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -756,9 +687,9 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    attribute: m_AnchoredPosition.y
-    path: WireKeyExplanation/Wire_Cursor
-    classID: 224
+    attribute: localEulerAnglesRaw.z
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
     script: {fileID: 0}
     flags: 0
   - serializedVersion: 2
@@ -767,7 +698,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.102
+        value: 1.363
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -775,8 +706,116 @@ AnimationClip:
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
-        time: 20.699999
-        value: 1.102
+        time: 3.9333334
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 3.95
+        value: 1.5
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.x
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: -1.18
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.y
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 3.95
+        value: -1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_LocalPosition.z
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
+    classID: 4
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1.385
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.95
+        value: 2.04
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1.7833333
+        value: 1.61
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 2.8
+        value: 2.17
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -787,7 +826,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.x
-    path: WireKeyExplanation/Wire_Mouse
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Cursor
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -797,16 +836,7 @@ AnimationClip:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: -0.108
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 136
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 20.699999
-        value: -0.108
+        value: -0.682
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -817,7 +847,76 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_AnchoredPosition.y
-    path: WireKeyExplanation/Wire_Mouse
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Cursor
+    classID: 224
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 2.3
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.98333335
+        value: 2.7
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1.7833333
+        value: 2.3
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 2.8333333
+        value: 2.7
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_AnchoredPosition.x
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Mouse
+    classID: 224
+    script: {fileID: 0}
+    flags: 0
+  - serializedVersion: 2
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: -1.784
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attribute: m_AnchoredPosition.y
+    path: Inside/DemoCharacter/WireKeyExplanation/Wire_Mouse
     classID: 224
     script: {fileID: 0}
     flags: 0
@@ -830,7 +929,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.x
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -842,7 +941,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.y
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 4
     script: {fileID: 0}
     flags: 0
@@ -854,7 +953,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalEulerAngles.z
-    path: WireKeyExplanation/Needle
+    path: Inside/DemoCharacter/WireKeyExplanation/Needle
     classID: 4
     script: {fileID: 0}
     flags: 0
