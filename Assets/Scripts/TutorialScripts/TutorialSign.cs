@@ -11,20 +11,27 @@ public class TutorialSign : MonoBehaviour
 
     [Header("設定")]
     [SerializeField] private TutorialType tutorialType; // 看板ごとのチュートリアル種類
-    [SerializeField] private Transform player;
-    [SerializeField] private float showDistance = 3f;
+    [SerializeField] private Transform player;           // プレイヤーのTransform
+    [SerializeField] private float showDistance = 3f;    // 表示距離
 
-    [Header("デモルート")]
+    [Header("デモオブジェクト")]
     [SerializeField] private GameObject moveDemo;
     [SerializeField] private GameObject wireDemo;
     [SerializeField] private GameObject attackDemo;
+
+    [Header("Animator設定")]
+    [SerializeField] private Animator demoAnimator;      // 共通Animator
+    [SerializeField] private string triggerMove = "Move";
+    [SerializeField] private string triggerWire = "Wire";
+    [SerializeField] private string triggerAttack = "Attack";
+    [SerializeField] private string triggerIdle = "Idle";
 
     private bool isVisible = false;
     private GameObject activeDemo;
 
     private void Start()
     {
-        // すべて非表示
+        // すべて非表示にして初期化
         if (moveDemo != null) moveDemo.SetActive(false);
         if (wireDemo != null) wireDemo.SetActive(false);
         if (attackDemo != null) attackDemo.SetActive(false);
@@ -61,6 +68,30 @@ public class TutorialSign : MonoBehaviour
     {
         isVisible = show;
         activeDemo.SetActive(show);
+
+        if (demoAnimator == null) return;
+
+        if (show)
+        {
+            // チュートリアル種類に応じてトリガー発火
+            switch (tutorialType)
+            {
+                case TutorialType.Move:
+                    demoAnimator.SetTrigger(triggerMove);
+                    break;
+                case TutorialType.Wire:
+                    demoAnimator.SetTrigger(triggerWire);
+                    break;
+                case TutorialType.Attack:
+                    demoAnimator.SetTrigger(triggerAttack);
+                    break;
+            }
+        }
+        else
+        {
+            // Idle トリガーを発火して待機状態へ戻す
+            demoAnimator.SetTrigger(triggerIdle);
+        }
     }
 
 #if UNITY_EDITOR

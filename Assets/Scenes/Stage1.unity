@@ -581,6 +581,33 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6140562324609340187, guid: 1664d1335ba8e2d45bdb824a4a19b2ab, type: 3}
   m_PrefabInstance: {fileID: 68877111}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &75456631 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1430290039451670778, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+  m_PrefabInstance: {fileID: 999017570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &75456635
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75456631}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b7c7b35958ffb2c4ab5c8bbd33406d9f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &82270793
 GameObject:
   m_ObjectHideFlags: 0
@@ -1418,6 +1445,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 156746058}
   m_CullTransparentMesh: 1
+--- !u!95 &185750196 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7260825005073511233, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+  m_PrefabInstance: {fileID: 1573244018}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &192920371
 GameObject:
   m_ObjectHideFlags: 0
@@ -11859,6 +11891,11 @@ RectTransform:
   m_AnchoredPosition: {x: -5.0000076, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!95 &649414499 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7260825005073511233, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+  m_PrefabInstance: {fileID: 8863372426998279487}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &691527338
 GameObject:
   m_ObjectHideFlags: 0
@@ -13447,10 +13484,26 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.605
       objectReference: {fileID: 0}
+    - target: {fileID: 8127961748941249434, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 1455774592}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: stateMove
+      value: Tutorial_Move
+      objectReference: {fileID: 0}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: stateWire
+      value: Tutorial_Wire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: demoAnimator
+      value: 
+      objectReference: {fileID: 1368894528}
     - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: tutorialType
       value: 1
@@ -13463,13 +13516,20 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 2.22
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5540467789197082168, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1054414259142406553, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       insertIndex: 2
       addedObject: {fileID: 1192275175}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1430290039451670778, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 75456635}
+    - targetCorrespondingSourceObject: {fileID: 1377923673178632383, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1368894528}
   m_SourcePrefab: {fileID: 100100000, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
 --- !u!1 &1001916349
 GameObject:
@@ -14154,13 +14214,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 1455774590}
+  playerMove: {fileID: 0}
   skyLayer: {fileID: 0}
   middleLayer: {fileID: 0}
   frontLayer: {fileID: 0}
-  skySpeed: {x: 0.002, y: 0}
-  middleSpeed: {x: 0.005, y: 0}
-  frontSpeed: {x: 0.01, y: 0}
-  accelerationTime: 0.3
+  skySpeed: 0.005
+  middleSpeed: 0.01
+  frontSpeed: 0.03
 --- !u!114 &1063994212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15851,6 +15911,33 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 5261590729053802268, guid: d2f9e9f638f1e134e8b6c27bfb820bef, type: 3}
   m_PrefabInstance: {fileID: 1364599309}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1368894526 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1377923673178632383, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+  m_PrefabInstance: {fileID: 999017570}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1368894528
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1368894526}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b7c7b35958ffb2c4ab5c8bbd33406d9f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1385317448
 GameObject:
   m_ObjectHideFlags: 0
@@ -16549,6 +16636,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1455774592}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: demoAnimator
+      value: 
+      objectReference: {fileID: 185750196}
     - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: tutorialType
       value: 2
@@ -18554,6 +18645,18 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1455774592}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: stateMove
+      value: Tutorial_Move
+      objectReference: {fileID: 0}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: stateWire
+      value: Tutorial_Wire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: demoAnimator
+      value: 
+      objectReference: {fileID: 649414499}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
