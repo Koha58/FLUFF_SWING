@@ -670,7 +670,7 @@ GameObject:
   - component: {fileID: 91718272}
   - component: {fileID: 91718274}
   - component: {fileID: 91718273}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: PinBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1289,7 +1289,7 @@ GameObject:
   - component: {fileID: 192920372}
   - component: {fileID: 192920374}
   - component: {fileID: 192920373}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6053,6 +6053,62 @@ RectTransform:
   m_AnchoredPosition: {x: -5.0000076, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &625455091
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 625455093}
+  - component: {fileID: 625455092}
+  m_Layer: 0
+  m_Name: ShadowManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &625455092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625455091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fab7713ea4b234351820b05e4c05192d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadowColor:
+    serializedVersion: 2
+    rgba: 2399141888
+  shadowDistance: {x: 0.1, y: -0.15}
+  shadowResolution: 1
+  shadowFilterMode: 1
+  shadowSortingLayerName: 
+  shadowOrderInLayer: 0
+  targetCamera: {fileID: 223537500}
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 4040
+--- !u!4 &625455093
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 625455091}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.013981, y: -1.0791438, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &691527338
 GameObject:
   m_ObjectHideFlags: 0
@@ -7621,7 +7677,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 07f9accf66b04524eaeea409afaef9c2, type: 2}
+  - {fileID: 2100000, guid: f04d7f4064eec8045a482a11551f508b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7653,7 +7709,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1
+        value: 0.28378296
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -7998,7 +8054,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wireActionScript: {fileID: 1455774590}
-  playerTransform: {fileID: 1455774592}
+  playerMove: {fileID: 0}
+  skyLayer: {fileID: 0}
+  middleLayer: {fileID: 0}
+  frontLayer: {fileID: 0}
+  skySpeed: 0.005
+  middleSpeed: 0.01
+  frontSpeed: 0.03
 --- !u!114 &1063994212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8862,7 +8924,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: -5193081529779109497, guid: 31fae0cc7d4333447b2db0aa68a7ea03, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.5
@@ -9044,7 +9106,7 @@ GameObject:
   - component: {fileID: 1316850271}
   - component: {fileID: 1316850273}
   - component: {fileID: 1316850272}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: PinFront
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12050,6 +12112,7 @@ SceneRoots:
   - {fileID: 1316840243}
   - {fileID: 929820029}
   - {fileID: 1314980014}
+  - {fileID: 625455093}
   - {fileID: 1452453854}
   - {fileID: 1933231630}
   - {fileID: 1588681624}
