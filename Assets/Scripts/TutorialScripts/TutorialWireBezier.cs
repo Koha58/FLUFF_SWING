@@ -56,8 +56,4 @@ public class TutorialWireBezier : MonoBehaviour
         float u = 1f - t;
         return u * u * p0 + 2f * u * t * p1 + t * t * p2;
     }
-
-    // AnimationEvent—p
-    public void ShowWireOn() => line.enabled = true;
-    public void ShowWireOff() => line.enabled = false;
 }
