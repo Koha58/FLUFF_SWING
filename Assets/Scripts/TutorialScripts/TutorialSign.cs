@@ -6,6 +6,7 @@ public class TutorialSign : MonoBehaviour
     {
         Move,
         Wire,
+        WireSkill,
         Attack
     }
 
@@ -17,12 +18,14 @@ public class TutorialSign : MonoBehaviour
     [Header("デモオブジェクト")]
     [SerializeField] private GameObject moveDemo;
     [SerializeField] private GameObject wireDemo;
+    [SerializeField] private GameObject wireSkillDemo;
     [SerializeField] private GameObject attackDemo;
 
     [Header("Animator設定")]
     [SerializeField] private Animator demoAnimator;      // 共通Animator
     [SerializeField] private string triggerMove = "Move";
     [SerializeField] private string triggerWire = "Wire";
+    [SerializeField] private string triggerWireSkill = "WireSkill";
     [SerializeField] private string triggerAttack = "Attack";
     [SerializeField] private string triggerIdle = "Idle";
 
@@ -34,6 +37,7 @@ public class TutorialSign : MonoBehaviour
         // すべて非表示にして初期化
         if (moveDemo != null) moveDemo.SetActive(false);
         if (wireDemo != null) wireDemo.SetActive(false);
+        if (wireSkillDemo != null) wireSkillDemo.SetActive(false);
         if (attackDemo != null) attackDemo.SetActive(false);
 
         // 種類ごとに使うデモを決定
@@ -41,6 +45,7 @@ public class TutorialSign : MonoBehaviour
         {
             case TutorialType.Move: activeDemo = moveDemo; break;
             case TutorialType.Wire: activeDemo = wireDemo; break;
+            case TutorialType.WireSkill: activeDemo = wireSkillDemo; break;
             case TutorialType.Attack: activeDemo = attackDemo; break;
         }
 
@@ -81,6 +86,9 @@ public class TutorialSign : MonoBehaviour
                     break;
                 case TutorialType.Wire:
                     demoAnimator.SetTrigger(triggerWire);
+                    break;
+                case TutorialType.WireSkill:
+                    demoAnimator.SetTrigger(triggerWireSkill);
                     break;
                 case TutorialType.Attack:
                     demoAnimator.SetTrigger(triggerAttack);

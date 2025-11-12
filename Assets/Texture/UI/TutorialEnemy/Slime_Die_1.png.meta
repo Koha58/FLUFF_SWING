@@ -1,27 +1,15 @@
 fileFormatVersion: 2
-guid: 0a1ea274760c7f34689b9b15689ddf02
+guid: c9ba0ed8cd6e30d47ab9924f4f00e708
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3078913936871810469
-    second: DottedLine 1_0
-  - first:
-      213: -2558600592263473046
-    second: DottedLine 1_1
-  - first:
-      213: -8743050417173729664
-    second: DottedLine 1_2
-  - first:
-      213: -6796342890084189953
-    second: DottedLine 1_3
-  - first:
-      213: -3866874494248594733
-    second: DottedLine 1_4
+      213: 5018531967202152556
+    second: Slime_Die_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 1
+    enableMipMap: 0
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -52,24 +40,24 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
-    wrapW: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 2000
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
-  alphaIsTransparency: 0
+  alphaIsTransparency: 1
   spriteTessellationDetail: -1
-  textureType: 0
+  textureType: 8
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -151,111 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DottedLine 1_0
+      name: Slime_Die_1_0
       rect:
         serializedVersion: 2
-        x: 13
-        y: 330
-        width: 118
-        height: 118
+        x: 42
+        y: 117
+        width: 922
+        height: 549
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b5a91c256108545d0800000000000000
-      internalID: -3078913936871810469
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: DottedLine 1_1
-      rect:
-        serializedVersion: 2
-        x: 157
-        y: 330
-        width: 118
-        height: 118
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a68180041560e7cd0800000000000000
-      internalID: -2558600592263473046
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: DottedLine 1_2
-      rect:
-        serializedVersion: 2
-        x: 301
-        y: 330
-        width: 118
-        height: 118
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 08e670fd7f17aa680800000000000000
-      internalID: -8743050417173729664
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: DottedLine 1_3
-      rect:
-        serializedVersion: 2
-        x: 445
-        y: 330
-        width: 118
-        height: 118
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ff8b7c8662a8ea1a0800000000000000
-      internalID: -6796342890084189953
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: DottedLine 1_4
-      rect:
-        serializedVersion: 2
-        x: 589
-        y: 330
-        width: 118
-        height: 118
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3d25b43922a165ac0800000000000000
-      internalID: -3866874494248594733
+      spriteID: c60d60f1c3865a540800000000000000
+      internalID: 5018531967202152556
       vertices: []
       indices: 
       edges: []
@@ -264,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 5be051c301b368345a06f96c1c627b76
     internalID: 0
     vertices: []
     indices: 
@@ -274,11 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      DottedLine 1_0: -3078913936871810469
-      DottedLine 1_1: -2558600592263473046
-      DottedLine 1_2: -8743050417173729664
-      DottedLine 1_3: -6796342890084189953
-      DottedLine 1_4: -3866874494248594733
+      Slime_Die_1_0: 5018531967202152556
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
