@@ -98,7 +98,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             else if (status.attackRadius > 0f && distance <= status.attackRadius)
             {
                 Debug.Log("Executing RangedAttack()");
-                RangedAttack();
+                RangedAttack(target);
                 return;
             }
 
@@ -131,41 +131,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             {
                 var damageable = enemy.GetComponent<IDamageable>();
 
-                if (damageable != null)
-                {
-                    nearest = damageable;
-                    minDist = dist;
-                }
-            }
-        }
-
-        return nearest;
-    }
-
-    /// <summary>
-    /// プレイヤーの向き方向にいる敵の中で最も近い敵を返す
-    /// </summary>
-    private IDamageable FindNearestEnemyInFacingDirection()
-    {
-        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        IDamageable nearest = null;
-        float minDist = float.MaxValue;
-
-        float facing = Mathf.Sign(transform.localScale.x); // 1:右, -1:左
-
-        foreach (var enemy in enemies)
-        {
-            Vector3 toEnemy = enemy.transform.position - transform.position;
-
-            // プレイヤーの向き方向にいる敵のみ対象
-            if (Mathf.Sign(toEnemy.x) != facing)
-                continue;
-
-            float dist = toEnemy.magnitude;
-
-            if (dist < minDist && dist <= status.attackRadius)
-            {
-                var damageable = enemy.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
                     nearest = damageable;
@@ -215,43 +180,51 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// 遠距離攻撃処理（爆弾投げアニメーション＋SE再生）
     /// 実際の爆弾生成はアニメーションイベント側で行う
     /// </summary>
-    private void RangedAttack()
+    private void RangedAttack(IDamageable target)
     {
-        IDamageable target = FindNearestEnemyInFacingDirection();
-        Vector2 throwDirection = Vector2.right * Mathf.Sign(transform.localScale.x); // デフォルトは向き方向
-
+        // 攻撃方向を決定
+        float direction = 1f;
         if (target != null)
         {
-            // ターゲット座標に向かうベクトルを計算
-            throwDirection = ((MonoBehaviour)target).transform.position - transform.position;
+            Vector2 targetDir = ((MonoBehaviour)target).transform.position - transform.position;
+            direction = Mathf.Sign(targetDir.x);
         }
 
-        throwDirection.Normalize(); // 単位ベクトル化
+        // プレイヤーの向きを敵方向に合わせる（左右反転）
+        if (direction != Mathf.Sign(transform.localScale.x))
+        {
+            Vector3 scale = transform.localScale;
+            scale.x *= -1;
+            transform.localScale = scale;
+        }
 
-        // 遠距離攻撃アニメーション再生
-        animatorController?.PlayRangedAttackAnimation(Mathf.Sign(throwDirection.x));
+        // 遠距離攻撃アニメーションを再生
+        animatorController?.PlayRangedAttackAnimation(direction);
 
-        // 遠距離攻撃SE再生
+        // 遠距離攻撃SEを再生
         if (rangedAttackSE != null)
             AudioManager.Instance?.PlaySE(rangedAttackSE);
-
-        // アニメーションイベント側から投げる際に方向ベクトルを渡す
-        ThrowBomb(throwDirection);
     }
 
 
-    public void ThrowBomb(Vector2 direction)
+    /// <summary>
+    /// 実際に爆弾を生成して投げる処理（アニメーションイベントから呼び出す）
+    /// </summary>
+    public void ThrowBomb(float direction)
     {
         if (bombPrefab == null) return;
 
+        // 爆弾プレハブを生成
         GameObject bombObject = Instantiate(bombPrefab, transform.position, Quaternion.identity);
         Bomb bomb = bombObject.GetComponent<Bomb>();
 
+        // 爆弾スクリプトに発射処理を依頼
         if (bomb != null)
         {
             bomb.Launch(direction, throwForce, status.attack);
         }
     }
+
 
     /// <summary>
     /// 被ダメージ処理（IDamageable実装）

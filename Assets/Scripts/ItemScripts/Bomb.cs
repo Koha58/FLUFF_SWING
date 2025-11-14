@@ -29,33 +29,11 @@ public class Bomb : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    /// <summary>
-    /// ターゲット座標に向けて放物線で飛ばす
-    /// </summary>
-    /// <param name="targetPosition">爆弾が届く座標</param>
-    /// <param name="flightTime">到達までの時間（秒）</param>
-    /// <param name="damage">爆発ダメージ</param>
-    public void Launch(Vector2 targetPosition, float flightTime, int damage)
+    public void Launch(float direction, float force, int damage)
     {
+        rb.linearVelocity = new Vector2(force * direction, force * 0.5f);
         explosionDamage = damage;
-
-        if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
-
-        Vector2 startPosition = transform.position;
-
-        // ターゲットまでの距離
-        Vector2 distance = targetPosition - startPosition;
-
-        // 必要な初速度を計算（放物線公式）
-        // Vx = dx / t, Vy = (dy - 0.5 * g * t^2) / t
-        float vx = distance.x / flightTime;
-        float vy = (distance.y - 0.5f * Physics2D.gravity.y * flightTime * flightTime) / flightTime;
-
-        // Rigidbody2D に速度をセット
-        rb.linearVelocity = new Vector2(vx, vy);
     }
-
 
     private void OnTriggerEnter2D(Collider2D other)
     {
