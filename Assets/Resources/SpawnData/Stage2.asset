@@ -216,7 +216,7 @@ MonoBehaviour:
   - id: 51
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: 12.269, y: 5.63, z: 0}
+    position: {x: 10.78, y: 5.63, z: 0}
   - id: 52
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
