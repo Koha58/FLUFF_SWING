@@ -28,7 +28,7 @@ public class PlayerBalloonUIController : MonoBehaviour
     [SerializeField] private float triggerDistance = 3f;
 
     /// <summary>回復に必要なコイン枚数</summary>
-    [SerializeField] private int requiredCoinAmount = 5;
+    [SerializeField] private int requiredCoinAmount = 20;
 
     /// <summary>メッセージを元に戻すまでの遅延秒数</summary>
     [SerializeField] private float restoreDelay = 3f;

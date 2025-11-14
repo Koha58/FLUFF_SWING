@@ -4,9 +4,9 @@ using UnityEngine.Tilemaps;
 
 /// <summary>
 /// プレイヤーの攻撃処理・被ダメージ処理をまとめて管理するクラス。
-/// ・近くの敵を自動検出して攻撃タイプを切り替える
-/// ・IDamageableを実装して、被弾時の処理も担当する
-/// ・アニメーション・SE・UI連携まで含めた統合管理
+/// ・近距離攻撃／遠距離攻撃の自動選択
+/// ・IDamageable を実装して被ダメージ処理を一元管理
+/// ・アニメーション／SE／UI との連携も担当
 /// </summary>
 public class PlayerAttack : MonoBehaviour, IDamageable
 {
@@ -16,30 +16,30 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     [SerializeField] private CharacterStatus status; // 攻撃力・HP・攻撃範囲などの基本パラメータ
 
     [Header("▼ 連携スクリプト")]
-    [SerializeField] private PlayerMove playerMove;                     // 足元タイル検出などを行う移動スクリプト
-    [SerializeField] private PlayerAnimatorController animatorController; // 攻撃や被弾アニメーションを制御
-    [SerializeField] private PlayerHealthUI healthUI;                   // HP表示UI
+    [SerializeField] private PlayerMove playerMove;                     // 足元タイルなどの移動系情報を持つ
+    [SerializeField] private PlayerAnimatorController animatorController; // 攻撃・被弾アニメーション制御
+    [SerializeField] private PlayerHealthUI healthUI;                   // HPバーUI
 
     [Header("▼ 攻撃関連")]
-    [SerializeField] private GameObject bombPrefab;  // 遠距離攻撃に使う爆弾プレハブ
+    [SerializeField] private GameObject bombPrefab;  // 遠距離攻撃で投げる爆弾プレハブ
 
     [Header("▼ サウンドエフェクト")]
     [SerializeField] private AudioClip meleeAttackSE;   // 近距離攻撃SE
     [SerializeField] private AudioClip rangedAttackSE;  // 遠距離攻撃SE
-    [SerializeField] private AudioClip damageSE;        // 被ダメージ時SE
+    [SerializeField] private AudioClip damageSE;        // 被ダメージSE
 
     #endregion
 
 
     #region === Private Fields & Constants ===
 
-    private float throwForce = 7f;          // 爆弾を投げる初速
-    private int currentHP;                  // 現在のHP
-    private float invincibleTime = 3.0f;    // 無敵継続時間
-    private const float BlinkInterval = 0.1f; // 点滅間隔（無敵演出用）
+    private int currentHP;                  // 現在HP
+    private float invincibleTime = 3.0f;    // 被ダメージ後の無敵時間
+    private const float BlinkInterval = 0.1f; // 無敵中の点滅速度
     private bool isInvincible = false;      // 無敵中フラグ
     private bool isDead = false;            // 死亡済みフラグ
-    private SpriteRenderer spriteRenderer;  // 無敵点滅で使用
+    private SpriteRenderer spriteRenderer;  // 無敵点滅に使用
+    private Vector2 pendingRangedTarget;    // 遠距離攻撃のターゲット位置（アニメーションイベント用）
 
     #endregion
 
@@ -49,20 +49,20 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         // 現在HPを最大HPで初期化
         currentHP = status.maxHP;
 
-        // SpriteRendererを取得（無敵点滅に使う）
+        // SpriteRenderer取得（点滅演出で使用）
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // HP UIを初期化
+        // HPUI初期化
         healthUI?.SetMaxHealth(currentHP);
     }
 
 
     private void Update()
     {
-        // 足元タイルを取得（PlayerMove側で管理）
+        // 足元タイルを PlayerMove から取得
         var groundTile = playerMove.CurrentGroundTile;
 
-        // 足元が「ダメージ床(Hazard)」なら、その分のダメージを受ける
+        // 地面が「Hazard（ダメージ床）」なら自動的にダメージ
         if (groundTile != null && groundTile.tileType == CustomTile.TileType.Hazard)
         {
             TakeDamage(groundTile.damageAmount);
@@ -71,66 +71,58 @@ public class PlayerAttack : MonoBehaviour, IDamageable
 
 
     /// <summary>
-    /// 敵を自動検出して、距離に応じて近距離 or 遠距離攻撃を実行する
+    /// 敵を自動検出し、距離によって近距離攻撃 or 遠距離攻撃を実行
     /// </summary>
     public void PerformAutoAttack()
     {
-        // 攻撃入力を受け付け可能かチェック
+        // アニメーション的に攻撃が許可されていないなら中断
         if (!animatorController.CanAcceptAttackInput()) return;
 
-        // 最も近い敵を検索
-        var target = FindNearestEnemy();
-
-        if (target != null)
+        // ▼ まずは近距離攻撃を優先チェック
+        var nearest = FindNearestEnemy();
+        if (nearest != null)
         {
-            // 敵との距離を測定
-            Transform targetTransform = ((MonoBehaviour)target).transform;
-            float distance = Vector2.Distance(transform.position, targetTransform.position);
+            Transform t = ((MonoBehaviour)nearest).transform;
+            float dist = Vector2.Distance(transform.position, t.position);
 
-            // 範囲内なら近距離攻撃
-            if (status.meleeRange > 0f && distance <= status.meleeRange)
+            if (dist <= status.meleeRange)
             {
-                Debug.Log("Executing MeleeAttack()");
-                MeleeAttack(target);
+                MeleeAttack(nearest);
                 return;
             }
-            // 遠距離攻撃範囲内なら遠距離攻撃
-            else if (status.attackRadius > 0f && distance <= status.attackRadius)
-            {
-                Debug.Log("Executing RangedAttack()");
-                RangedAttack(target);
-                return;
-            }
-
-            Debug.Log("Target is out of attack range.");
         }
 
-        // 敵がいない場合は空振り攻撃
-        Debug.Log("No valid target. Executing empty MeleeAttack.");
+        // ▼ 近距離圏外 → 向いている方向の敵に遠距離攻撃
+        var rangedTarget = FindNearestEnemyInFacingDirection();
+        if (rangedTarget != null)
+        {
+            RangedAttack(rangedTarget);
+            return;
+        }
+
+        // 何も当たらなければ「空振り近接攻撃」
         MeleeAttack(null);
     }
 
 
+
     /// <summary>
-    /// シーン内の敵から最も近いものを返す
+    /// シーン内の「最も近い敵」を取得（攻撃可能距離内のみ）
     /// </summary>
     private IDamageable FindNearestEnemy()
     {
-        // "Enemy"タグの付いた全オブジェクトを取得
         var enemies = GameObject.FindGameObjectsWithTag("Enemy");
         IDamageable nearest = null;
         float minDist = float.MaxValue;
 
-        // 各敵との距離を計算し、最も近い敵を記録
         foreach (var enemy in enemies)
         {
             float dist = Vector2.Distance(transform.position, enemy.transform.position);
 
-            // 攻撃範囲内で最短距離の敵を選ぶ
+            // 攻撃可能距離以内で最も近い敵を記録
             if (dist < minDist && dist <= status.attackRadius)
             {
                 var damageable = enemy.GetComponent<IDamageable>();
-
                 if (damageable != null)
                 {
                     nearest = damageable;
@@ -138,17 +130,51 @@ public class PlayerAttack : MonoBehaviour, IDamageable
                 }
             }
         }
-
         return nearest;
     }
 
 
     /// <summary>
-    /// 近距離攻撃処理（攻撃アニメーション＋SE＋ダメージ適用）
+    /// プレイヤーが向いている方向に存在する最も近い敵を取得
+    /// </summary>
+    private IDamageable FindNearestEnemyInFacingDirection()
+    {
+        var enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        IDamageable nearest = null;
+        float minDist = float.MaxValue;
+
+        // localScale.x の符号で左右判定（1:右、-1:左）
+        float facing = Mathf.Sign(transform.localScale.x);
+
+        foreach (var enemy in enemies)
+        {
+            Vector2 dir = enemy.transform.position - transform.position;
+
+            // プレイヤーが向いている方向側の敵のみ対象
+            if (Mathf.Sign(dir.x) != facing) continue;
+
+            float dist = dir.magnitude;
+
+            if (dist < minDist && dist <= status.attackRadius)
+            {
+                var d = enemy.GetComponent<IDamageable>();
+                if (d != null)
+                {
+                    nearest = d;
+                    minDist = dist;
+                }
+            }
+        }
+        return nearest;
+    }
+
+
+    /// <summary>
+    /// 近距離攻撃（アニメーション・SE・対象へのダメージ）
     /// </summary>
     private void MeleeAttack(IDamageable target)
     {
-        // 攻撃方向を決定（ターゲット方向 or デフォルト右向き）
+        // 攻撃方向を決定（ターゲットがいればその方向、いなければ右）
         float direction = 1f;
         if (target != null)
         {
@@ -156,14 +182,14 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             direction = Mathf.Sign(targetDir.x);
         }
 
-        // 近距離攻撃アニメーションを再生
+        // 近距離攻撃アニメーション再生
         animatorController?.PlayMeleeAttackAnimation(direction);
 
-        // 攻撃SEを再生
+        // SE再生
         if (meleeAttackSE != null)
             AudioManager.Instance?.PlaySE(meleeAttackSE);
 
-        // 実際にダメージを与える
+        // ダメージ処理
         if (target != null)
         {
             target.TakeDamage(status.attack);
@@ -177,51 +203,50 @@ public class PlayerAttack : MonoBehaviour, IDamageable
 
 
     /// <summary>
-    /// 遠距離攻撃処理（爆弾投げアニメーション＋SE再生）
-    /// 実際の爆弾生成はアニメーションイベント側で行う
+    /// 遠距離攻撃（アニメーション＆SE）  
+    /// 爆弾の生成はアニメーションイベントで行う
     /// </summary>
     private void RangedAttack(IDamageable target)
     {
-        // 攻撃方向を決定
-        float direction = 1f;
-        if (target != null)
-        {
-            Vector2 targetDir = ((MonoBehaviour)target).transform.position - transform.position;
-            direction = Mathf.Sign(targetDir.x);
-        }
+        Transform targetTransform = ((MonoBehaviour)target).transform;
 
-        // プレイヤーの向きを敵方向に合わせる（左右反転）
+        // 攻撃方向（ターゲットの左右）
+        float direction = Mathf.Sign(targetTransform.position.x - transform.position.x);
+
+        // 向きが違う時は反転
         if (direction != Mathf.Sign(transform.localScale.x))
         {
-            Vector3 scale = transform.localScale;
+            var scale = transform.localScale;
             scale.x *= -1;
             transform.localScale = scale;
         }
 
-        // 遠距離攻撃アニメーションを再生
+        // アニメーション再生
         animatorController?.PlayRangedAttackAnimation(direction);
 
-        // 遠距離攻撃SEを再生
-        if (rangedAttackSE != null)
-            AudioManager.Instance?.PlaySE(rangedAttackSE);
+        // SE再生
+        AudioManager.Instance?.PlaySE(rangedAttackSE);
+
+        // 爆弾生成時に使うターゲット座標を保存
+        pendingRangedTarget = targetTransform.position;
     }
 
 
     /// <summary>
-    /// 実際に爆弾を生成して投げる処理（アニメーションイベントから呼び出す）
+    /// 遠距離攻撃用の爆弾を生成して投げる（アニメーションイベントから呼ばれる）
     /// </summary>
     public void ThrowBomb(float direction)
     {
         if (bombPrefab == null) return;
 
-        // 爆弾プレハブを生成
+        // 爆弾生成
         GameObject bombObject = Instantiate(bombPrefab, transform.position, Quaternion.identity);
         Bomb bomb = bombObject.GetComponent<Bomb>();
 
-        // 爆弾スクリプトに発射処理を依頼
+        // 爆弾にターゲット座標と攻撃力を渡す
         if (bomb != null)
         {
-            bomb.Launch(direction, throwForce, status.attack);
+            bomb.LaunchToward(pendingRangedTarget, status.attack);
         }
     }
 
@@ -231,69 +256,71 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// </summary>
     public void TakeDamage(int damage)
     {
-        // 無敵中・死亡済みなら無視
+        // 無敵中 or すでに死亡している → 無視
         if (isInvincible || isDead)
         {
             Debug.Log("Player is invincible. Damage ignored.");
             return;
         }
 
-        // HPを減算
+        // HP減少
         currentHP -= damage;
         Debug.Log($"Player took {damage} damage. HP: {currentHP}");
 
-        // 被ダメージSE再生
+        // 被ダメージSE
         if (damageSE != null)
             AudioManager.Instance?.PlaySE(damageSE);
 
-        // 被ダメージアニメーション再生
+        // ダメージアニメーション
         float direction = Mathf.Sign(transform.localScale.x);
         animatorController?.PlayDamageAnimation(direction);
 
         // HP UI更新
         healthUI?.UpdateHealth(currentHP);
 
-        // HPが0以下 → 死亡処理
+        // HP0以下 → 死亡処理
         if (currentHP <= 0)
         {
             OnDead();
         }
         else
         {
-            // 無敵状態＋点滅演出
+            // 無敵＋点滅開始
             StartCoroutine(InvincibleCoroutine());
         }
     }
 
 
     /// <summary>
-    /// HP回復処理（UI更新付き）
+    /// HP回復処理
     /// </summary>
     public void Heal(int amount)
     {
         currentHP += amount;
         Debug.Log($"Player healed by {amount}. HP: {currentHP}");
+
+        // HP UI更新
         healthUI?.UpdateHealth(currentHP);
     }
 
 
     /// <summary>
-    /// プレイヤー死亡処理（ゲームオーバー等）
+    /// プレイヤー死亡処理（ゲームオーバー通知など）
     /// </summary>
     private void OnDead()
     {
-        if (isDead) return; // 二重呼び出し防止
+        if (isDead) return;
 
         isDead = true;
         Debug.Log("Player died.");
 
-        // ゲームマネージャーに通知
+        // GameManager に通知
         GameManager.Instance.OnPlayerDead();
     }
 
 
     /// <summary>
-    /// 無敵時間中に点滅する処理（演出用コルーチン）
+    /// 被ダメージ後の無敵時間中に点滅させる演出処理
     /// </summary>
     private IEnumerator InvincibleCoroutine()
     {
@@ -301,10 +328,10 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         float elapsed = 0f;
         bool visible = true;
 
-        // 無敵時間が経過するまで繰り返す
+        // 無敵時間が終わるまで繰り返す
         while (elapsed < invincibleTime)
         {
-            // 表示 / 非表示を交互に切り替え
+            // 表示/非表示を切り替える
             visible = !visible;
 
             if (spriteRenderer != null)
@@ -314,7 +341,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             elapsed += BlinkInterval;
         }
 
-        // 点滅終了後に表示を戻す
+        // 無敵終了 → 表示を戻す
         if (spriteRenderer != null)
             spriteRenderer.enabled = true;
 

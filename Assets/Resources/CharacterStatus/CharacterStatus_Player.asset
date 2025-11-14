@@ -18,4 +18,4 @@ MonoBehaviour:
   maxHP: 5
   attack: 1
   meleeRange: 2
-  attackRadius: 6
+  attackRadius: 8
