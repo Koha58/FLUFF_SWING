@@ -87,7 +87,8 @@ public class SelectManager : MonoBehaviour
     // ƒV[ƒ“ˆÚ“®—p
     private void LoadNextScene()
     {
-        SceneManager.LoadScene(nextStageName);
+        //SceneManager.LoadScene(nextStageName);
+        TransitionManager.Instance.PlayTransitionAndLoadScene(nextStageName);
     }
 
     // ======== Stage–¼ ¨ Index•ÏŠ· ========
