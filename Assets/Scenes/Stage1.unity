@@ -41670,7 +41670,7 @@ PrefabInstance:
       objectReference: {fileID: 68877112}
     - target: {fileID: 5564579010337329505, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: requiredCoinAmount
-      value: 20
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5564579010337329505, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: balloonTextRectTransform

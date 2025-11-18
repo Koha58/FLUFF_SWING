@@ -1,70 +1,89 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
-/// ƒvƒŒƒCƒ„[‚ÌüˆÍ‚É SpawnDataSO ‚Ìƒf[ƒ^‚ÉŠî‚Ã‚¢‚Ä
-/// ƒIƒuƒWƒFƒNƒgiEnemy / Coinj‚ğƒXƒ|[ƒ“‚µAƒvƒŒƒCƒ„[‚©‚ç—£‚ê‚½‚çƒv[ƒ‹‚É•Ô‹p‚·‚éŠÇ—ƒNƒ‰ƒXB
-/// ƒIƒuƒWƒFƒNƒgƒv[ƒ‹‚ğ—˜—p‚µ‚ÄŒø—¦“I‚ÉƒXƒ|[ƒ“ŠÇ—‚ğs‚¤B
+/// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å‘¨å›²ã« SpawnDataSO ã®ãƒ‡ãƒ¼ã‚¿ã«åŸºã¥ã„ã¦
+/// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆEnemy / Coinï¼‰ã‚’ã‚¹ãƒãƒ¼ãƒ³ã—ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰é›¢ã‚ŒãŸã‚‰ãƒ—ãƒ¼ãƒ«ã«è¿”å´ã™ã‚‹ç®¡ç†ã‚¯ãƒ©ã‚¹ã€‚
+/// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒ—ãƒ¼ãƒ«ã‚’åˆ©ç”¨ã—ã¦åŠ¹ç‡çš„ã«ã‚¹ãƒãƒ¼ãƒ³ç®¡ç†ã‚’è¡Œã†ã€‚
 /// </summary>
 public class SpawnManagerWithPool : MonoBehaviour
 {
-    /// <summary>ƒvƒŒƒCƒ„[‚Ì TransformB‹——£”»’è‚Ég—p</summary>
+    /// <summary>ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã® Transformã€‚è·é›¢åˆ¤å®šã«ä½¿ç”¨</summary>
     public Transform player;
 
-    /// <summary>ƒvƒŒƒCƒ„[‚©‚ç‚ÌƒXƒ|[ƒ“—LŒø”ÍˆÍ</summary>
-    private float spawnRange = 40f;
+    /// <summary>ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰ã®ã‚¹ãƒãƒ¼ãƒ³æœ‰åŠ¹ç¯„å›²</summary>
+    private float spawnRange = 30f;
 
-    /// <summary>Œ»İ‚ÌƒV[ƒ“—p‚Ì SpawnDataSO</summary>
+    /// <summary>ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ç”¨ã® SpawnDataSO</summary>
     private SpawnDataSO spawnData;
 
-    /// <summary>¶¬Ï‚İƒIƒuƒWƒFƒNƒg‚ğ ID ‚ÅŠÇ—</summary>
+    /// <summary>ç”Ÿæˆæ¸ˆã¿ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ ID ã§ç®¡ç†</summary>
     private readonly Dictionary<int, GameObject> spawnedObjects = new();
 
     /// <summary>
-    /// Start: ƒV[ƒ“–¼‚É‰‚¶‚Ä SpawnDataSO ‚ğƒ[ƒh
+    /// Start: ã‚·ãƒ¼ãƒ³åã«å¿œã˜ã¦ SpawnDataSO ã‚’ãƒ­ãƒ¼ãƒ‰
     /// </summary>
     void Start()
     {
         string sceneName = SceneManager.GetActiveScene().name;
 
-        // Resources/SpawnData ƒtƒHƒ‹ƒ_‚©‚çƒV[ƒ“–¼‚Ì SpawnDataSO ‚ğƒ[ƒh
+        // Resources/SpawnData ãƒ•ã‚©ãƒ«ãƒ€ã‹ã‚‰ã‚·ãƒ¼ãƒ³åã® SpawnDataSO ã‚’ãƒ­ãƒ¼ãƒ‰
         spawnData = Resources.Load<SpawnDataSO>($"SpawnData/{sceneName}");
 
         if (spawnData == null)
         {
-            Debug.LogError($"SpawnDataSO ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ: Resources/SpawnData/{sceneName}");
+            Debug.LogError($"SpawnDataSO ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“: Resources/SpawnData/{sceneName}");
         }
     }
 
-    /// <summary>
-    /// Update: ƒvƒŒƒCƒ„[‚ÌˆÊ’u‚É‰‚¶‚ÄƒIƒuƒWƒFƒNƒg‚ÌƒXƒ|[ƒ“E‰ñû‚ğŠÇ—
-    /// </summary>
     void Update()
     {
-        // ƒvƒŒƒCƒ„[‚âƒf[ƒ^‚ª–³‚¯‚ê‚Îˆ—‚µ‚È‚¢
         if (player == null || spawnData == null) return;
 
         foreach (var entry in spawnData.entries)
         {
-            // ƒvƒŒƒCƒ„[‚Æ‚Ì‹——£‚ğŒvZ
-            float distance = Vector3.Distance(player.position, entry.position);
+            float distanceToSpawnPoint = Vector3.Distance(player.position, entry.position);
+            bool inRangeOfSpawnPoint = distanceToSpawnPoint <= spawnRange;
 
-            if (distance <= spawnRange)
+            bool isVisibleFromCamera = IsVisibleFromCamera(entry.position);
+
+            // ğŸ¯ ç”Ÿæˆåˆ¤å®šï¼ˆã©ã¡ã‚‰ã‚‚ SpawnDataEntry ã® position ã‚’ä½¿ã†ï¼‰
+            if ((inRangeOfSpawnPoint || isVisibleFromCamera) && !spawnedObjects.ContainsKey(entry.id))
             {
-                // ”ÍˆÍ“à‚Å‚Ü‚¾¶¬‚³‚ê‚Ä‚¢‚È‚¯‚ê‚ÎƒXƒ|[ƒ“
-                if (!spawnedObjects.ContainsKey(entry.id))
-                {
-                    var obj = SpawnFromPool(entry);
-                    if (obj != null) spawnedObjects.Add(entry.id, obj);
-                }
+                // ğŸ’¡ 1ã¤ç›®ã® obj ã‚’å®£è¨€
+                var newObj = SpawnFromPool(entry); // <-- å¤‰æ•°åã‚’ 'newObj' ãªã©ã«å¤‰æ›´
+                if (newObj != null) spawnedObjects.Add(entry.id, newObj);
             }
-            else
+
+            // ğŸ¯ å›ååˆ¤å®šï¼ˆCoin ã¨ Enemy ã§åˆ†ã‘ã‚‹ï¼‰
+            // ğŸ’¡ 2ã¤ç›®ã® obj ã‚’å®£è¨€ (åå‰ã‚’å¤‰æ›´)
+            if (spawnedObjects.TryGetValue(entry.id, out GameObject targetObj)) // <-- å¤‰æ•°åã‚’ 'targetObj' ãªã©ã«å¤‰æ›´
             {
-                // ”ÍˆÍŠO‚Ìê‡A¶¬Ï‚İ‚È‚çƒv[ƒ‹‚É•Ô‹p‚µ‚ÄŠÇ—‚©‚çíœ
-                if (spawnedObjects.TryGetValue(entry.id, out GameObject obj))
+                bool shouldDespawn = false;
+
+                if (entry.type.Equals("coin", StringComparison.OrdinalIgnoreCase))
                 {
-                    ReturnToPool(obj, entry);
+                    // Coin (å›ºå®š) â†’ å…ƒã®Spawnä½ç½®ã§åˆ¤å®š
+                    shouldDespawn = !inRangeOfSpawnPoint && !IsVisibleFromCamera(entry.position);
+                }
+                else if (entry.type.Equals("enemy", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Enemy (ç§»å‹•) â†’ ç¾åœ¨ä½ç½®ã§åˆ¤å®šï¼
+                    // ğŸ’¡ targetObj ã‚’ä½¿ç”¨
+                    float currentDistance = Vector3.Distance(player.position, targetObj.transform.position);
+                    bool enemyInRange = currentDistance <= spawnRange;
+                    // ğŸ’¡ targetObj ã‚’ä½¿ç”¨
+                    bool enemyVisible = IsVisibleFromCamera(targetObj.transform.position);
+
+                    shouldDespawn = !enemyInRange && !enemyVisible;
+                }
+
+                if (shouldDespawn)
+                {
+                    // ğŸ’¡ targetObj ã‚’ä½¿ç”¨
+                    ReturnToPool(targetObj, entry);
                     spawnedObjects.Remove(entry.id);
                 }
             }
@@ -72,24 +91,24 @@ public class SpawnManagerWithPool : MonoBehaviour
     }
 
     /// <summary>
-    /// SpawnDataEntry ‚É‰‚¶‚ÄƒIƒuƒWƒFƒNƒg‚ğƒv[ƒ‹‚©‚çæ“¾‚µ‚ÄƒXƒ|[ƒ“
+    /// SpawnDataEntry ã«å¿œã˜ã¦ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒ—ãƒ¼ãƒ«ã‹ã‚‰å–å¾—ã—ã¦ã‚¹ãƒãƒ¼ãƒ³
     /// </summary>
     /// <param name="entry">SpawnDataEntry</param>
-    /// <returns>¶¬‚³‚ê‚½ GameObjectAæ“¾¸”s‚È‚ç null</returns>
+    /// <returns>ç”Ÿæˆã•ã‚ŒãŸ GameObjectã€å–å¾—å¤±æ•—ãªã‚‰ null</returns>
     private GameObject SpawnFromPool(SpawnDataEntry entry)
     {
         string type = entry.type.ToLower();
 
         if (type == "enemy")
         {
-            // Enemy ‚Í EnemyPool ‚©‚çæ“¾
+            // Enemy ã¯ EnemyPool ã‹ã‚‰å–å¾—
             string enemyName = System.IO.Path.GetFileName(entry.prefabName);
             var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
             return enemy ? enemy.gameObject : null;
         }
         else if (type == "coin")
         {
-            // Coin ‚Í CoinPoolManager ‚©‚çæ“¾
+            // Coin ã¯ CoinPoolManager ã‹ã‚‰å–å¾—
             return CoinPoolManager.Instance.GetCoin(entry.position);
         }
         else
@@ -100,30 +119,39 @@ public class SpawnManagerWithPool : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒIƒuƒWƒFƒNƒg‚ğƒv[ƒ‹‚É•Ô‹p
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒ—ãƒ¼ãƒ«ã«è¿”å´
     /// </summary>
-    /// <param name="obj">•Ô‹p‚·‚é GameObject</param>
-    /// <param name="entry">‘Î‰‚·‚é SpawnDataEntry</param>
+    /// <param name="obj">è¿”å´ã™ã‚‹ GameObject</param>
+    /// <param name="entry">å¯¾å¿œã™ã‚‹ SpawnDataEntry</param>
     private void ReturnToPool(GameObject obj, SpawnDataEntry entry)
     {
         if (entry.type == "enemy")
         {
-            // Enemy ‚Í EnemyController ‚ğŒo—R‚µ‚Äƒv[ƒ‹‚É•Ô‹p
+            // Enemy ã¯ EnemyController ã‚’çµŒç”±ã—ã¦ãƒ—ãƒ¼ãƒ«ã«è¿”å´
             var enemyCtrl = obj.GetComponent<EnemyController>();
             if (enemyCtrl != null)
                 EnemyPool.Instance.ReturnToPool(enemyCtrl);
             else
-                Destroy(obj); // æ“¾‚Å‚«‚È‚¯‚ê‚Î”jŠü
+                Destroy(obj); // å–å¾—ã§ããªã‘ã‚Œã°ç ´æ£„
         }
         else if (entry.type == "coin")
         {
-            // Coin ‚Í CoinPoolManager ‚É•Ô‹p
+            // Coin ã¯ CoinPoolManager ã«è¿”å´
             CoinPoolManager.Instance.ReturnCoin(obj);
         }
         else
         {
-            // –¢’m‚Ìƒ^ƒCƒv‚Í”jŠü
+            // æœªçŸ¥ã®ã‚¿ã‚¤ãƒ—ã¯ç ´æ£„
             Destroy(obj);
         }
     }
+
+    bool IsVisibleFromCamera(Vector3 position)
+    {
+        var viewportPos = Camera.main.WorldToViewportPoint(position);
+        return viewportPos.z > 0 &&
+               viewportPos.x > 0 && viewportPos.x < 1 &&
+               viewportPos.y > 0 && viewportPos.y < 1;
+    }
+
 }

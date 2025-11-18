@@ -28,11 +28,11 @@ MonoBehaviour:
   - id: 4
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 43.14, y: -1.53, z: 0}
+    position: {x: 43.14, y: -1.442, z: 0}
   - id: 5
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 59.27, y: -2.03, z: 0}
+    position: {x: 59.27, y: -1.981, z: 0}
   - id: 6
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
@@ -180,24 +180,24 @@ MonoBehaviour:
   - id: 42
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 115.6, y: 14.74, z: 0}
+    position: {x: 115.6, y: 14.832, z: 0}
   - id: 43
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 141.8, y: 7.62, z: 0}
+    position: {x: 141.8, y: 7.74, z: 0}
   - id: 44
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 168.2, y: -1.5, z: 0}
+    position: {x: 168.2, y: -1.45, z: 0}
   - id: 45
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 106.4, y: 7.25, z: 0}
+    position: {x: 106.4, y: 7.187, z: 0}
   - id: 46
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 185.47, y: -0.86, z: 0}
+    position: {x: 185.47, y: -0.995, z: 0}
   - id: 47
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Bird
-    position: {x: 158.4, y: 9, z: 0}
+    position: {x: 158.4, y: 10.57, z: 0}

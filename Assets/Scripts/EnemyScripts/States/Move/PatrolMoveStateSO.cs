@@ -24,7 +24,7 @@ public class PatrolMoveStateSO : EnemyMoveStateSO
         owner.PatrolStartX = owner.transform.position.x;
 
         // 初期の移動方向を左に設定
-        owner.PatrolDirection = -1;
+        owner.Direction = -1;
     }
 
     /// <summary>
@@ -35,19 +35,23 @@ public class PatrolMoveStateSO : EnemyMoveStateSO
     /// <param name="deltaTime">経過時間</param>
     public override void Tick(EnemyController owner, float deltaTime)
     {
-        // アニメーションイベントで移動が禁止されている場合は移動しない
         if (owner.IsMovementDisabledByAnimation) return;
 
-        // 現在の方向に向かって移動
-        owner.transform.Translate(Vector2.right * owner.PatrolDirection * owner.MoveSpeed * deltaTime);
+        owner.transform.Translate(Vector2.right * owner.Direction * owner.MoveSpeed * deltaTime);
+
+        float currentX = owner.transform.position.x;
+        float startX = owner.PatrolStartX;
 
         // パトロール範囲を超えたら方向を反転
-        if (Mathf.Abs(owner.transform.position.x - owner.PatrolStartX) >= patrolRange)
+        if (Mathf.Abs(currentX - startX) >= patrolRange)
         {
-            owner.PatrolDirection *= -1;
+            // 1. 【位置補正】範囲のちょうど端に戻す
+            // 移動方向(Direction)が1なら右端、-1なら左端に補正
+            float clampedX = startX + owner.Direction * patrolRange;
+            owner.transform.position = new Vector3(clampedX, owner.transform.position.y, owner.transform.position.z);
 
-            // スプライトを左右反転
-            Flip(owner);
+            // 2. 【方向反転】EnemyControllerのメソッドでDirectionと見た目を反転
+            owner.ReverseDirection();
         }
     }
 
@@ -59,16 +63,5 @@ public class PatrolMoveStateSO : EnemyMoveStateSO
     public override void Exit(EnemyController owner)
     {
         base.Exit(owner);
-    }
-
-    /// <summary>
-    /// 敵キャラクターのスプライトを左右反転する。
-    /// </summary>
-    /// <param name="owner">ステートを持つ敵キャラクター</param>
-    private void Flip(EnemyController owner)
-    {
-        Vector3 scale = owner.transform.localScale;
-        scale.x *= -1;
-        owner.transform.localScale = scale;
     }
 }
