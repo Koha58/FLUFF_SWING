@@ -14,7 +14,7 @@ public class SpawnManagerWithPool : MonoBehaviour
     public Transform player;
 
     /// <summary>プレイヤーからのスポーン有効範囲</summary>
-    private float spawnRange = 30f;
+    private float spawnRange = 40f;
 
     /// <summary>現在のシーン用の SpawnDataSO</summary>
     private SpawnDataSO spawnData;

@@ -118,7 +118,7 @@ public class GameResultUIController : MonoBehaviour
     public void ClickRetry()
     {
         ResumeGameTime();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        TransitionManager.Instance.PlayTransitionAndLoadScene(SceneManager.GetActiveScene().name);
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public class GameResultUIController : MonoBehaviour
     public void ClickQuitToTitle()
     {
         ResumeGameTime();
-        SceneManager.LoadScene(TitleSceneName);
+        TransitionManager.Instance.PlayTransitionAndLoadScene(TitleSceneName);
     }
 
     /// <summary>
@@ -136,25 +136,10 @@ public class GameResultUIController : MonoBehaviour
     public void ClickNext()
     {
         ResumeGameTime();
-        // 現在のシーンインデックスを取得
         int currentIndex = SceneManager.GetActiveScene().buildIndex;
-
-        // ビルド設定に登録されているシーン数を取得
         int totalScenes = SceneManager.sceneCountInBuildSettings;
-
-        // 次のシーンインデックスを算出
-        int nextIndex = currentIndex + 1;
-
-        if (nextIndex < totalScenes)
-        {
-            // 次のステージをロード
-            SceneManager.LoadScene(nextIndex);
-        }
-        else
-        {
-            // 最後のステージならタイトル（またはセレクト）へ戻る
-            SceneManager.LoadScene(TitleSceneName);
-        }
+        int nextIndex = (currentIndex + 1 < totalScenes) ? currentIndex + 1 : 0; // 最後ならタイトルに戻る
+        TransitionManager.Instance.PlayTransitionAndLoadScene(SceneUtility.GetScenePathByBuildIndex(nextIndex));
     }
 
     /// <summary>

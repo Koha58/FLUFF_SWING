@@ -80,8 +80,10 @@ public class SelectManager : MonoBehaviour
             AudioManager.Instance.PlaySE(onClickSE);
 
         // 効果音の長さ分だけ待ってからシーン移動
-        float delay = onClickSE != null ? onClickSE.length : 0.1f;
-        Invoke(nameof(LoadNextScene), delay);
+        //float delay = onClickSE != null ? onClickSE.length : 0.1f;
+        //Invoke(nameof(LoadNextScene), delay);
+
+        LoadNextScene();
     }
 
     // シーン移動用

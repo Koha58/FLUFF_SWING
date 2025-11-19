@@ -22,39 +22,30 @@ public class TransitionManager : MonoBehaviour
         }
     }
 
+    // 外部から呼ぶ関数
     public void PlayTransitionAndLoadScene(string nextScene)
     {
-        StartCoroutine(PlayCloseAndLoad(nextScene));
+        StartCoroutine(PlayTransitionSequence(nextScene));
     }
 
-    IEnumerator PlayCloseAndLoad(string nextScene)
+    private IEnumerator PlayTransitionSequence(string nextScene)
     {
-        // --- CloseTransition 再生 ---
+        // --- Close演出 ---
         GameObject canvas = Instantiate(transitionCanvasPrefab);
         CloseTransition close = canvas.GetComponentInChildren<CloseTransition>();
-        yield return close.Play();   // アニメーション終了待ち
+        yield return close.Play();
 
         // --- シーン読み込み ---
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.LoadScene(nextScene);
+        yield return SceneManager.LoadSceneAsync(nextScene);
 
-        // 閉じるCanvasは不要なので削除
+        // Close演出のCanvasはここで削除
         Destroy(canvas);
-    }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        // --- Open演出 ---
+        GameObject canvas2 = Instantiate(transitionCanvasPrefab);
+        OpenTransition open = canvas2.GetComponentInChildren<OpenTransition>();
+        yield return open.Play();
 
-        // --- OpenTransition 再生 ---
-        GameObject canvas = Instantiate(transitionCanvasPrefab);
-        OpenTransition open = canvas.GetComponentInChildren<OpenTransition>();
-        StartCoroutine(DestroyAfter(open));
-    }
-
-    IEnumerator DestroyAfter(OpenTransition open)
-    {
-        yield return open.Play(); // アニメーション終了待ち
-        Destroy(open.transform.parent.gameObject); // Canvas削除
+        Destroy(canvas2);
     }
 }
