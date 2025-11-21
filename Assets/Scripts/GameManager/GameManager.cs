@@ -87,6 +87,9 @@ public class GameManager : MonoBehaviour
         isGameEnded = true;
         Debug.Log("Goal reached! Stage Clear!");
 
+        // ロック解除用関数の呼び出し
+        SaveStageClear();
+
         // 🟢 プレイヤー操作を停止
         var playerMove = playerTransform.GetComponent<PlayerMove>();
         if (playerMove != null)
@@ -111,6 +114,57 @@ public class GameManager : MonoBehaviour
 
         // 指定秒数後にリザルトUIを表示
         Invoke(nameof(NotifyClear), resultDelay);
+    }
+
+    /// <summary>
+    /// セレクト画面のロック解除用
+    /// </summary>
+    private void SaveStageClear()
+    {
+        string sceneName = SceneManager.GetActiveScene().name;
+
+        int stageIndex = GetStageIndex(sceneName);
+        if (stageIndex < 0)
+        {
+            Debug.LogWarning("ステージ番号が取得できません: " + sceneName);
+            return;
+        }
+
+        int cleared = PlayerPrefs.GetInt("ClearedStage", 0);
+
+        // 今のクリア結果が保存内容より大きいなら更新
+        int newCleared = stageIndex + 1;   // ← Stage1クリア → ClearedStage = 1
+
+        if (newCleared > cleared)
+        {
+            PlayerPrefs.SetInt("ClearedStage", newCleared);
+            PlayerPrefs.Save();
+            Debug.Log("ClearedStage を更新 → " + newCleared + " まで解放");
+        }
+    }
+
+    /// <summary>
+    /// ステージ番号の抽出用
+    /// </summary>
+    /// <param name="stageName"></param>
+    /// <returns></returns>
+    private int GetStageIndex(string stageName)
+    {
+        if (string.IsNullOrEmpty(stageName)) return -1;
+
+        int i = stageName.Length - 1;
+        string number = "";
+
+        while (i >= 0 && char.IsDigit(stageName[i]))
+        {
+            number = stageName[i] + number;
+            i--;
+        }
+
+        if (number.Length > 0 && int.TryParse(number, out int num))
+            return num - 1;  // 0始まり
+
+        return -1;
     }
 
     /// <summary>

@@ -4708,7 +4708,7 @@ Tilemap:
     second:
       serializedVersion: 2
       m_TileIndex: 58
-      m_TileSpriteIndex: 51
+      m_TileSpriteIndex: 55
       m_TileMatrixIndex: 4
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -5147,16 +5147,16 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 80
     m_Data: {fileID: 3482077699616143931, guid: adaf2488e1cb4244bacded4affdc1b45, type: 3}
-  - m_RefCount: 1
-    m_Data: {fileID: 1651142844649878928, guid: a0d3b890dbebdb44eb7863ed20435361, type: 3}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   - m_RefCount: 2
     m_Data: {fileID: -4172757576469625194, guid: ff2ebfd7fe68cd243a93f5f4b1b40db5, type: 3}
   - m_RefCount: 8
     m_Data: {fileID: 2563915666203952384, guid: d6f7fe5f70e71174d95edb997e4409b3, type: 3}
   - m_RefCount: 3
     m_Data: {fileID: 4531264959640846418, guid: c30499af746755c44a9e8d1718cc7ec8, type: 3}
-  - m_RefCount: 0
-    m_Data: {fileID: 0}
+  - m_RefCount: 1
+    m_Data: {fileID: 1651142844649878928, guid: a0d3b890dbebdb44eb7863ed20435361, type: 3}
   - m_RefCount: 3
     m_Data: {fileID: 966986007291942332, guid: 5b163fd26b690b24b9eddc8aa20b819c, type: 3}
   - m_RefCount: 146
@@ -6188,7 +6188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.968471, b: 0.8160377, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6789,7 +6789,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 19a3e9fa9c9d85b4993646dbfafbdee7, type: 3}
+  m_Sprite: {fileID: -9078197966842984382, guid: 599a1446ec613d64281b21d24ce92b53, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8384,7 +8384,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.968471, b: 0.8160377, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8814,7 +8814,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: STAGE1
+  m_text: STAGE3
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 52cb9448b36e1154296732157c93a6db, type: 2}
   m_sharedMaterial: {fileID: 7868808197633715189, guid: 52cb9448b36e1154296732157c93a6db, type: 2}

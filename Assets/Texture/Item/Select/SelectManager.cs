@@ -157,6 +157,78 @@ public class SelectManager : MonoBehaviour
     }
 
     #endregion
+
+    #region デバッグ用アンロック
+
+    private void Update()
+    {
+        CheckDebugUnlockInput();
+    }
+
+    /// <summary>
+    /// デバッグ用（全解除 / リセット）
+    /// Ctrl + Shift + U → 全解除
+    /// Ctrl + Shift + R → リセット
+    /// </summary>
+    private void CheckDebugUnlockInput()
+    {
+        // 全ステージ解放
+        if (Input.GetKey(KeyCode.LeftControl) &&
+            Input.GetKey(KeyCode.LeftShift) &&
+            Input.GetKeyDown(KeyCode.U))
+        {
+            DebugUnlockAllStages();
+        }
+
+        // ロック初期化（ステージ1だけ解放）
+        if (Input.GetKey(KeyCode.LeftControl) &&
+            Input.GetKey(KeyCode.LeftShift) &&
+            Input.GetKeyDown(KeyCode.R))
+        {
+            DebugResetStages();
+        }
+    }
+
+    private void DebugUnlockAllStages()
+    {
+        int totalStages = stageLocks.Length;
+
+        PlayerPrefs.SetInt("ClearedStage", totalStages);
+        PlayerPrefs.Save();
+
+        Debug.Log($"【DEBUG】全 {totalStages} ステージを解放しました");
+
+        UpdateStageLocks();
+    }
+
+    private void DebugResetStages()
+    {
+        // 初期状態：ClearedStage = 0 → ステージ1だけ解放
+        PlayerPrefs.SetInt("ClearedStage", 0);
+        PlayerPrefs.Save();
+
+        Debug.Log("【DEBUG】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
+
+        UpdateStageLocks();
+    }
+
+    /// <summary>
+    /// データリセット（ステージ1のみ解放の初期状態）
+    /// UIボタンから呼び出す用
+    /// </summary>
+    public void ResetStageData()
+    {
+        PlayerPrefs.SetInt("ClearedStage", 0);
+        PlayerPrefs.Save();
+
+        Debug.Log("【デバッグ】ステージデータをリセットしました（ステージ1のみ解放）");
+
+        // ロック状態を即時更新
+        UpdateStageLocks();
+    }
+
+    #endregion
+
 }
 
 //// ステージセレクト>SceneManagerで使用
