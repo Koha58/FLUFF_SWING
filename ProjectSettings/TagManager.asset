@@ -8,6 +8,7 @@ TagManager:
   - Flip
   - Wire
   - Ground
+  - WireConnectable
   layers:
   - Default
   - TransparentFX

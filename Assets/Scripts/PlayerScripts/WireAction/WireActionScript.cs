@@ -18,6 +18,9 @@ public class WireActionScript : MonoBehaviour
     private const float NeedleStopDistance = 0.01f;      // 針が目標座標に到達したとみなす距離閾値
     private const float SwingAnimationStopDelay = 0.2f;  // ワイヤー切断後、スイングアニメーションを停止するまでの遅延
 
+    private bool isConnectedToMovingObject = false;
+    private GameObject connectedObject = null;
+
     // タイル判定関連
     private const int MaxTileProbeSteps = 50;            // プレイヤー方向へタイル探索する最大ステップ数
     private const float TileProbeStepSize = 0.1f;        // タイル探索時の1ステップ距離
@@ -125,7 +128,10 @@ public class WireActionScript : MonoBehaviour
 
         // ワイヤー接続中はベジェ曲線で描画
         if (IsConnected)
+        {
+            UpdateNeedleFollowTarget();
             UpdateBezierWireLine();
+        }
     }
 
     private void OnDisable()
@@ -142,32 +148,69 @@ public class WireActionScript : MonoBehaviour
     /// <summary>左クリック時のワイヤー接続処理</summary>
     private void HandleLeftClick()
     {
-        if (IsConnected) return; // 接続中は何もしない
+        if (IsConnected) return;
 
-        // マウス位置をワールド座標に変換
         Vector3 mouseWorldPos = GetMouseWorldPosition();
+        // 最初の点判定でコライダーの有無を確認する
+        RaycastHit2D initialHit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+        if (initialHit.collider == null) return;
 
-        // マウス座標にTilemapがあるか判定
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
-        if (hit.collider == null) return;
+        GameObject hitObj = initialHit.collider.gameObject;
+        Vector2 connectPoint = initialHit.point;
 
-        // Tilemap取得（親も含める）
-        Tilemap tilemap = hit.collider.GetComponent<Tilemap>() ?? hit.collider.GetComponentInParent<Tilemap>();
-        if (tilemap == null) return;
+        Rigidbody2D hitRb = hitObj.GetComponent<Rigidbody2D>();
+        Tilemap tilemap = hitObj.GetComponent<Tilemap>() ?? hitObj.GetComponentInParent<Tilemap>();
 
-        // クリック地点のセルを取得
-        Vector3Int cellPos = tilemap.WorldToCell(hit.point);
-        TileBase tile = tilemap.GetTile(cellPos);
+        Vector2 finalConnectPoint = connectPoint;
+        const float offset = 0.01f; // 針の埋まりを防ぐためのオフセット量
 
-        // 地面タイプならワイヤー接続を試みる
-        if ((tile is CustomTile customTile && customTile.tileType == CustomTile.TileType.Ground) ||
-            (tile is ITileWithType tileWithType && tileWithType.tileType == CustomTile.TileType.Ground))
+        // 🔹① Tilemapの場合
+        if (tilemap != null)
         {
-            // プレイヤー方向に沿って接地面を補正
-            Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+            Vector3Int cellPos = tilemap.WorldToCell(connectPoint);
+            TileBase tile = tilemap.GetTile(cellPos);
 
-            // ワイヤー接続開始
-            TryConnectWire(adjustedTarget, hit.collider.gameObject);
+            if (tile is CustomTile c && c.tileType == CustomTile.TileType.Ground ||
+                tile is ITileWithType t && t.tileType == CustomTile.TileType.Ground)
+            {
+                // Tilemapは専用の探索ロジックで補正
+                finalConnectPoint = FindSurfaceAlongPlayerDirectionTilemap(connectPoint);
+            }
+        }
+        // 🔹② Tilemap以外のコライダー (静的 or 動的)
+        else
+        {
+            // 💡 修正点: 正確な法線を取得するために、コライダーに沿ったRaycastを実行する
+            // プレイヤーからヒット点へ向かう方向のRaycast
+            Vector2 directionToHit = (connectPoint - (Vector2)transform.position).normalized;
+
+            // ヒット点の少し手前（0.05f）から、ヒット点に向けてRaycast（距離0.1f）を飛ばすことで、
+            // 安定したヒットポイントと法線を取得する。
+            RaycastHit2D surfaceHit = Physics2D.Raycast(connectPoint - directionToHit * 0.05f,
+                                                        directionToHit,
+                                                        0.1f);
+
+            if (surfaceHit.collider != null && surfaceHit.collider.gameObject == hitObj)
+            {
+                // Raycastで得られた正確な表面位置と法線でオフセットを適用
+                finalConnectPoint = surfaceHit.point + surfaceHit.normal * offset;
+            }
+            else
+            {
+                // 安定したRaycastが失敗した場合（非常に薄いコライダーなど）、
+                // 最初の点判定の法線を使用してオフセットを試みる（最後の手段）
+                finalConnectPoint = connectPoint + initialHit.normal * offset;
+            }
+        }
+
+        // 接続判定
+        if (hitObj.CompareTag("WireConnectable") ||
+            hitObj.layer == LayerMask.NameToLayer("Ground") ||
+            hitRb != null)
+        {
+            // 動く床の場合、ここで finalConnectPoint (オフセット済みワールド座標) を渡す
+            // ThrowNeedle内でこのワールド座標をローカルアンカーに変換する
+            TryConnectWire(finalConnectPoint, hitObj);
         }
     }
 
@@ -249,42 +292,63 @@ public class WireActionScript : MonoBehaviour
     /// <summary>針を目標座標まで飛ばしてワイヤー接続する</summary>
     private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
     {
-        SetNeedleVisible(true);                    // 針を表示
-        needle.transform.position = transform.position; // 初期位置をプレイヤー位置に設定
+        SetNeedleVisible(true);
+        needle.transform.position = transform.position;
 
-        // 針を目標位置まで移動
         while (Vector2.Distance(needle.transform.position, targetPosition) > NeedleStopDistance)
         {
-            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized; // 移動方向
-            needle.transform.up = -direction; // 針の向きを進行方向に設定
-            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed * Time.deltaTime); // 移動
-            yield return null; // 次フレームまで待機
+            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
+            needle.transform.up = -direction;
+            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed * Time.deltaTime);
+            yield return null;
         }
 
-        // 到達後座標を調整
+        // ◆ 接続初期位置を記録
         needle.transform.position = targetPosition;
         targetObject = hitObject;
         _hookedPosition = targetPosition;
 
-        // 接続音再生
         AudioManager.Instance?.PlaySE(wireSE);
-
-        // ワイヤー描画ON
         if (lineRenderer != null)
             lineRenderer.enabled = true;
 
-        // DistanceJoint2D設定
+        // =============================
+        // ◆ DistanceJoint2D 接続処理
+        // =============================
         if (distanceJoint != null)
         {
             distanceJoint.enabled = false;
-            distanceJoint.connectedBody = null;
-            distanceJoint.connectedAnchor = _hookedPosition;
+
+            Rigidbody2D hitRb = hitObject.GetComponent<Rigidbody2D>();
+
+            if (hitRb != null) // 🔹動く床に接続
+            {
+                distanceJoint.connectedBody = hitRb;
+
+                // 💡 修正点: ワールド座標のヒット位置を、Rigidbodyのローカル座標に変換
+                distanceJoint.connectedAnchor = hitRb.transform.InverseTransformPoint(targetPosition);
+
+                // 🔹後で針位置を更新できるよう保存
+                isConnectedToMovingObject = true;
+                connectedObject = hitObject;
+            }
+            else // 🔹Tilemapなどの静的オブジェクト
+            {
+                distanceJoint.connectedBody = null;
+                distanceJoint.connectedAnchor = _hookedPosition;
+
+                isConnectedToMovingObject = false;
+                connectedObject = null;
+            }
+
             distanceJoint.maxDistanceOnly = true;
             distanceJoint.distance = fixedWireLength;
             distanceJoint.enabled = true;
         }
 
-        // プレイヤーにスイング初速を付与
+        // =============================
+        // ◆ スイング初速
+        // =============================
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         if (rb != null)
         {
@@ -292,19 +356,19 @@ public class WireActionScript : MonoBehaviour
             rb.linearDamping = rigidbodyLinearDamping;
             rb.angularDamping = rigidbodyAngularDamping;
 
-            // スイング方向計算（接続点との接線方向）
             Vector2 dir = (_hookedPosition - (Vector2)transform.position).normalized;
             Vector2 tangent = new Vector2(-dir.y, dir.x);
             tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent;
             rb.linearVelocity = tangent * swingInitialSpeed;
         }
 
-        // アニメーション再生
+        // =============================
+        // ◆ アニメーション
+        // =============================
         Vector2 dirForAnimation = (_hookedPosition - (Vector2)transform.position).normalized;
         lastSwingDirectionX = dirForAnimation.x;
         animatorController.PlayGrappleSwingAnimation(dirForAnimation.x);
 
-        // コルーチン終了
         currentNeedleCoroutine = null;
     }
 
@@ -345,13 +409,48 @@ public class WireActionScript : MonoBehaviour
         // マウスワールド座標取得
         Vector3 mouseWorldPos = GetMouseWorldPosition();
 
-        // 点判定で接続可能な地形を探す
-        RaycastHit2D hit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, PreviewLineRaycastDistance, LayerMask.GetMask("Ground"));
+        // 点判定で接続可能な地形を探す (Groundレイヤーのみ)
+        RaycastHit2D initialHit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, PreviewLineRaycastDistance, LayerMask.GetMask("Ground"));
 
-        if (hit.collider != null)
+        if (initialHit.collider != null)
         {
-            // プレイヤー方向に沿って接地面補正
-            Vector2 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(hit.point);
+            GameObject hitObj = initialHit.collider.gameObject;
+            Vector2 connectPoint = initialHit.point;
+            Vector2 adjustedTarget = connectPoint;
+            const float offset = 0.01f; // 針の埋まりを防ぐためのオフセット量
+
+            Tilemap tilemap = hitObj.GetComponent<Tilemap>() ?? hitObj.GetComponentInParent<Tilemap>();
+
+            // 🔹① Tilemapの場合
+            if (tilemap != null)
+            {
+                // Tilemapの特殊な補正ロジック
+                adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(connectPoint);
+            }
+            // 🔹② Tilemap以外のコライダー (静的 or 動的)
+            else
+            {
+                // 💡 安定した法線を取得するためのRaycastを改めて実行
+                // プレイヤーからヒット点へ向かう方向のRaycast
+                Vector2 directionToHit = (connectPoint - (Vector2)transform.position).normalized;
+
+                // ヒット点の少し手前（0.05f）から、ヒット点に向けてRaycast（距離0.1f）を飛ばす
+                RaycastHit2D surfaceHit = Physics2D.Raycast(connectPoint - directionToHit * 0.05f,
+                                                            directionToHit,
+                                                            0.1f,
+                                                            LayerMask.GetMask("Ground"));
+
+                if (surfaceHit.collider != null && surfaceHit.collider.gameObject == hitObj)
+                {
+                    // Raycastで得られた正確な表面位置と法線でオフセットを適用
+                    adjustedTarget = surfaceHit.point + surfaceHit.normal * offset;
+                }
+                else
+                {
+                    // Raycast失敗時
+                    adjustedTarget = connectPoint + initialHit.normal * offset;
+                }
+            }
 
             // 予測線描画
             if (previewLineRenderer != null)
@@ -442,6 +541,26 @@ public class WireActionScript : MonoBehaviour
         }
 
         return foundSurface ? lastInsidePosition : clickPosition;
+    }
+
+    private void UpdateNeedleFollowTarget()
+    {
+        if (!IsConnected || !isConnectedToMovingObject || connectedObject == null) return;
+
+        // Rigidbodyを取得
+        Rigidbody2D connectedRb = connectedObject.GetComponent<Rigidbody2D>();
+        if (connectedRb == null) return;
+
+        // 💡 修正点: RigidbodyのTransformを使ってローカルアンカーをワールド座標に変換
+        Vector2 localAnchor = distanceJoint.connectedAnchor;
+        Vector2 newHookedPosition = connectedRb.transform.TransformPoint(localAnchor);
+
+        // 針位置の更新
+        needle.transform.position = newHookedPosition;
+        _hookedPosition = newHookedPosition;  // LineRendererなどで使用する位置も更新
+
+        // distanceJoint.connectedAnchor はローカル座標であり、一度設定したら動く床に固定されているため、
+        // ここで更新する必要はない。
     }
 
     /// <summary>ワイヤー状態を初期化</summary>
