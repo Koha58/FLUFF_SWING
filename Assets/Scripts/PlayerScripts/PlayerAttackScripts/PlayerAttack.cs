@@ -67,6 +67,12 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         {
             TakeDamage(groundTile.damageAmount);
         }
+
+        if (groundTile != null && groundTile.tileType == CustomTile.TileType.Fallout)
+        {
+            TakeDamage(groundTile.damageAmount * currentHP);
+        }
+
     }
 
 

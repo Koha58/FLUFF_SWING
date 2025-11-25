@@ -17,7 +17,8 @@ public class CustomTile : Tile
     public enum TileType
     {
         Ground,  // 地面タイル
-        Hazard   // 危険タイル
+        Hazard,  // 危険タイル
+        Fallout  // 落下判定タイル
     }
 
     /// <summary>
