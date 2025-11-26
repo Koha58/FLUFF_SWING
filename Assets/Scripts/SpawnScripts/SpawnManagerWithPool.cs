@@ -149,9 +149,14 @@ public class SpawnManagerWithPool : MonoBehaviour
     bool IsVisibleFromCamera(Vector3 position)
     {
         var viewportPos = Camera.main.WorldToViewportPoint(position);
-        return viewportPos.z > 0 &&
-               viewportPos.x > 0 && viewportPos.x < 1 &&
-               viewportPos.y > 0 && viewportPos.y < 1;
+        const float margin = 0.1f; // 画面外側にマージンを設定
+
+        // Zが正であること（カメラの手前にあること）は必須
+        if (viewportPos.z <= 0) return false;
+
+        // XとYをマージン付きでチェック
+        return viewportPos.x > -margin && viewportPos.x < (1f + margin) &&
+               viewportPos.y > -margin && viewportPos.y < (1f + margin);
     }
 
 }
