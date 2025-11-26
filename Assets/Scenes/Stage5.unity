@@ -37913,7 +37913,7 @@ GameObject:
   - component: {fileID: 443848665}
   - component: {fileID: 443848664}
   - component: {fileID: 443848663}
-  - component: {fileID: 443848662}
+  - component: {fileID: 443848667}
   m_Layer: 3
   m_Name: MoveFloor (1)
   m_TagString: WireConnectable
@@ -37921,21 +37921,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &443848662
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 443848661}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a1e34c1bc5b9ec4d9fec19299efd79a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveDirection: {x: 0, y: 1}
-  moveDistance: 15
-  moveSpeed: 1
 --- !u!50 &443848663
 Rigidbody2D:
   serializedVersion: 5
@@ -38079,6 +38064,24 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &443848667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443848661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1e34c1bc5b9ec4d9fec19299efd79a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 2
+  moveSteps:
+  - direction: {x: 0, y: 1}
+    distance: 15
+  - direction: {x: 0, y: -1}
+    distance: 15
 --- !u!1 &468230716
 GameObject:
   m_ObjectHideFlags: 0
@@ -38390,9 +38393,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a1e34c1bc5b9ec4d9fec19299efd79a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveDirection: {x: 0, y: 1}
-  moveDistance: 15
-  moveSpeed: 1
+  moveSpeed: 2
+  moveSteps:
+  - direction: {x: 0, y: 1}
+    distance: 15
+  - direction: {x: 0, y: -1}
+    distance: 15
 --- !u!1 &507907927
 GameObject:
   m_ObjectHideFlags: 0
