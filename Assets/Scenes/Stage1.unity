@@ -42234,6 +42234,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Needle
       objectReference: {fileID: 0}
+    - target: {fileID: 5225617976285133118, guid: 52a931406f2ff71448095b59c0f8a832, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6130897737819000695, guid: 52a931406f2ff71448095b59c0f8a832, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.79
@@ -42273,6 +42277,10 @@ PrefabInstance:
     - target: {fileID: 6130897737819000695, guid: 52a931406f2ff71448095b59c0f8a832, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8652355847432107663, guid: 52a931406f2ff71448095b59c0f8a832, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

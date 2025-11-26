@@ -57,4 +57,29 @@ public class MovingPlatform : MonoBehaviour
             movingToTarget = !movingToTarget;
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // プレイヤーのタグやレイヤーで判定
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // プレイヤーをこの動く床の子オブジェクトにする
+            // これで、床の移動に合わせてプレイヤーのtransformも移動するようになる
+            collision.transform.SetParent(this.transform);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        // プレイヤーのタグやレイヤーで判定
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            // プレイヤーの親子関係を解除する
+            // null を設定すると、シーンルート（親なし）に戻る
+            collision.transform.SetParent(null);
+
+            // （補足）Unityのバグ対策として、Scaleの継承をリセットする処理を入れることがある
+            // collision.transform.localScale = Vector3.one; 
+        }
+    }
 }

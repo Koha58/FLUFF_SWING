@@ -196,6 +196,15 @@ public class PlayerMove : MonoBehaviour
 
         if (hit.collider != null)
         {
+            // --- 接地判定成功 ---
+            // 接触したコライダーのタグで判定を追加
+            if (hit.collider.CompareTag("WireConnectable")) // 🎯 タグが "WireConnectable" の場合
+            {
+                // Tilemap 以外の地面
+                currentGroundTile = null; // CustomTileではないためnullにリセット
+                return true;
+            }
+
             // Tilemapを取得し、当たったポイントのタイル情報を取得する
             Tilemap tilemap = hit.collider.GetComponent<Tilemap>();
 

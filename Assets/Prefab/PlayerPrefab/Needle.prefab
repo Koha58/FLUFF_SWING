@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6130897737819000695}
   - component: {fileID: 1758941847618685296}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Needle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4966884483774828795}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: NeedlePivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
