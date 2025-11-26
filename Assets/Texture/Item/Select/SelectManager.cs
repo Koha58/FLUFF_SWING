@@ -11,6 +11,8 @@ public class SelectManager : MonoBehaviour
 
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
+    [Header("データリセットパネル")]
+    [SerializeField] private GameObject resetPanel;
 
     [Header("クリック音設定")]
     [Tooltip("ステージ選択・設定ボタンを押したときに鳴らす効果音")]
@@ -37,6 +39,8 @@ public class SelectManager : MonoBehaviour
         // --- パネルの初期設定 ---
         if (setPanel != null)
             setPanel.SetActive(false);
+        if (resetPanel != null)
+            resetPanel.SetActive(false);
 
         // --- ステージロックの状態を更新 ---
         UpdateStageLocks();
@@ -131,7 +135,7 @@ public class SelectManager : MonoBehaviour
     #region パネルの表示・非表示切り替え
 
     // ======== パネル表示 =========
-    public void OnPanel()
+    public void OnSetPanel()
     {
         if (setPanel == null) return;
 
@@ -140,11 +144,23 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
 
-        Debug.Log("設定パネル表示");
+        Debug.Log("音量設定パネル表示");
+    }
+
+    public void OnResetPanel()
+    {
+        if (resetPanel == null) return;
+
+        resetPanel.SetActive(true);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(onClickSE);
+
+        Debug.Log("データリセットパネル表示");
     }
 
     // ======== パネル非表示 =========
-    public void OffPanel()
+    public void OffSetPanel()
     {
         if (setPanel == null) return;
 
@@ -153,7 +169,19 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
-        Debug.Log("設定パネル非表示");
+        Debug.Log("音量設定パネル非表示");
+    }
+
+    public void OffResetPanel()
+    {
+        if (resetPanel == null) return;
+
+        resetPanel.SetActive(false);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(offClickSE);
+
+        Debug.Log("データリセットパネル非表示");
     }
 
     #endregion
@@ -178,6 +206,9 @@ public class SelectManager : MonoBehaviour
             Input.GetKeyDown(KeyCode.U))
         {
             DebugUnlockAllStages();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySE(onClickSE);
         }
 
         // ロック初期化（ステージ1だけ解放）
@@ -186,6 +217,9 @@ public class SelectManager : MonoBehaviour
             Input.GetKeyDown(KeyCode.R))
         {
             DebugResetStages();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlaySE(offClickSE);
         }
     }
 
