@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3077343990044341564}
   - component: {fileID: 7113632111275307805}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: LeftPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -470460641712846276, guid: fcc0106189779254895a7e86ee007695, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

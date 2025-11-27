@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7115963329895186155}
   - component: {fileID: 380043164674963672}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: DownPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 4202837815732599935, guid: aea92dd46ab9fab41a04a929e2cc52de, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

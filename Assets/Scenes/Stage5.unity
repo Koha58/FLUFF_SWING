@@ -325,7 +325,7 @@ GameObject:
   m_Component:
   - component: {fileID: 26566988}
   - component: {fileID: 26566987}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Panel_up (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +375,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -3803712207045379106, guid: 7f492727341331443a5755d318ee3f0a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -39165,7 +39165,7 @@ GameObject:
   m_Component:
   - component: {fileID: 646248316}
   - component: {fileID: 646248315}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Panel_right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39215,7 +39215,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7496334399542545833, guid: f7ccb1982dbe9e34abb455689d054c99, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -39524,7 +39524,7 @@ GameObject:
   m_Component:
   - component: {fileID: 703766016}
   - component: {fileID: 703766015}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Panel_up (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39574,7 +39574,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -3803712207045379106, guid: 7f492727341331443a5755d318ee3f0a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -40580,7 +40580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 921362417}
   - component: {fileID: 921362416}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Panel_up
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40630,7 +40630,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -3803712207045379106, guid: 7f492727341331443a5755d318ee3f0a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -43361,7 +43361,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1440880049}
   - component: {fileID: 1440880048}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: ButtonExchangePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43411,7 +43411,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -7827680569776678771, guid: 62f85b97e43889f45aef8a7af8fc4d9e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -46001,5 +46001,5 @@ SceneRoots:
   - {fileID: 1440880049}
   - {fileID: 1145365721}
   - {fileID: 1717996900}
-  - {fileID: 902041427}
   - {fileID: 2019116048}
+  - {fileID: 902041427}
