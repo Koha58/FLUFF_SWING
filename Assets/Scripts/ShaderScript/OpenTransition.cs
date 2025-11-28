@@ -35,7 +35,7 @@ public class OpenTransition : MonoBehaviour
 
     public IEnumerator Play()   // © Start() ‚ğg‚í‚¸‚±‚¿‚ç‚ğŒÄ‚Ô
     {
-        yield return Animate(_transitionIn, 1);
+        yield return Animate(_transitionIn, 1.5f);
     }
 
 }
