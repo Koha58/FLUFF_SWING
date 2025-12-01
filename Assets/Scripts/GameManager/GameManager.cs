@@ -11,7 +11,6 @@ public class GameManager : MonoBehaviour
     #region Inspector Settings
 
     /// <summary>ゲーム終了後にUIを表示するまでの待機時間（秒）</summary>
-    [SerializeField]
     private float resultDelay = 2.0f;
 
     /// <summary>UI表示後にゲームを一時停止するまでの遅延時間（秒）</summary>
@@ -29,6 +28,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioClip gameOverSE;   // ゲームオーバー時のSE
     [SerializeField] private AudioClip pauseOpenSE;  // ポーズメニューを開いた時のSE
     [SerializeField] private AudioClip pauseCloseSE; // ポーズメニューを閉じた時のSE
+
+    // 死亡時に無効化するプレイヤーコンポーネント (Inspectorで設定推奨)
+    [Header("▼ プレイヤーコンポーネント参照")]
+    [SerializeField] private PlayerMove playerMove;
+    [SerializeField] private PlayerAttack playerAttack;
+    [SerializeField] private WireActionScript wireActionScript; // ワイヤー操作を無効化するため
 
     #endregion
 
@@ -67,6 +72,15 @@ public class GameManager : MonoBehaviour
 
         // シングルトンインスタンスの設定
         Instance = this;
+
+        // プレイヤーコンポーネントの自動取得
+        var playerObject = GameObject.FindGameObjectWithTag("Player");
+        if (playerObject != null)
+        {
+            if (playerMove == null) playerMove = playerObject.GetComponent<PlayerMove>();
+            if (playerAttack == null) playerAttack = playerObject.GetComponent<PlayerAttack>();
+            if (wireActionScript == null) wireActionScript = playerObject.GetComponent<WireActionScript>();
+        }
     }
 
     #endregion
@@ -90,18 +104,23 @@ public class GameManager : MonoBehaviour
         // ロック解除用関数の呼び出し
         SaveStageClear();
 
-        // 🟢 プレイヤー操作を停止
-        var playerMove = playerTransform.GetComponent<PlayerMove>();
-        if (playerMove != null)
+        // プレイヤー操作を停止
+        var pm = playerTransform.GetComponent<PlayerMove>();
+        if (pm != null)
         {
-            playerMove.enabled = false;
+            pm.enabled = false;
         }
 
-        // 攻撃なども止めたい場合
-        var playerAttack = playerTransform.GetComponent<PlayerAttack>();
-        if (playerAttack != null)
+        var pa = playerTransform.GetComponent<PlayerAttack>();
+        if (pa != null)
         {
-            playerAttack.enabled = false;
+            pa.enabled = false;
+        }
+
+        var wa = playerTransform.GetComponent<WireActionScript>(); // ワイヤー操作も無効化
+        if (wa != null)
+        {
+            wa.enabled = false;
         }
 
         // プレイヤーの向きに応じたゴールアニメーションを再生
@@ -133,7 +152,7 @@ public class GameManager : MonoBehaviour
         int cleared = PlayerPrefs.GetInt("ClearedStage", 0);
 
         // 今のクリア結果が保存内容より大きいなら更新
-        int newCleared = stageIndex + 1;   // ← Stage1クリア → ClearedStage = 1
+        int newCleared = stageIndex + 1;    // ← Stage1クリア → ClearedStage = 1
 
         if (newCleared > cleared)
         {
@@ -175,8 +194,26 @@ public class GameManager : MonoBehaviour
         // すでに終了していれば無視
         if (isGameEnded) return;
 
-        // ゲーム終了フラグを立てて、ゲームオーバー処理を遅延呼び出し
+        // ゲーム終了フラグを立てる
         isGameEnded = true;
+
+        // MODIFIED: 死亡時にプレイヤー操作コンポーネントを無効化
+        if (playerMove != null)
+        {
+            playerMove.enabled = false;
+        }
+        if (playerAttack != null)
+        {
+            playerAttack.enabled = false;
+        }
+        if (wireActionScript != null)
+        {
+            wireActionScript.enabled = false;
+        }
+
+        Debug.Log("Player died. Controls disabled.");
+
+        // ゲームオーバー処理を遅延呼び出し
         Invoke(nameof(NotifyGameOver), resultDelay);
     }
 

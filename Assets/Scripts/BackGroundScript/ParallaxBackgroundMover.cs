@@ -1,41 +1,34 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// ”wŒiƒŒƒCƒ„[‚ÌeƒIƒuƒWƒFƒNƒg‚ğƒJƒƒ‰‚ÌY²ˆÚ“®‚É’Ç]‚³‚¹Aã‰º‚Ì‹·Œø‰Ê‚ğÀŒ»‚µ‚Ü‚·B
-/// y‹@”\z”wŒiƒIƒuƒWƒFƒNƒg‚ÌYÀ•W‚ğƒ[ƒ‹ƒhÀ•W‚ÅƒNƒ‰ƒ“ƒvi§ŒÀj‚µ‚Ü‚·B
+/// èƒŒæ™¯ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚«ãƒ¡ãƒ©ã®Yè»¸ç§»å‹•ã«è¿½å¾“ã•ã›ã€ä¸Šä¸‹ã®è¦–å·®åŠ¹æœã‚’å®Ÿç¾ã™ã‚‹ã‚¹ã‚¯ãƒªãƒ—ãƒˆã€‚
 /// </summary>
 public class ParallaxBackgroundMover : MonoBehaviour
 {
-    // BackgroundFollowScript‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚éƒIƒuƒWƒFƒNƒg (Main Camera‚È‚Ç)
-    [Tooltip("’ÇÕ‘ÎÛ‚ÌƒJƒƒ‰‚ÌTransform")]
+    // BackgroundFollowScriptãŒã‚¢ã‚¿ãƒƒãƒã•ã‚Œã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ (Main Cameraãªã©)
+    [Tooltip("è¿½è·¡å¯¾è±¡ã®ã‚«ãƒ¡ãƒ©ã®Transform")]
     [SerializeField] private Transform cameraTransform;
 
-    [Header("Y²‚Ì’Ç]—¦")]
-    [Tooltip("0.0‚È‚ç”wŒi‚ÍY²•ûŒü‚É‚Í‘S‚­“®‚«‚Ü‚¹‚ñB1.0‚È‚çƒJƒƒ‰‚ÆŠ®‘S‚Éˆê’v‚µ‚Ü‚·B")]
-    [SerializeField] private float followRatioY = 1.0f;
+    [Header("Yè»¸ã®è¿½å¾“ç‡")]
+    [Tooltip("0.0ãªã‚‰èƒŒæ™¯ã¯Yè»¸æ–¹å‘ã«ã¯å…¨ãå‹•ãã¾ã›ã‚“ã€‚1.0ãªã‚‰ã‚«ãƒ¡ãƒ©ã¨å®Œå…¨ã«ä¸€è‡´ã—ã¾ã™ã€‚")]
+    [SerializeField] private float followRatioY = 1.0f; // å‚ç›´è¦–å·®ã®åº¦åˆã„ã‚’åˆ¶å¾¡
 
-    [Header("ƒ[ƒ‹ƒhÀ•WƒNƒ‰ƒ“ƒvİ’è")]
-    [Tooltip("”wŒiƒIƒuƒWƒFƒNƒg‚ÌYÀ•W‚Ì‰ºŒÀB‚±‚Ì’l‚æ‚è‰º‚É‚ÍˆÚ“®‚µ‚Ü‚¹‚ñB")]
-    [SerializeField] private float minWorldY;
-    [Tooltip("”wŒiƒIƒuƒWƒFƒNƒg‚ÌYÀ•W‚ÌãŒÀB‚±‚Ì’l‚æ‚èã‚É‚ÍˆÚ“®‚µ‚Ü‚¹‚ñB")]
-    [SerializeField] private float maxWorldY;
-
-    // ”wŒiƒIƒuƒWƒFƒNƒg‚Ì‰ŠúYÀ•W
+    // èƒŒæ™¯ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åˆæœŸYåº§æ¨™ (ã‚¹ã‚¯ãƒªãƒ—ãƒˆå®Ÿè¡Œé–‹å§‹æ™‚ã®èƒŒæ™¯ã®Yåº§æ¨™)
     private float initialY;
 
-    // ƒJƒƒ‰‚Ì‰ŠúYÀ•W
+    // ã‚«ãƒ¡ãƒ©ã®åˆæœŸYåº§æ¨™ (ã‚¹ã‚¯ãƒªãƒ—ãƒˆå®Ÿè¡Œé–‹å§‹æ™‚ã®ã‚«ãƒ¡ãƒ©ã®Yåº§æ¨™)
     private float initialCameraY;
 
     void Start()
     {
         if (cameraTransform == null)
         {
-            Debug.LogError("Camera Transform‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            Debug.LogError("Camera TransformãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚èƒŒæ™¯è¿½å¾“ã¯ç„¡åŠ¹ã§ã™ã€‚");
             enabled = false;
             return;
         }
 
-        // ‰ŠúˆÊ’u‚ğ•Û‘¶
+        // åˆæœŸä½ç½®ã‚’ä¿å­˜
         initialY = transform.position.y;
         initialCameraY = cameraTransform.position.y;
     }
@@ -44,19 +37,16 @@ public class ParallaxBackgroundMover : MonoBehaviour
     {
         if (cameraTransform == null) return;
 
-        // 1. ƒJƒƒ‰‚ª‰ŠúˆÊ’u‚©‚ç‚Ç‚ê‚¾‚¯Y²•ûŒü‚ÉˆÚ“®‚µ‚½‚©
+        // 1. ã‚«ãƒ¡ãƒ©ãŒåˆæœŸä½ç½®ã‹ã‚‰ã©ã‚Œã ã‘Yè»¸æ–¹å‘ã«ç§»å‹•ã—ãŸã‹ï¼ˆå¤‰ä½ï¼‰ã‚’è¨ˆç®—
         float deltaY = cameraTransform.position.y - initialCameraY;
 
-        // 2. ƒJƒƒ‰‚ÌˆÚ“®—Ê‚É followRatioY ‚ğæZ‚µA–Ú“I‚ÌYÀ•WitargetYj‚ğŒvZ
-        // ‚±‚ê‚ª‹·Œø‰Ê‚ğ¶‚İo‚·
+        // 2. ã‚«ãƒ¡ãƒ©ã®å¤‰ä½ã« followRatioY ã‚’ä¹—ç®—ã—ã€ç›®çš„ã®Yåº§æ¨™ï¼ˆtargetYï¼‰ã‚’è¨ˆç®—
+        // followRatioYãŒ1.0æœªæº€ã®å ´åˆã€ã‚«ãƒ¡ãƒ©ã®å‹•ãã‚ˆã‚Šé…ããªã‚Šã€è¦–å·®åŠ¹æœãŒç”Ÿã¾ã‚Œã¾ã™ã€‚
         float targetY = initialY + deltaY * followRatioY;
 
-        // 3. yƒNƒ‰ƒ“ƒv“K—pzŒvZ‚³‚ê‚½–Ú“IÀ•W‚ğAİ’è‚³‚ê‚½Å¬’l‚ÆÅ‘å’l‚ÌŠÔ‚É§ŒÀ
-        float clampedY = Mathf.Clamp(targetY, minWorldY, maxWorldY);
-
-        // 4. ”wŒi‘S‘Ì‚ÌYÀ•W‚ğXV
+        // 3. èƒŒæ™¯å…¨ä½“ã®Yåº§æ¨™ã‚’æ›´æ–°
         Vector3 newPos = transform.position;
-        newPos.y = clampedY; // ƒNƒ‰ƒ“ƒv‚³‚ê‚½YÀ•W‚ğ“K—p
+        newPos.y = targetY; // è¨ˆç®—ã•ã‚ŒãŸ targetY ã‚’é©ç”¨
 
         transform.position = newPos;
     }

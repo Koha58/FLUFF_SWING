@@ -41783,6 +41783,9 @@ MonoBehaviour:
   gameOverSE: {fileID: 8300000, guid: a5d39ebdba42b1144ab4d83f453d75f0, type: 3}
   pauseOpenSE: {fileID: 8300000, guid: e4a83ce9589e1b04a976bcd2155044bf, type: 3}
   pauseCloseSE: {fileID: 8300000, guid: 07002b499f3b9514d84600b00469280b, type: 3}
+  playerMove: {fileID: 1455774591}
+  playerAttack: {fileID: 1455774593}
+  wireActionScript: {fileID: 1455774590}
 --- !u!4 &929820029
 Transform:
   m_ObjectHideFlags: 0
@@ -45137,6 +45140,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1601993083158279471, guid: a0c13be280628b64b8fe692923c95749, type: 3}
   m_PrefabInstance: {fileID: 1455774589}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1455774593 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+  m_PrefabInstance: {fileID: 1455774589}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39050f8624cb4e7428d7c063bf7ba6e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1455774598 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}

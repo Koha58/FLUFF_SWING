@@ -1,68 +1,48 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// プレイヤーの座標に基づいてカメラ（背景）を追従させるシンプルなスクリプト。
-/// 主に動く床などの状況で、プレイヤーの絶対座標の変化に追従するために使用します。
+/// プレイヤーの座標に基づいてカメラ（背景）を追従させるスクリプト。
+/// X軸は制限なし。Y軸はデッドゾーン追従で、ワールド座標の下限(minY)クランプを行います。
 /// </summary>
 public class BackgroundFollowScript : MonoBehaviour
 {
-    /// <summary>
-    /// ワイヤーアクションの状態（接続状態など）を管理するスクリプト
-    /// </summary>
-    [SerializeField]
-    private WireActionScript wireActionScript;
+    // =================================================================================
+    // 📢 公開設定フィールド (Inspectorで設定)
+    // =================================================================================
 
-    /// <summary>
-    /// プレイヤーの動きを管理するスクリプト
-    /// </summary>
-    [SerializeField]
-    private PlayerMove playerMove;
-
+    [Header("▼ 追従対象とオフセット")]
+    [SerializeField] private WireActionScript wireActionScript;
+    [SerializeField] private PlayerMove playerMove;
     public Transform player;
+    public float horizontalOffset = 2f; // X軸のプレイヤーからのオフセット距離
+    public float smoothTime = 0.3f;     // カメラ移動のスムージング時間
 
-    /// <summary>
-    /// プレイヤーからの横方向のオフセット
-    /// </summary>
-    public float horizontalOffset = 2f;
-
-    /// <summary>
-    /// スムージングの時間
-    /// (数が大きいほどゆっくり移動)
-    /// </summary>
-    public float smoothTime = 0.3f;
-
-    /// <summary>
-    /// SmoothDamp用
-    /// </summary>
-    private Vector3 velocity = Vector3.zero;
-
-    /// <summary>
-    /// 前フレームのisConnectedの状態
-    /// </summary>
-    private bool wasConnected = false;
-
-    /// <summary>
-    /// 遅延の持続時間(秒)
-    /// (数が大きいほど遅延時間が長くなる)
-    /// </summary>
-    private float delayDuration = 0.3f;
-
-    /// <summary>
-    /// 遅延タイマー(0未満なら未使用)
-    /// </summary>
-    private float delayTimer = -1f;
-
-    [Header("デッドゾーン設定")]
+    [Header("▼ デッドゾーン設定")]
     [Tooltip("カメラが上下に動き出すまでの許容範囲（カメラの中心からの距離）")]
     public float deadZoneY = 2f;
+
+    [Header("▼ カメラの境界設定")]
+    [Tooltip("カメラが下方向に移動できるワールド座標の最小値")]
+    public float minY = 0f; // カメラのY座標の下限
+
+    // =================================================================================
+    // 🛡️ 内部状態変数 (実行時に変化)
+    // =================================================================================
+
+    private Vector3 velocity = Vector3.zero; // SmoothDamp用の速度参照変数
+    private bool wasConnected = false;      // 前フレームのワイヤー接続状態
+    private float delayDuration = 0.3f;     // ワイヤー切断後のカメラ停止遅延時間
+    private float delayTimer = -1f;         // 遅延タイマー
+
+    // =================================================================================
+    // Unity イベント関数
+    // =================================================================================
 
     void LateUpdate()
     {
         if (player == null || wireActionScript == null || playerMove == null) return;
 
         bool isConnected = wireActionScript.IsConnected;
-        bool isGrounded = playerMove.IsGrounded;
-
         Vector3 currentPos = transform.position;
 
         // ワイヤー切断直後の処理(遅延スタート)
@@ -71,64 +51,60 @@ public class BackgroundFollowScript : MonoBehaviour
             delayTimer = delayDuration;
         }
 
-        // ターゲット位置を決定
         float targetX;
-        // Y軸は一旦現在のカメラ位置に固定
         float targetY = currentPos.y;
 
-        // ワイヤー使用時
+        // --- ワイヤー使用時の追従ロジック ---
         if (isConnected)
         {
-            // ワイヤー設置場所の座標を持ってくる
             Vector2 wirePos = wireActionScript.HookedPosition;
-
             targetX = wirePos.x;
-            targetY = wirePos.y - 1; // ワイヤーポイントを追従
+            targetY = wirePos.y - 1; // ワイヤーのフック位置から少し下にターゲットを設定
         }
-        // ワイヤー不使用時
+        // --- ワイヤー不使用時の追従ロジック ---
         else
         {
             // 動く床に乗っているときなどに、カメラが動かないようにする遅延タイマー
             if (delayTimer > 0f)
             {
                 delayTimer -= Time.deltaTime;
-
-                // 遅延中はカメラ移動スキップ
                 wasConnected = isConnected;
                 return;
             }
 
-            // 1. X軸の追従（左右の追従は維持）
+            // 1. X軸の追従
             targetX = player.position.x + horizontalOffset;
 
             // 2. Y軸の追従 (デッドゾーンロジックを適用)
-            // プレイヤーとカメラの中心のY軸距離を計算
             float deltaY = player.position.y - currentPos.y;
 
-            // --- プレイヤーがデッドゾーンの上限を超えた場合 ---
             if (deltaY > deadZoneY)
             {
-                // プレイヤーがデッドゾーン境界（currentPos.y + deadZoneY）に位置するようにターゲットYを設定
+                // プレイヤーがデッドゾーンの上限を超えた場合、カメラを上昇させる
                 targetY = player.position.y - deadZoneY;
             }
-            // --- プレイヤーがデッドゾーンの下限を超えた場合 ---
             else if (deltaY < -deadZoneY)
             {
-                // プレイヤーがデッドゾーン境界（currentPos.y - deadZoneY）に位置するようにターゲットYを設定
+                // プレイヤーがデッドゾーンの下限を超えた場合、カメラを下降させる
                 targetY = player.position.y + deadZoneY;
             }
-            // --- デッドゾーン内（-deadZoneY から +deadZoneY の間）の場合 ---
             else
             {
-                // targetY は currentPos.y のまま維持される（カメラは動かない）
+                // デッドゾーン内ではY軸を動かさない
                 targetY = currentPos.y;
             }
         }
 
         // 現在のカメラ位置を基にターゲット位置へスムーズに移動
         Vector3 targetPos = new Vector3(targetX, targetY, currentPos.z);
+        Vector3 newCameraPos = Vector3.SmoothDamp(currentPos, targetPos, ref velocity, smoothTime);
 
-        transform.position = Vector3.SmoothDamp(currentPos, targetPos, ref velocity, smoothTime);
+        // Y軸の下限クランプを適用
+        // newCameraPos.yがminYより小さくならないようにする
+        newCameraPos.y = Mathf.Max(newCameraPos.y, minY);
+
+        // 制限のある最終位置を適用
+        transform.position = newCameraPos;
 
         // 現在の状態を保存
         wasConnected = isConnected;
