@@ -16,40 +16,148 @@ MonoBehaviour:
   - id: 1
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: 4.586, y: -1.624, z: 0}
+    position: {x: 59.74, y: 80.02, z: 0}
   - id: 2
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: 5.83, y: -1.624, z: 0}
+    position: {x: 58.66, y: 80.02, z: 0}
   - id: 3
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Bird
-    position: {x: 3.439298, y: 0.5342882, z: 0}
+    position: {x: 125.7, y: 82.85, z: 0}
   - id: 4
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 30, y: -1.392, z: 0}
+    position: {x: 28.09, y: -0.43, z: 0}
   - id: 5
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 11.56, y: -2, z: 0}
+    position: {x: 55.74, y: 79.57, z: 0}
   - id: 6
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 8, y: 0, z: 0}
+    position: {x: 0.48, y: -0.04, z: 0}
   - id: 7
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 10, y: 0, z: 0}
+    position: {x: 13.82, y: -0.25, z: 0}
   - id: 8
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 0.84, y: 2.83, z: 0}
+    position: {x: 27.62, y: 1.66, z: 0}
   - id: 9
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 1, y: 0, z: 0}
+    position: {x: 45.79, y: 2.06, z: 0}
   - id: 10
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: -3, y: 0, z: 0}
+    position: {x: 48.48, y: 1, z: 0}
+  - id: 11
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 64.67, y: 2.47, z: 0}
+  - id: 12
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 68.85, y: 0.95, z: 0}
+  - id: 13
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 75.89, y: -0.6, z: 0}
+  - id: 14
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 75.77, y: 6.4, z: 0}
+  - id: 15
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 75.67, y: 13.3, z: 0}
+  - id: 16
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 86, y: 28.2, z: 0}
+  - id: 17
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 86, y: 40.3, z: 0}
+  - id: 18
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 76.1, y: 51.6, z: 0}
+  - id: 19
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 86.4, y: 64.1, z: 0}
+  - id: 20
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 76.12, y: 73.47, z: 0}
+  - id: 21
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 82.56, y: 82.13, z: 0}
+  - id: 22
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 74.99, y: 81.86, z: 0}
+  - id: 23
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 69.96, y: 80.49, z: 0}
+  - id: 24
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 67.93, y: 80.46, z: 0}
+  - id: 25
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 65.89, y: 80.47, z: 0}
+  - id: 26
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 36.68, y: 80.44, z: 0}
+  - id: 27
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 9.19, y: 80.66, z: 0}
+  - id: 28
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: -1.9, y: 76, z: 0}
+  - id: 29
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 2.8999999, y: 72.2, z: 0}
+  - id: 30
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 17.1, y: 40.72, z: 0}
+  - id: 31
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
+    position: {x: 31.9, y: 57.56, z: 0}
+  - id: 32
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
+    position: {x: 32.93, y: 57.56, z: 0}
+  - id: 33
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: 94.28, y: 73.04, z: 0}
+  - id: 34
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: 71.28, y: 27.12, z: 0}
+  - id: 35
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: 91.5, y: 48.54, z: 0}
+  - id: 36
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: 72.49, y: 64.86, z: 0}
+  - id: 37
+    type: enemy
+    prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
+    position: {x: -7.1, y: 86.27, z: 0}
