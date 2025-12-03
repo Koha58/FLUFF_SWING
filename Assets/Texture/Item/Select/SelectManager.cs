@@ -55,6 +55,7 @@ public class SelectManager : MonoBehaviour
         {
             bool unlocked = i <= clearedStage; // クリア済み + 1 ステージまで解放
                                                // 初回起動時ステージ１解放
+
             if (stageLocks[i] != null)
                 stageLocks[i].SetActive(!unlocked); // 非表示 = 解放済み
         }
