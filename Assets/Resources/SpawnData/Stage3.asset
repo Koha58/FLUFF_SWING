@@ -24,7 +24,7 @@ MonoBehaviour:
   - id: 3
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Bird
-    position: {x: 125.7, y: 82.85, z: 0}
+    position: {x: 65.6, y: 82.85, z: 0}
   - id: 4
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
@@ -134,30 +134,58 @@ MonoBehaviour:
     prefabName: SpawnPrefabs/CoinPrefab/Coin
     position: {x: 17.1, y: 40.72, z: 0}
   - id: 31
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 75.9, y: 20.8, z: 0}
+  - id: 32
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 76, y: 32.1, z: 0}
+  - id: 33
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 76.1, y: 41.5, z: 0}
+  - id: 34
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 86.2, y: 52.1, z: 0}
+  - id: 35
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: 86.3, y: 76.2, z: 0}
+  - id: 36
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: -4.7, y: 24.4, z: 0}
+  - id: 37
+    type: coin
+    prefabName: SpawnPrefabs/CoinPrefab/Coin
+    position: {x: -20.75, y: -0.99, z: 0}
+  - id: 38
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
     position: {x: 31.9, y: 57.56, z: 0}
-  - id: 32
+  - id: 39
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
     position: {x: 32.93, y: 57.56, z: 0}
-  - id: 33
+  - id: 40
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
     position: {x: 94.28, y: 73.04, z: 0}
-  - id: 34
+  - id: 41
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
     position: {x: 71.28, y: 27.12, z: 0}
-  - id: 35
+  - id: 42
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
     position: {x: 91.5, y: 48.54, z: 0}
-  - id: 36
+  - id: 43
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
     position: {x: 72.49, y: 64.86, z: 0}
-  - id: 37
+  - id: 44
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
     position: {x: -7.1, y: 86.27, z: 0}
