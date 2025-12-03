@@ -209,6 +209,7 @@ public class GameManager : MonoBehaviour
         if (wireActionScript != null)
         {
             wireActionScript.enabled = false;
+            wireActionScript.ResetState();
         }
 
         Debug.Log("Player died. Controls disabled.");
