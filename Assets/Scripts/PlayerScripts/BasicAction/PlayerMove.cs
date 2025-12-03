@@ -60,6 +60,7 @@ public class PlayerMove : MonoBehaviour
     /// <summary>移動入力アクション（Input Systemの"Move"）</summary>
     private InputAction moveAction;
 
+
     #endregion
 
 
@@ -275,6 +276,30 @@ public class PlayerMove : MonoBehaviour
     /// プレイヤーが現在地面に接地しているかどうか
     /// </summary>
     public bool IsGrounded => isGrounded;
+
+    #endregion
+
+
+    #region === 動く床に接地しているか判定 ===
+
+    // 動く床に乗っているかどうかの判定フラグ
+    public bool IsOnMoveFloor { get; private set; }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("WireConnectable"))
+        {
+            IsOnMoveFloor = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("WireConnectable"))
+        {
+            IsOnMoveFloor = false;
+        }
+    }
 
     #endregion
 }
