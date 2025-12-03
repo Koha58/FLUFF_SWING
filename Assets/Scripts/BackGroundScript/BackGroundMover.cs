@@ -69,7 +69,8 @@ public class BackGroundMover : MonoBehaviour
             moveDir = -0.01f;
 
         // --- 入力があっても移動していなければ背景は動かさない ---
-        if (!isActuallyMoving || moveDir == 0f)
+        // --- 動く床に乗っているときも背景は動かさない ---
+        if (!isActuallyMoving || moveDir == 0f || playerMove.IsOnMoveFloor)
         {
             previousPlayerPos = playerMove.transform.position;
             return;
