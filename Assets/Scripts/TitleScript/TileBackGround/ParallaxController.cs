@@ -9,7 +9,7 @@ public class ParallaxLayer
     public float relativeMoveSpeed; // ƒJƒƒ‰‚ÌˆÚ“®‚Æ”ä‚×‚½‘Š‘Î“IˆÚ“®‘¬“x
 }
 
-public class TitleBGController : MonoBehaviour
+public class ParallaxController : MonoBehaviour
 {
     [SerializeField] private List<ParallaxLayer> layers;
     private Camera mainCamera;
