@@ -23,9 +23,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     [Header("▼ 攻撃関連")]
     [SerializeField] private GameObject bombPrefab;  // 遠距離攻撃で投げる爆弾プレハブ
 
-    [Header("▼ ターゲットアイコン")]
-    [SerializeField] private GameObject targetIconPrefab; // ターゲットアイコンのプレハブ
-
     [Header("▼ サウンドエフェクト")]
     [SerializeField] private AudioClip meleeAttackSE;   // 近距離攻撃SE
     [SerializeField] private AudioClip rangedAttackSE;  // 遠距離攻撃SE
@@ -43,7 +40,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     private bool isDead = false;            // 死亡済みフラグ
     private SpriteRenderer spriteRenderer;  // 無敵点滅に使用
     private Vector2 pendingRangedTarget;    // 遠距離攻撃のターゲット位置（アニメーションイベント用）
-    private GameObject currentTargetIcon; // 現在表示中のアイコンのインスタンスを保持するフィールド
 
     #endregion
 
@@ -58,13 +54,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
 
         // HPUI初期化
         healthUI?.SetMaxHealth(currentHP);
-
-        // ターゲットアイコンを初期化（非アクティブでインスタンス化）
-        if (targetIconPrefab != null)
-        {
-            currentTargetIcon = Instantiate(targetIconPrefab, transform.position, Quaternion.identity, transform.parent);
-            currentTargetIcon.SetActive(false);
-        }
     }
 
 
@@ -84,8 +73,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             TakeDamage(groundTile.damageAmount * currentHP);
         }
 
-        // ターゲットアイコンの表示・位置更新
-        UpdateTargetIcon();
     }
 
 
@@ -185,60 +172,6 @@ public class PlayerAttack : MonoBehaviour, IDamageable
             }
         }
         return nearest;
-    }
-
-    /// <summary>
-    /// 攻撃可能範囲内の最も近い敵の上にターゲットアイコンを表示する
-    /// 敵がいなければ非表示にする
-    /// </summary>
-    private void UpdateTargetIcon() // ← 新規追加
-    {
-        if (currentTargetIcon == null) return;
-
-        // 攻撃可能範囲内の最も近い敵を取得
-        var nearest = FindNearestEnemy();
-
-        if (nearest != null)
-        {
-            Transform targetTransform = ((MonoBehaviour)nearest).transform;
-            float dist = Vector2.Distance(transform.position, targetTransform.position);
-
-            // 近距離攻撃範囲外の場合は遠距離攻撃可能方向の敵をチェック
-            // 攻撃可能範囲（attackRadius）でチェックしているので、MeleeRangeのチェックは不要だが、
-            // AutoAttackの挙動に合わせるため、向いている方向の敵もチェックするロジックを統合
-            bool isMeleeRange = dist <= status.meleeRange;
-            var rangedTarget = isMeleeRange ? null : FindNearestEnemyInFacingDirection();
-
-            // 近距離範囲内か、遠距離対象が見つかった場合のみアイコンを表示
-            if (isMeleeRange || (rangedTarget != null && nearest.Equals(rangedTarget)))
-            {
-                // アイコンの位置をターゲット敵の頭上などに設定
-                // ここではターゲットのY座標にオフセット(例: 1.0f)を加算しています
-                Vector3 iconPosition = targetTransform.position + Vector3.up * 1.0f;
-
-                currentTargetIcon.transform.position = iconPosition;
-                if (!currentTargetIcon.activeSelf)
-                {
-                    currentTargetIcon.SetActive(true);
-                }
-            }
-            else
-            {
-                // 攻撃範囲外なら非表示
-                if (currentTargetIcon.activeSelf)
-                {
-                    currentTargetIcon.SetActive(false);
-                }
-            }
-        }
-        else
-        {
-            // 敵がいない場合も非表示
-            if (currentTargetIcon.activeSelf)
-            {
-                currentTargetIcon.SetActive(false);
-            }
-        }
     }
 
 

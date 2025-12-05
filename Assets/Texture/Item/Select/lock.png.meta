@@ -1,22 +1,10 @@
 fileFormatVersion: 2
-guid: b39e90872952ab64f8ffac79e47e527c
+guid: fe7370cb4d944a046a4dc1c2dc11cd00
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3746733672741333640
-    second: Targeting_0
-  - first:
-      213: -8793711128187768743
-    second: Targeting_1
-  - first:
-      213: 3322907519345459447
-    second: Targeting_2
-  - first:
-      213: 3113129754858941376
-    second: Targeting_3
-  - first:
-      213: 7188054855699634351
-    second: Targeting_4
+      213: -7670485267309540912
+    second: lock_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -58,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 50
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -151,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Targeting_0
+      name: lock_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 15
-        height: 15
+        x: 39
+        y: 19
+        width: 242
+        height: 252
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -166,96 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8751240639de00cc0800000000000000
-      internalID: -3746733672741333640
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Targeting_1
-      rect:
-        serializedVersion: 2
-        x: 3
-        y: 14
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 950f7fae15676f580800000000000000
-      internalID: -8793711128187768743
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Targeting_2
-      rect:
-        serializedVersion: 2
-        x: 9
-        y: 9
-        width: 7
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7f08f0888c65d1e20800000000000000
-      internalID: 3322907519345459447
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Targeting_3
-      rect:
-        serializedVersion: 2
-        x: 14
-        y: 14
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0cbe01a940f043b20800000000000000
-      internalID: 3113129754858941376
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Targeting_4
-      rect:
-        serializedVersion: 2
-        x: 14
-        y: 3
-        width: 11
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fa89ffbaec911c360800000000000000
-      internalID: 7188054855699634351
+      spriteID: 0d9c5231a46fc8590800000000000000
+      internalID: -7670485267309540912
       vertices: []
       indices: 
       edges: []
@@ -264,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -274,11 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Targeting_0: -3746733672741333640
-      Targeting_1: -8793711128187768743
-      Targeting_2: 3322907519345459447
-      Targeting_3: 3113129754858941376
-      Targeting_4: 7188054855699634351
+      lock_0: -7670485267309540912
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
