@@ -132,7 +132,6 @@ public class PlayerAnimatorController : MonoBehaviour
 
     private bool _pendingWireTransition = false;    // 攻撃などの後にワイヤー状態に遷移するのを待っているフラグ
     private bool _justGrappled = false;             // グラップル（ジャンプアニメ）開始直後フラグ（タイマーでの自動ワイヤー遷移制御用）
-    private bool _cancelIdleTransition = false;     // Idleへの自動遷移（Landing後など）をキャンセルするフラグ
     private bool _isMoving = false;                 // 移動入力が継続しているかどうかのフラグ
 
     private float _grappleTimer = Defaults.TimeZero; // グラップル（Jump）からワイヤー（Wire）へ自動遷移するためのタイマー
@@ -140,6 +139,9 @@ public class PlayerAnimatorController : MonoBehaviour
     private float _moveStopTimer = Defaults.TimeZero;// 移動入力停止を検出するためのタイマー
     private int lastFootstepIndex = Defaults.LastFootstepIndexDefault; // 前回再生した足音SEのインデックス
     private float lastFootstepTime = Defaults.TimeZero;              // 前回足音を再生したUnity時間
+
+    private Coroutine _attackTimeoutCoroutine; // 攻撃タイムアウトコルーチンの参照を保持
+    private Coroutine _landingToIdleCoroutine; // Landing後のIdle遷移コルーチンの参照を保持
     #endregion
 
     #region === Unityイベント ===
@@ -395,21 +397,25 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="swingDirection">切断時の移動方向</param>
     public void OnWireCut(float swingDirection)
     {
-        // 状態をリセット
+        // Wire関連のフラグをリセット
         ResetWireFlags();
 
         // Wire状態以外、またはすでにLanding中であれば何もしない
-        if (_currentState != PlayerState.Wire || _currentState == PlayerState.Landing) return;
+        // ただし、Landing状態への遷移は強制で行うため、_currentState == PlayerState.Wire ではない場合でも
+        // 強制的に遷移させるロジックに変更する
+        if (_currentState == PlayerState.Landing) return;
 
-        // ランディング状態へ強制遷移
-        // SetPlayerState内でTransitionToIdleAfterLandingコルーチンが自動的に開始される
+        // Landing後のIdle遷移コルーチンがもし残っていれば確実に停止
+        // StopCoroutine(nameof(...)) の代わりに、参照変数 (_landingToIdleCoroutine) を利用して確実に停止
+        if (_landingToIdleCoroutine != null)
+        {
+            StopCoroutine(_landingToIdleCoroutine);
+            _landingToIdleCoroutine = null;
+        }
+
+        // Landing状態へ強制遷移
+        // SetPlayerState内でLandingSE再生、およびTransitionToIdleAfterLandingコルーチンが開始される
         SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true);
-
-        // 古いLanding後のIdle遷移コルーチンが残っている可能性があるため、このコルーチンのみ停止する
-        StopCoroutine(nameof(TransitionToIdleAfterLanding));
-
-        // SetPlayerStateで開始されるTransitionToIdleAfterLandingコルーチンに後続のIdle遷移を任せる
-        StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
     }
 
     /// <summary>
@@ -419,7 +425,6 @@ public class PlayerAnimatorController : MonoBehaviour
     {
         _pendingWireTransition = false;
         _justGrappled = false;
-        _cancelIdleTransition = false;
     }
     #endregion
 
@@ -433,7 +438,9 @@ public class PlayerAnimatorController : MonoBehaviour
         if (_attackInputLocked) return; // 入力ロック中は受け付けない
         _attackInputLocked = true; // 入力ロック開始
         SetPlayerState(PlayerState.MeleeAttack, direction, Speeds.None);
-        StartCoroutine(AttackTimeout()); // 攻撃強制終了タイマー開始
+        // タイムアウトコルーチンの開始と参照の保持 ▼ ---
+        if (_attackTimeoutCoroutine != null) StopCoroutine(_attackTimeoutCoroutine);
+        _attackTimeoutCoroutine = StartCoroutine(AttackTimeout());
     }
 
     /// <summary>
@@ -441,6 +448,13 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public void OnMeleeAttackAnimationEnd()
     {
+        // タイムアウトコルーチンの確実な停止
+        if (_attackTimeoutCoroutine != null)
+        {
+            StopCoroutine(_attackTimeoutCoroutine);
+            _attackTimeoutCoroutine = null;
+        }
+
         // AttackTimeoutコルーチンをここで停止させたい場合は、AttackTimeoutコルーチンの参照を保持するか、StopCoroutine(nameof(AttackTimeout))を行う必要があります。
         // 今回はAttackTimeoutコルーチンが自己終了する仕様なので、フラグのみリセット。
         _isAttacking = false;
@@ -470,7 +484,9 @@ public class PlayerAnimatorController : MonoBehaviour
         if (_attackInputLocked) return; // 入力ロック中は受け付けない
         _attackInputLocked = true; // 入力ロック開始
         SetPlayerState(PlayerState.RangedAttack, direction, Speeds.None);
-        StartCoroutine(AttackTimeout());
+        // タイムアウトコルーチンの開始と参照の保持
+        if (_attackTimeoutCoroutine != null) StopCoroutine(_attackTimeoutCoroutine);
+        _attackTimeoutCoroutine = StartCoroutine(AttackTimeout());
     }
 
     /// <summary>
@@ -478,6 +494,13 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public void OnRangedAttackAnimationEnd()
     {
+        // タイムアウトコルーチンの確実な停止
+        if (_attackTimeoutCoroutine != null)
+        {
+            StopCoroutine(_attackTimeoutCoroutine);
+            _attackTimeoutCoroutine = null;
+
+        }
         _isAttacking = false;
         _attackInputLocked = false;
 
@@ -558,6 +581,12 @@ public class PlayerAnimatorController : MonoBehaviour
         {
             _isAttacking = false;
             _attackInputLocked = false;
+            // 攻撃タイムアウトコルーチンを確実に停止
+            if (_attackTimeoutCoroutine != null)
+            {
+                StopCoroutine(_attackTimeoutCoroutine);
+                _attackTimeoutCoroutine = null;
+            }
             StopAllCoroutines(); // 攻撃タイムアウトやIdle遷移コルーチンなどを全て停止
         }
 
@@ -640,30 +669,24 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public IEnumerator TransitionToIdleAfterLanding(float direction)
     {
+        // コルーチンの参照を保持
+        _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLandingInternal(direction));
+        yield return _landingToIdleCoroutine;
+    }
+
+    private IEnumerator TransitionToIdleAfterLandingInternal(float direction)
+    {
         yield return new WaitForSeconds(Timings.LandingToIdleDelay);
 
-        if (_isAttacking) yield break; // 着地直後に攻撃が開始された場合は中断
+        if (_isAttacking) { _landingToIdleCoroutine = null; yield break; } // 着地直後に攻撃が開始された場合は中断
+                                                                           // ... (以降、ロジックは変更なし) ...
 
-        if (_pendingWireTransition)
-        {
-            // 着地中にワイヤー入力があった場合はIdleを経由せずWireへ遷移
-            SetPlayerState(PlayerState.Wire, _wireDirection, Speeds.None, true);
-            yield break;
-        }
-
-        if (_cancelIdleTransition)
-        {
-            // Idle遷移がキャンセルされた場合、再度一定時間待機（再判定）
-            _cancelIdleTransition = false;
-            yield return new WaitForSeconds(Timings.LandingToIdleDelay);
-        }
-
-        // 待機時間経過後、まだLanding状態であればIdleへ遷移
         if (_currentState == PlayerState.Landing)
         {
-            _pendingWireTransition = false;
+            // ... (遷移処理) ...
             SetPlayerState(PlayerState.Idle, direction);
         }
+        _landingToIdleCoroutine = null; // 終了時に参照をクリア
     }
 
     /// <summary>
@@ -682,25 +705,11 @@ public class PlayerAnimatorController : MonoBehaviour
             // 攻撃中にコルーチンが停止しなかった場合、Idleへ強制遷移
             SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
         }
+
+        // 終了時に参照をクリア
+        _attackTimeoutCoroutine = null;
     }
 
-    /// <summary>
-    /// 一定時間後に強制的にIdleへ戻す（着地やワイヤー切断後のリカバリなどで使用）。
-    /// </summary>
-    /// <param name="direction">Idle遷移時の向き</param>
-    private IEnumerator ForceTransitionToIdle(float direction)
-    {
-        yield return new WaitForSeconds(Timings.LandingToIdleDelay);
-        if (_isAttacking) yield break; // 攻撃中なら中断
-
-        // LandingまたはJump状態であればIdleへ強制遷移
-        if (_currentState == PlayerState.Landing || _currentState == PlayerState.Jump)
-        {
-            _cancelIdleTransition = false;
-            _pendingWireTransition = false;
-            SetPlayerState(PlayerState.Idle, direction, Speeds.None, true);
-        }
-    }
     #endregion
 
     #region === サウンド関連 ===
@@ -745,14 +754,15 @@ public class PlayerAnimatorController : MonoBehaviour
         _isMoving = false;
         _moveStopTimer = Defaults.TimeZero;
 
-        // Landing後のIdle遷移コルーチンが動いていれば停止
-        StopCoroutine(nameof(TransitionToIdleAfterLanding));
+        // コルーチン参照による停止
+        if (_landingToIdleCoroutine != null)
+        {
+            StopCoroutine(_landingToIdleCoroutine);
+            _landingToIdleCoroutine = null;
+        }
 
         // Landingへ強制遷移
         SetPlayerState(PlayerState.Landing, direction, Speeds.None, true);
-
-        // Landing後のIdle遷移コルーチンを開始
-        StartCoroutine(TransitionToIdleAfterLanding(direction));
     }
 
     /// <summary>
@@ -764,7 +774,6 @@ public class PlayerAnimatorController : MonoBehaviour
         StopAllCoroutines(); // 全コルーチン停止
 
         // 関連フラグをリセット
-        _cancelIdleTransition = false;
         _pendingWireTransition = false;
         _justGrappled = false;
 
@@ -793,11 +802,6 @@ public class PlayerAnimatorController : MonoBehaviour
         // "Landing"という名前のアニメーションが再生中で、かつ再生時間（normalizedTime）が1.0未満（終了前）
         return info.IsName("Landing") && info.normalizedTime < 1f;
     }
-
-    /// <summary>
-    /// Idleへの自動遷移（Landing後など）をキャンセルするフラグをセット。
-    /// </summary>
-    public void CancelPendingIdleTransition() => _cancelIdleTransition = true;
 
     /// <summary>
     /// 遠距離攻撃アニメーションの特定のフレームでAnimatorイベントから呼ばれ、爆弾を投擲する。

@@ -45,7 +45,7 @@ public class GameResultUIController : MonoBehaviour
     /// <summary>セレクトシーンの名前（SceneManagerで使用）</summary>
     private const string SelectSceneName = "SelectScene";
     /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
-    private const string TitleSceneName = "SubTitle";
+    private const string TitleSceneName = "TitleScene";
 
     /// <summary>通常のゲーム進行速度（Time.timeScale = 1）</summary>
     private const float NormalTimeScale = 1.0f;
