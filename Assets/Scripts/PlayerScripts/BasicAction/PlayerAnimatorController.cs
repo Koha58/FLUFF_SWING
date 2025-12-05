@@ -395,17 +395,21 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="swingDirection">切断時の移動方向</param>
     public void OnWireCut(float swingDirection)
     {
-        if (_currentState == PlayerState.Landing) return; // すでに着地中なら何もしない
+        // 状態をリセット
+        ResetWireFlags();
 
-        ResetWireFlags(); // ワイヤー関連のフラグをリセット
+        // Wire状態以外、またはすでにLanding中であれば何もしない
+        if (_currentState != PlayerState.Wire || _currentState == PlayerState.Landing) return;
 
-        if (_currentState == PlayerState.Wire)
-        {
-            StopAllCoroutines(); // 実行中のコルーチン（特にIdle遷移系）を全て停止
-            SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true); // Landing状態へ強制遷移
-            // ForceTransitionToIdleでLanding後のIdle遷移を確実に実行
-            StartCoroutine(ForceTransitionToIdle(swingDirection));
-        }
+        // ランディング状態へ強制遷移
+        // SetPlayerState内でTransitionToIdleAfterLandingコルーチンが自動的に開始される
+        SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true);
+
+        // 古いLanding後のIdle遷移コルーチンが残っている可能性があるため、このコルーチンのみ停止する
+        StopCoroutine(nameof(TransitionToIdleAfterLanding));
+
+        // SetPlayerStateで開始されるTransitionToIdleAfterLandingコルーチンに後続のIdle遷移を任せる
+        StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
     }
 
     /// <summary>
@@ -437,22 +441,22 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public void OnMeleeAttackAnimationEnd()
     {
+        // AttackTimeoutコルーチンをここで停止させたい場合は、AttackTimeoutコルーチンの参照を保持するか、StopCoroutine(nameof(AttackTimeout))を行う必要があります。
+        // 今回はAttackTimeoutコルーチンが自己終了する仕様なので、フラグのみリセット。
         _isAttacking = false;
         _attackInputLocked = false;
-        // AttackTimeoutコルーチンは攻撃終了時に自動的に停止するが、念のためStopAllCoroutines()で確実に停止させても良い
 
+        // ワイヤー遷移待ちがあれば、DelayedWireTransitionで処理
         if (_pendingWireTransition)
         {
-            Debug.Log("[OnMeleeAttackAnimationEnd] Wire transition deferred: Attack → Idle → Jump → Wire");
-
-            // 近接攻撃アニメーションから直接Jumpアニメーションへ遷移するのは不自然なため、
-            // 一旦Idleを経由し、次のフレームでJump→Wireへ遷移するコルーチンを開始。
+            Debug.Log("[OnMeleeAttackAnimationEnd] Wire transition deferred: Attack -> Idle -> Jump -> Wire");
+            // DelayedWireTransitionコルーチンを開始し、後続の遷移を処理
             StartCoroutine(DelayedWireTransition(_wireDirection));
         }
         else
         {
-            // 待機状態へ戻す
-            SetPlayerState(PlayerState.Idle, Directions.None, Speeds.None, true);
+            // 待機状態へ戻す (強制遷移でRunから上書き可能にする)
+            SetPlayerState(PlayerState.Idle, transform.localScale.x > 0 ? Directions.Right : Directions.Left, Speeds.None, true);
         }
     }
 
@@ -741,11 +745,14 @@ public class PlayerAnimatorController : MonoBehaviour
         _isMoving = false;
         _moveStopTimer = Defaults.TimeZero;
 
-        StopAllCoroutines(); // 実行中のコルーチンを全て停止
+        // Landing後のIdle遷移コルーチンが動いていれば停止
+        StopCoroutine(nameof(TransitionToIdleAfterLanding));
 
+        // Landingへ強制遷移
         SetPlayerState(PlayerState.Landing, direction, Speeds.None, true);
+
         // Landing後のIdle遷移コルーチンを開始
-        StartCoroutine(ForceTransitionToIdle(direction));
+        StartCoroutine(TransitionToIdleAfterLanding(direction));
     }
 
     /// <summary>
