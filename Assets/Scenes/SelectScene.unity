@@ -3022,7 +3022,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &985515672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4185,7 +4185,7 @@ MonoBehaviour:
   offClickSE: {fileID: 8300000, guid: 241d73df83b4c1d4abf92849f454750a, type: 3}
   seMixerGroup: {fileID: -2906945877356610051, guid: 31fae0cc7d4333447b2db0aa68a7ea03, type: 2}
   stageLocks:
-  - {fileID: 985515671}
+  - {fileID: 0}
   - {fileID: 778860349}
   - {fileID: 1810266731}
   - {fileID: 672351660}
