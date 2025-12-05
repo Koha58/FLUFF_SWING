@@ -58,6 +58,15 @@ public class GameManager : MonoBehaviour
     #region === デバッグ用クリア判定処理 ===
     private void Update()
     {
+        DebugCleared();
+    }
+
+    /// <summary>
+    /// デバッグ用(クリア判定)
+    /// Ctrl + Shift + G → ステージクリア
+    /// </summary>
+    private void DebugCleared()
+    {
         // --- デバッグ用：Ctrl + Shift + G で強制クリア ---
         if (Keyboard.current != null)
         {
@@ -168,6 +177,7 @@ public class GameManager : MonoBehaviour
         string sceneName = SceneManager.GetActiveScene().name;
 
         int stageIndex = GetStageIndex(sceneName);
+
         if (stageIndex < 0)
         {
             Debug.LogWarning("ステージ番号が取得できません: " + sceneName);
@@ -176,16 +186,20 @@ public class GameManager : MonoBehaviour
 
         int cleared = PlayerPrefs.GetInt("ClearedStage", 0);
 
-        // 今のクリア結果が保存内容より大きいなら更新
-        int newCleared = stageIndex + 1;    // Stage1クリア → ClearedStage = 1
+        // 新しくクリアしたステージ
+        int clearedStageNumber = stageIndex + 1;
 
-        if (newCleared > cleared)
+        // 今のクリア結果が保存内容より大きいなら更新
+        if (clearedStageNumber > cleared)
         {
-            PlayerPrefs.SetInt("ClearedStage", newCleared);
-            PlayerPrefs.SetInt("LastUnlockedStage", newCleared - 1);    // 今回新しく解放されたステージ番号を保存
+            PlayerPrefs.SetInt("ClearedStage", clearedStageNumber);
+
+            // 今回新しく解放されたステージ番号を保存
+            PlayerPrefs.SetInt("LastUnlockedStage", clearedStageNumber);
             PlayerPrefs.Save();
-            Debug.Log("ClearedStage を更新 → " + newCleared + " まで解放");
-            Debug.Log("LastUnlockedStage 設定 → " + (newCleared -1));
+
+            Debug.Log("ClearedStage を更新 → " + clearedStageNumber + " まで解放");
+            Debug.Log("LastUnlockedStage 設定 → " + clearedStageNumber);
         }
     }
 

@@ -49,25 +49,26 @@ public class SelectManager : MonoBehaviour
     // ======== 各ステージのロック状態を更新 =========
     private void UpdateStageLocks()
     {
-        int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
-        int lastUnlocked = PlayerPrefs.GetInt("LastUnlockedStage", -1);
+        //int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
+        int clearedStage = Mathf.Max(1, PlayerPrefs.GetInt("ClearedStage", 0));
+        int lastUnlocedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
 
-        for (int i = 0; i < stageLocks.Length; i++)
+        for(int i = 0; i < stageLocks.Length; i++)
         {
             GameObject lockObj = stageLocks[i];
             if (lockObj == null) continue;
 
-            bool unlocked = i <= clearedStage;
+            int stageNumber = i + 1;
 
-            // すでに開放済み（アニメ済み）
-            if (i < lastUnlocked)
+            // 解放済み→非表示
+            if (stageNumber < lastUnlocedStage)
             {
                 lockObj.SetActive(false);
                 continue;
             }
 
-            // 今回新しく解除されたステージ → アニメ再生
-            if (i == lastUnlocked)
+            // 今回新たに解放されたステージ→アニメーション再生
+            if (stageNumber == lastUnlocedStage)
             {
                 var anim = lockObj.GetComponent<LockOpen>();
                 lockObj.SetActive(true);
@@ -76,7 +77,7 @@ public class SelectManager : MonoBehaviour
                 {
                     anim.PlayUnlockAnimation(() =>
                     {
-                        lockObj.SetActive(false); // アニメ終了後に鍵を消す
+                        lockObj.SetActive(false);
                     });
                 }
                 else
@@ -86,17 +87,67 @@ public class SelectManager : MonoBehaviour
                 continue;
             }
 
-            // まだロック中
-            lockObj.SetActive(!unlocked);
+            // 未解放→表示
+            bool isUnlocked = stageNumber <= clearedStage;
+            lockObj.SetActive(!isUnlocked);
         }
 
-        // 1度再生したらリセットして2度目は再生させない
-        if (lastUnlocked != -1)
+        // 一度再生したらリセット
+        if (lastUnlocedStage != -1)
         {
             PlayerPrefs.SetInt("LastUnlockedStage", -1);
             PlayerPrefs.Save();
         }
 
+        #region === バグ修正前 ===
+        //int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
+        //int lastUnlocked = PlayerPrefs.GetInt("LastUnlockedStage", -1);
+
+        //for (int i = 0; i < stageLocks.Length; i++)
+        //{
+        //    GameObject lockObj = stageLocks[i];
+        //    if (lockObj == null) continue;
+
+        //    bool unlocked = i <= clearedStage;
+
+        //    // すでに開放済み（アニメ済み）
+        //    if (i < lastUnlocked)
+        //    {
+        //        lockObj.SetActive(false);
+        //        continue;
+        //    }
+
+        //    // 今回新しく解除されたステージ → アニメ再生
+        //    if (i == lastUnlocked)
+        //    {
+        //        var anim = lockObj.GetComponent<LockOpen>();
+        //        lockObj.SetActive(true);
+
+        //        if (anim != null)
+        //        {
+        //            anim.PlayUnlockAnimation(() =>
+        //            {
+        //                lockObj.SetActive(false); // アニメ終了後に鍵を消す
+        //            });
+        //        }
+        //        else
+        //        {
+        //            lockObj.SetActive(false);
+        //        }
+        //        continue;
+        //    }
+
+        //    // まだロック中
+        //    lockObj.SetActive(!unlocked);
+        //}
+
+        //// 1度再生したらリセットして2度目は再生させない
+        //if (lastUnlocked != -1)
+        //{
+        //    PlayerPrefs.SetInt("LastUnlockedStage", -1);
+        //    PlayerPrefs.Save();
+        //}
+        #endregion
     }
 
     #endregion
