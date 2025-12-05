@@ -114829,7 +114829,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43114243f47c0914c89847ff50bd6a7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resultDelay: 2
   pauseDelayAfterResult: 0.5
   clearSE: {fileID: 8300000, guid: a26ea29adc55af549ba6adfc563098bb, type: 3}
   gameOverSE: {fileID: 8300000, guid: a5d39ebdba42b1144ab4d83f453d75f0, type: 3}
@@ -118485,6 +118484,10 @@ PrefabInstance:
       propertyPath: rangedAttackSE
       value: 
       objectReference: {fileID: 8300000, guid: 6a8cbf2ac12309649b3ed65a664c9a93, type: 3}
+    - target: {fileID: 8116928724460533575, guid: a0c13be280628b64b8fe692923c95749, type: 3}
+      propertyPath: targetIconPrefab
+      value: 
+      objectReference: {fileID: 8169977257026346824, guid: 349b84b294083394d8977f5db73e811b, type: 3}
     - target: {fileID: 8270167562489635135, guid: a0c13be280628b64b8fe692923c95749, type: 3}
       propertyPath: landingSE
       value: 
