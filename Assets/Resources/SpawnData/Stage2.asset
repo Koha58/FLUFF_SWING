@@ -48,15 +48,15 @@ MonoBehaviour:
   - id: 9
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 24.59, y: -24.5, z: 0}
+    position: {x: 24.44, y: -22.16, z: 0}
   - id: 10
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 26.09, y: -24.5, z: 0}
+    position: {x: 25.94, y: -22.16, z: 0}
   - id: 11
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 27.59, y: -24.5, z: 0}
+    position: {x: 27.44, y: -22.16, z: 0}
   - id: 12
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
@@ -68,15 +68,15 @@ MonoBehaviour:
   - id: 14
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 32.65, y: -22.5, z: 0}
+    position: {x: 31.779999, y: -20.1, z: 0}
   - id: 15
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 34.15, y: -22.5, z: 0}
+    position: {x: 33.28, y: -20.1, z: 0}
   - id: 16
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 35.65, y: -22.5, z: 0}
+    position: {x: 34.78, y: -20.1, z: 0}
   - id: 17
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
@@ -92,15 +92,15 @@ MonoBehaviour:
   - id: 20
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 40.37, y: -20.4, z: 0}
+    position: {x: 38.74, y: -18.09, z: 0}
   - id: 21
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 41.87, y: -20.4, z: 0}
+    position: {x: 40.24, y: -18.09, z: 0}
   - id: 22
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 43.37, y: -20.4, z: 0}
+    position: {x: 41.74, y: -18.09, z: 0}
   - id: 23
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin

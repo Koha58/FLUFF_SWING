@@ -50,15 +50,53 @@ public class SelectManager : MonoBehaviour
     private void UpdateStageLocks()
     {
         int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
+        int lastUnlocked = PlayerPrefs.GetInt("LastUnlockedStage", -1);
 
         for (int i = 0; i < stageLocks.Length; i++)
         {
-            bool unlocked = i <= clearedStage; // クリア済み + 1 ステージまで解放
-                                               // 初回起動時ステージ１解放
+            GameObject lockObj = stageLocks[i];
+            if (lockObj == null) continue;
 
-            if (stageLocks[i] != null)
-                stageLocks[i].SetActive(!unlocked); // 非表示 = 解放済み
+            bool unlocked = i <= clearedStage;
+
+            // すでに開放済み（アニメ済み）
+            if (i < lastUnlocked)
+            {
+                lockObj.SetActive(false);
+                continue;
+            }
+
+            // 今回新しく解除されたステージ → アニメ再生
+            if (i == lastUnlocked)
+            {
+                var anim = lockObj.GetComponent<LockOpen>();
+                lockObj.SetActive(true);
+
+                if (anim != null)
+                {
+                    anim.PlayUnlockAnimation(() =>
+                    {
+                        lockObj.SetActive(false); // アニメ終了後に鍵を消す
+                    });
+                }
+                else
+                {
+                    lockObj.SetActive(false);
+                }
+                continue;
+            }
+
+            // まだロック中
+            lockObj.SetActive(!unlocked);
         }
+
+        // 1度再生したらリセットして2度目は再生させない
+        if (lastUnlocked != -1)
+        {
+            PlayerPrefs.SetInt("LastUnlockedStage", -1);
+            PlayerPrefs.Save();
+        }
+
     }
 
     #endregion
@@ -231,7 +269,7 @@ public class SelectManager : MonoBehaviour
         PlayerPrefs.SetInt("ClearedStage", totalStages);
         PlayerPrefs.Save();
 
-        Debug.Log($"【DEBUG】全 {totalStages} ステージを解放しました");
+        Debug.Log($"【デバッグ】全 {totalStages} ステージを解放しました");
 
         UpdateStageLocks();
     }
@@ -240,9 +278,10 @@ public class SelectManager : MonoBehaviour
     {
         // 初期状態：ClearedStage = 0 → ステージ1だけ解放
         PlayerPrefs.SetInt("ClearedStage", 0);
+        PlayerPrefs.SetInt("LastUnlockedStage", -1);
         PlayerPrefs.Save();
 
-        Debug.Log("【DEBUG】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
+        Debug.Log("【デバッグ】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
 
         UpdateStageLocks();
     }
@@ -254,6 +293,7 @@ public class SelectManager : MonoBehaviour
     public void ResetStageData()
     {
         PlayerPrefs.SetInt("ClearedStage", 0);
+        PlayerPrefs.SetInt("LastUnlockedStage", -1);
         PlayerPrefs.Save();
 
         Debug.Log("【デバッグ】ステージデータをリセットしました（ステージ1のみ解放）");
@@ -265,102 +305,3 @@ public class SelectManager : MonoBehaviour
     #endregion
 
 }
-
-//// ステージセレクト>SceneManagerで使用
-
-//using System;
-//using UnityEngine;
-//using UnityEngine.SceneManagement;
-//using UnityEngine.Audio;
-
-//public class SelectManager : MonoBehaviour
-//{
-//    [Header("音量設定パネル")]
-//    [SerializeField] private GameObject setPanel;
-
-//    [Header("クリック音設定")]
-//    [Tooltip("ステージ選択・設定ボタンを押したときに鳴らす効果音")]
-//    public AudioClip onClickSE;
-//    [Tooltip("ホーム・閉じるボタンを押したときに鳴らす効果音")]
-//    public AudioClip offClickSE;
-
-//    [Tooltip("接続するAudioMixerのSEグループ")]
-//    public AudioMixerGroup seMixerGroup;
-
-//    private AudioSource audioSource;
-
-//    private string nextStageName;
-
-//    private void Start()
-//    {
-//        // --- パネルの初期設定 ---
-//        if (setPanel != null)
-//            setPanel.SetActive(false);
-//    }
-
-//    // ======== ステージ遷移 =========
-//    public void SelectStage(String StageName)
-//    {
-//        nextStageName = StageName;
-
-//        // AudioManager経由でSEを再生（統一音量）
-//        if (AudioManager.Instance != null)
-//            AudioManager.Instance.PlaySE(onClickSE);
-
-//        // 効果音の長さ分だけ待ってからシーン移動
-//        float delay = onClickSE != null ? onClickSE.length : 0.2f;
-//        Invoke(nameof(LoadNextScene), delay);
-//    }
-
-//    private void LoadNextScene()
-//    {
-//        SceneManager.LoadScene(nextStageName);
-//    }
-
-//    // ======== パネル表示 =========
-//    public void OnPanel()
-//    {
-//        if (setPanel == null) return;
-
-//        setPanel.SetActive(true);
-
-//        if (AudioManager.Instance != null)
-//            AudioManager.Instance.PlaySE(onClickSE);
-
-//        Debug.Log("設定パネル表示");
-//    }
-
-//    // ======== パネル非表示 =========
-//    public void OffPanel()
-//    {
-//        if (setPanel == null) return;
-
-//        setPanel.SetActive(false);
-
-//        if (AudioManager.Instance != null)
-//            AudioManager.Instance.PlaySE(offClickSE);
-
-//        Debug.Log("設定パネル非表示");
-//    }
-
-//    // ========タイトルに戻る========
-//    public void TitleBack(String StageName)
-//    {
-//        nextStageName = StageName;
-
-//        if (AudioManager.Instance != null)
-//            AudioManager.Instance.PlaySE(offClickSE);
-
-//        float delay = offClickSE != null ? offClickSE.length : 0.2f;
-//        Invoke(nameof(LoadNextScene), delay);
-//    }
-
-//    // ======== アプリ終了 =========
-//    public void OnApplicationQuit()
-//    {
-//        if (AudioManager.Instance != null)
-//            AudioManager.Instance.PlaySE(offClickSE);
-
-//        Application.Quit();
-//    }
-//}

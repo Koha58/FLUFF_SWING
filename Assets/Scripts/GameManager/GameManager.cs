@@ -55,6 +55,31 @@ public class GameManager : MonoBehaviour
     /// <summary>現在ポーズ状態かどうか</summary>
     private bool isPaused = false;
 
+    #region === デバッグ用クリア判定処理 ===
+    private void Update()
+    {
+        // --- デバッグ用：Ctrl + Shift + G で強制クリア ---
+        if (Keyboard.current != null)
+        {
+            bool ctrl = Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.rightCtrlKey.isPressed;
+            bool shift = Keyboard.current.leftShiftKey.isPressed || Keyboard.current.rightShiftKey.isPressed;
+            bool g = Keyboard.current.gKey.wasPressedThisFrame;
+
+            if (ctrl && shift && g)
+            {
+                Debug.Log("【デバッグ】Ctrl+Shift+G → 強制クリア発動");
+
+                // プレイヤー取得（失敗時は無視）
+                var playerObj = GameObject.FindGameObjectWithTag("Player");
+                if (playerObj != null)
+                {
+                    OnGoalReached(playerObj.transform);
+                }
+            }
+        }
+    }
+    #endregion
+
     /// <summary>
     /// 初期化処理：シングルトンの設定とInputアクションの取得、TimeScaleの初期化を行う。
     /// </summary>
@@ -152,13 +177,15 @@ public class GameManager : MonoBehaviour
         int cleared = PlayerPrefs.GetInt("ClearedStage", 0);
 
         // 今のクリア結果が保存内容より大きいなら更新
-        int newCleared = stageIndex + 1;    // ← Stage1クリア → ClearedStage = 1
+        int newCleared = stageIndex + 1;    // Stage1クリア → ClearedStage = 1
 
         if (newCleared > cleared)
         {
             PlayerPrefs.SetInt("ClearedStage", newCleared);
+            PlayerPrefs.SetInt("LastUnlockedStage", newCleared - 1);    // 今回新しく解放されたステージ番号を保存
             PlayerPrefs.Save();
             Debug.Log("ClearedStage を更新 → " + newCleared + " まで解放");
+            Debug.Log("LastUnlockedStage 設定 → " + (newCleared -1));
         }
     }
 
