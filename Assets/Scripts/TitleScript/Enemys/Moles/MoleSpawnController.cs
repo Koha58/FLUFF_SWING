@@ -75,7 +75,7 @@ public class MoleSpawnController : MonoBehaviour
             Mole moleScript = mole.GetComponent<Mole>();
             if (moleScript != null)
             {
-                moleScript.mySpawnPoint = selected;
+                //moleScript.mySpawnPoint = selected;
                 selected.isOccupied = true;
             }
            

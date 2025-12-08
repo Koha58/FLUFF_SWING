@@ -730,7 +730,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &262195743
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1489,7 +1489,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &773591335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3260,7 +3260,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1476271353
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4981,7 +4981,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2113774850}
   - component: {fileID: 2113774849}
-  - component: {fileID: 2113774848}
   - component: {fileID: 2113774847}
   - component: {fileID: 2113774839}
   - component: {fileID: 2113774851}
@@ -5040,44 +5039,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 4
---- !u!70 &2113774848
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2113774838}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 56fc7bd697914c1488b15c1ed5a8db87, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.09796575}
-  m_Size: {x: 3, y: 4.8040686}
-  m_Direction: 0
+  m_Constraints: 6
 --- !u!212 &2113774849
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5162,7 +5124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfa63adf2ecd074faba6ccd1e17c617, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runSpeed: 2.2
+  runSpeed: 2
   footstepSEs:
   - {fileID: 0}
 --- !u!1001 &4452990280698834907
@@ -5997,6 +5959,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3205628920454161463, guid: c66340af9c495214490b3348de0791f8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4142046469220561104, guid: c66340af9c495214490b3348de0791f8, type: 3}
       propertyPath: m_Name
       value: Grid (1)
@@ -6610,6 +6576,14 @@ PrefabInstance:
       propertyPath: m_Tiles.Array.data[61].second.m_TileSpriteIndex
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 2182140559305402991, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2752166508561505466, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
+      propertyPath: lifeTime
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 4024481336176957023, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
       propertyPath: m_Name
       value: Grid
@@ -6617,6 +6591,10 @@ PrefabInstance:
     - target: {fileID: 4024481336176957023, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4377539177155052140, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5435228870404889659, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6677,6 +6655,10 @@ PrefabInstance:
     - target: {fileID: 6003565424311923650, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
       propertyPath: m_LocalPosition.y
       value: -3.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687316834145743708, guid: dada4d1a667602d4e8ca31994a6ba9ac, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 20.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
