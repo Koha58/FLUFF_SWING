@@ -30,7 +30,7 @@ public class LockOpen : MonoBehaviour
         foreach (var frame in frames)
         {
             img.sprite = frame;
-            yield return new WaitForSeconds(frameTime);
+            yield return new WaitForSeconds(frameTime); // アニメーションの速度
         }
 
         isPlaying = false;
