@@ -92,14 +92,17 @@ public class PlayerMove : MonoBehaviour
         // 接地判定を実施（Raycastで足元をチェック）
         isGrounded = CheckGrounded();
 
-        // 着地瞬間（非接地 -> 接地）の検知とアニメーション開始
+        // ワイヤー接続中でないことを確認してから Landing を強制開始 🌟
         if (isGrounded && !wasGrounded)
         {
-            Debug.Log("着地瞬間: Landingアニメーションを強制開始");
-            // アニメーションコントローラーのForceLandingを呼び出し
-            // 向きは現在のスプライトの向きを渡す（+1 or -1）
-            float directionX = transform.localScale.x > 0 ? 1f : -1f;
-            animatorController?.ForceLanding(directionX);
+            // ワイヤー接続中は、接地してもLandingアニメーションを再生しない！
+            if (!wireActionScript.IsConnected)
+            {
+                Debug.Log("着地瞬間: Landingアニメーションを強制開始");
+                // アニメーションコントローラーのForceLandingを呼び出し
+                float directionX = transform.localScale.x > 0 ? 1f : -1f;
+                animatorController?.ForceLanding(directionX);
+            }
         }
 
         // 接地状態が変化したらログを出す（デバッグ用）
@@ -112,50 +115,73 @@ public class PlayerMove : MonoBehaviour
         // ワイヤー接続中は移動アニメーション停止、そうでなければ入力に応じて更新
         if (wireActionScript.IsConnected)
         {
-            animatorController?.ResetMoveAnimation();
+            // ワイヤー接続中はIdle/Runアニメーションへの遷移を確実にブロック
+            // アニメーションをWireに固定する処理は WireActionScript または SetPlayerState の優先度制御に任せるのが理想的
+            animatorController?.ResetMoveAnimation(); // ← この呼び出しは、もしRun/Idleに戻るなら不要、またはWireステート維持のための処理が必要です。
         }
         else
         {
-            animatorController?.UpdateMoveAnimation(moveInput);
+            // Landing アニメーション実行中は Run/Idle への上書きを避ける
+            if (animatorController?.CurrentState != PlayerAnimatorController.PlayerState.Landing)
+            {
+                animatorController?.UpdateMoveAnimation(moveInput);
+            }
         }
     }
 
-    /// <summary>
-    /// 物理演算更新（一定間隔で呼ばれる）
-    /// 移動処理やジャンプの補助をここで実行
-    /// </summary>
+
     private void FixedUpdate()
     {
-        // ダメージアニメ再生中またはワイヤー接続中は移動不可にする
-        if (animatorController.IsDamagePlaying || wireActionScript.IsConnected)
+        // --- 優先度1: 最優先の強制停止 ---
+        // ワイヤー接続中は、このクラスでの物理移動（rb.linearVelocityの操作）を完全に停止し、
+        // ワイヤーアクション側の制御に任せる。
+        if (wireActionScript.IsConnected)
         {
             return;
         }
 
-        // 攻撃中は移動無効
+        // ダメージアニメ再生中も移動を停止（ワイヤー中でないことを確認してから）
+        if (animatorController.IsDamagePlaying)
+        {
+            // 移動を止め、縦速度は維持
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
+        // --- 優先度2: アニメーション状態による移動制限 ---
+
+        // 攻撃中は移動入力をゼロにする（FixedUpdateの後半で速度を0にするために）
         if (animatorController.IsAttacking)
         {
+            // 攻撃中の移動を許可しないため、moveInputを一時的に0に上書き
+            // ただし、この後の CanMoveNow() のチェックに依存するため、ここでは return せず moveInput = 0f のみ行う
             moveInput = 0f;
-            return;
         }
 
-        // ✅ ここでアニメーション状態をチェックして移動を制御
+        // ここでアニメーション状態をチェックして移動を制御
         if (!CanMoveNow())
         {
+            // Landing, Attack など、移動が禁止されているステートの場合
             // 移動を止める（横速度を0に）
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             return;
         }
 
-        if (isGrounded && !wireActionScript.IsConnected)
+        // --- 優先度3: 通常の移動処理（CanMoveNowがTrueの場合のみ） ---
+
+        // 既にワイヤー接続中でないことは上のチェックで確認済み
+        if (isGrounded)
         {
             // 通常の地上移動処理
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
         }
 
+        // isGrounded == false (空中) で、移動入力をしているのに横速度がほぼ0の場合
         if (!isGrounded && Mathf.Abs(rb.linearVelocity.x) < 0.1f && moveInput != 0)
         {
-            // 角ハマり対策の自動ジャンプ
+            // 角ハマり対策の自動ジャンプ（空中でのわずかな加速も兼ねる）
+            // 速度を上書きするのではなく、横方向の加速を加える形にするのが一般的だが、
+            // このコードでは速度を直接設定しています。現在の仕様を尊重します。
             rb.linearVelocity = new Vector2(moveInput * moveSpeed, jumpPower);
         }
     }

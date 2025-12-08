@@ -11,6 +11,9 @@ public class TransitionManager : MonoBehaviour
     // シングルトンインスタンス
     public static TransitionManager Instance;
 
+    // 遷移中フラグ
+    public static bool isTransitioning = false; // 静的メンバとして宣言
+
     [Header("トランジション用プレハブ (Canvasごと)")]
     [Tooltip("CloseTransitionとOpenTransitionコンポーネントを持つCanvasプレハブを指定します。")]
     public GameObject transitionCanvasPrefab;
@@ -41,6 +44,13 @@ public class TransitionManager : MonoBehaviour
     /// <param name="nextScene">読み込む次のシーン名</param>
     public void PlayTransitionAndLoadScene(string nextScene)
     {
+        // 既に遷移中の場合は処理を中断
+        if (isTransitioning)
+        {
+            Debug.LogWarning("既にシーン遷移中です。多重実行をブロックしました。");
+            return;
+        }
+
         // コルーチンで一連のトランジションシーケンスを開始
         StartCoroutine(PlayTransitionSequence(nextScene));
     }
@@ -51,6 +61,9 @@ public class TransitionManager : MonoBehaviour
     /// <param name="nextScene">読み込む次のシーン名</param>
     private IEnumerator PlayTransitionSequence(string nextScene)
     {
+        // フラグを立てる
+        isTransitioning = true;
+
         // ----------------------------------------------------------------
         // 1. --- Close演出（画面を暗くする/閉じる） ---
         // ----------------------------------------------------------------
@@ -102,5 +115,8 @@ public class TransitionManager : MonoBehaviour
 
         // Open演出に使ったCanvasも削除し、トランジション完了
         Destroy(openCanvasInstance);
+
+        // フラグを解除 (トランジション完了)
+        isTransitioning = false;
     }
 }
