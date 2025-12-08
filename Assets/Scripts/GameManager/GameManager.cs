@@ -192,14 +192,26 @@ public class GameManager : MonoBehaviour
         // 今のクリア結果が保存内容より大きいなら更新
         if (clearedStageNumber > cleared)
         {
+            // クリア済みステージとして保存
             PlayerPrefs.SetInt("ClearedStage", clearedStageNumber);
 
-            // 今回新しく解放されたステージ番号を保存
-            PlayerPrefs.SetInt("LastUnlockedStage", clearedStageNumber);
+            // 次のステージ番号
+            int nextStage = clearedStageNumber + 1;
+
+            // ステージ数が 6 なら解放なし
+            if (nextStage <= 6)
+            {
+                PlayerPrefs.SetInt("LastUnlockedStage", nextStage);
+                Debug.Log("LastUnlockedStage → " + nextStage);
+            }
+            else
+            {
+                PlayerPrefs.SetInt("LastUnlockedStage", -1);
+            }
+
             PlayerPrefs.Save();
 
-            Debug.Log("ClearedStage を更新 → " + clearedStageNumber + " まで解放");
-            Debug.Log("LastUnlockedStage 設定 → " + clearedStageNumber);
+            Debug.Log("ClearedStage → " + clearedStageNumber + " まで解放");
         }
     }
 

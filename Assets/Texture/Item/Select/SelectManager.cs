@@ -19,6 +19,8 @@ public class SelectManager : MonoBehaviour
     public AudioClip onClickSE;
     [Tooltip("ホーム・閉じるボタンを押したときに鳴らす効果音")]
     public AudioClip offClickSE;
+    [Tooltip("ステージのロックを解除するときに鳴らす効果音")]
+    public AudioClip unlockSE;
 
     [Tooltip("接続するAudioMixerのSEグループ")]
     public AudioMixerGroup seMixerGroup;
@@ -77,6 +79,9 @@ public class SelectManager : MonoBehaviour
                 {
                     anim.PlayUnlockAnimation(() =>
                     {
+                        if (AudioManager.Instance != null)
+                            AudioManager.Instance.PlaySE(unlockSE);
+
                         lockObj.SetActive(false);
                     });
                 }
