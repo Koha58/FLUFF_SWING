@@ -92,6 +92,16 @@ public class PlayerMove : MonoBehaviour
         // 接地判定を実施（Raycastで足元をチェック）
         isGrounded = CheckGrounded();
 
+        // 着地瞬間（非接地 -> 接地）の検知とアニメーション開始
+        if (isGrounded && !wasGrounded)
+        {
+            Debug.Log("着地瞬間: Landingアニメーションを強制開始");
+            // アニメーションコントローラーのForceLandingを呼び出し
+            // 向きは現在のスプライトの向きを渡す（+1 or -1）
+            float directionX = transform.localScale.x > 0 ? 1f : -1f;
+            animatorController?.ForceLanding(directionX);
+        }
+
         // 接地状態が変化したらログを出す（デバッグ用）
         if (isGrounded != wasGrounded)
         {
