@@ -22,7 +22,7 @@ public class PauseMenuUIController : MonoBehaviour
     /// <summary>セレクトシーンの名前（SceneManagerで使用）</summary>
     private const string SelectSceneName = "SelectScene";
     /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
-    private const string TitleSceneName = "SubTitle";
+    private const string TitleSceneName = "TitleScene";
 
     /// <summary>
     /// 初期化処理。UIを非表示にし、ボタン操作も無効化する。

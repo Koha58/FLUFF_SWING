@@ -148,7 +148,8 @@ public class GameResultUIController : MonoBehaviour
     public void ClickQuitToStageSelect()
     {
         ResumeGameTime();
-        SceneManager.LoadScene(SelectSceneName);
+        // SceneManager.LoadScene(SelectSceneName);
+        TransitionManager.Instance.PlayTransitionAndLoadScene(SelectSceneName);
     }
 
     #endregion
