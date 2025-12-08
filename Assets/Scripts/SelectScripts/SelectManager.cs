@@ -19,6 +19,8 @@ public class SelectManager : MonoBehaviour
     public AudioClip onClickSE;
     [Tooltip("ホーム・閉じるボタンを押したときに鳴らす効果音")]
     public AudioClip offClickSE;
+    [Tooltip("データリセットボタンを押したときに鳴らす効果音")]
+    public AudioClip resetClickSE;
     [Tooltip("ステージのロックを解除するときに鳴らす効果音")]
     public AudioClip unlockSE;
 
@@ -249,7 +251,7 @@ public class SelectManager : MonoBehaviour
         resetPanel.SetActive(true);
 
         if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(onClickSE);
+            AudioManager.Instance.PlaySE(resetClickSE);
 
         Debug.Log("データリセットパネル表示");
     }
@@ -281,7 +283,7 @@ public class SelectManager : MonoBehaviour
 
     #endregion
 
-    #region デバッグ用アンロック
+    #region デバッグ用アンロック・データリセット
 
     private void Update()
     {
@@ -328,6 +330,9 @@ public class SelectManager : MonoBehaviour
         Debug.Log($"【デバッグ】全 {totalStages} ステージを解放しました");
 
         UpdateStageLocks();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(resetClickSE);
     }
 
     private void DebugResetStages()
@@ -340,6 +345,9 @@ public class SelectManager : MonoBehaviour
         Debug.Log("【デバッグ】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
 
         UpdateStageLocks();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(resetClickSE);
     }
 
     /// <summary>
@@ -356,6 +364,9 @@ public class SelectManager : MonoBehaviour
 
         // ロック状態を即時更新
         UpdateStageLocks();
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(resetClickSE);
     }
 
     #endregion
