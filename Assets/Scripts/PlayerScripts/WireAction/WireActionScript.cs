@@ -224,54 +224,82 @@ public class WireActionScript : MonoBehaviour
     /// <summary>ワイヤー切断処理</summary>
     public void CutWire()
     {
-        // 着地中は切断を無効化
-        if (animatorController.CurrentState == PlayerAnimatorController.PlayerState.Landing)
-            return;
-
         // クールタイム判定
         if (Time.time - _lastCutTime < cutCooldown) return;
         _lastCutTime = Time.time;
 
-        // DistanceJoint2Dを無効化してワイヤーを切断
-        distanceJoint.enabled = false;
-        targetObject = null;
-        lineRenderer.enabled = false;
-        SetNeedleVisible(false);
-
-        // 発射中の針コルーチン停止
+        // 既にアニメーション遷移コルーチンが実行中の場合は、二重実行を防ぐ
         if (currentNeedleCoroutine != null)
         {
             StopCoroutine(currentNeedleCoroutine);
             currentNeedleCoroutine = null;
         }
 
+        // 【1】 物理的な切断
+        distanceJoint.enabled = false;
+        targetObject = null;
+        lineRenderer.enabled = false;
+        SetNeedleVisible(false);
+
+        // 発射中の針コルーチン停止（ここでは念のためcurrentNeedleCoroutineとは別にワイヤー処理全体を停止）
+        // ※ currentNeedleCoroutineを流用している場合はこのチェックは不要
+        // if (currentNeedleCoroutine != null)
+        // {
+        //     StopCoroutine(currentNeedleCoroutine);
+        //     currentNeedleCoroutine = null;
+        // }
+
         // アニメーションフラグリセット
         animatorController.ResetWireFlags();
 
-        // 切断後アニメーション遷移
-        StartCoroutine(HandleWireCutTransition());
+        // 🚨 修正: アニメーション処理をコルーチンで実行し、FixedUpdateを待つ 🚨
+        // 攻撃処理との競合を避けるため、アニメーション遷移を物理フレームの後に遅延させる。
+        // currentNeedleCoroutineをワイヤー切断後の遷移管理にも流用する
+        currentNeedleCoroutine = StartCoroutine(CutWireAndTransitionCo());
     }
 
-    /// <summary>ワイヤー切断後のアニメーション遷移</summary>
-    private IEnumerator HandleWireCutTransition()
+    /// <summary>
+    /// ワイヤー切断後のアニメーション遷移をFixedUpdate後に実行し、攻撃入力との競合を防ぐ。
+    /// </summary>
+    private IEnumerator CutWireAndTransitionCo()
     {
-        // 物理更新後にアニメーション更新
+        // 物理計算 (FixedUpdate) の実行完了を待つ
+        // これにより、isGrounded の最終的な状態が確定し、
+        // 同時に入力された攻撃処理が先に実行される機会を与える。
         yield return new WaitForFixedUpdate();
 
-        // 接地判定
-        bool groundedNow = playerMove != null && playerMove.IsGrounded;
-        bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(GroundCheckThreshold);
+        // 確実な接地判定を取得
+        bool isGroundedNow = playerMove != null && playerMove.IsGrounded;
 
-        if (groundedNow || almostGroundedNow)
-            animatorController.ForceIdle(lastSwingDirectionX); // 接地中はIdle
-        else
-        {
-            animatorController.ForceLanding(lastSwingDirectionX); // 空中ならLanding
-            yield return new WaitForSeconds(SwingAnimationStopDelay); // スイング停止待機
-            if (playerMove != null && playerMove.IsGrounded)
-                animatorController.ForceIdle(lastSwingDirectionX); // 着地後Idle
-        }
+        // 確実な状態遷移を PlayerAnimatorController に委ねる
+        // PlayerAnimatorController.OnWireCut はアニメーターのパラメータを直接上書きするため、
+        // 攻撃ステートになっていたとしても、そこから強制的に Idle/Landing に遷移させる。
+        animatorController.OnWireCut(lastSwingDirectionX, isGroundedNow);
+
+        // コルーチン終了
+        currentNeedleCoroutine = null;
     }
+
+    ///// <summary>ワイヤー切断後のアニメーション遷移</summary>
+    //private IEnumerator HandleWireCutTransition()
+    //{
+    //    // 物理更新後にアニメーション更新
+    //    yield return new WaitForFixedUpdate();
+
+    //    // 接地判定
+    //    bool groundedNow = playerMove != null && playerMove.IsGrounded;
+    //    bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(GroundCheckThreshold);
+
+    //    if (groundedNow || almostGroundedNow)
+    //        animatorController.ForceIdle(lastSwingDirectionX); // 接地中はIdle
+    //    else
+    //    {
+    //        animatorController.ForceLanding(lastSwingDirectionX); // 空中ならLanding
+    //        yield return new WaitForSeconds(SwingAnimationStopDelay); // スイング停止待機
+    //        if (playerMove != null && playerMove.IsGrounded)
+    //            animatorController.ForceIdle(lastSwingDirectionX); // 着地後Idle
+    //    }
+    //}
 
     #endregion
 

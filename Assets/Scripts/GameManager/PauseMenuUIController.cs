@@ -84,7 +84,7 @@ public class PauseMenuUIController : MonoBehaviour
     /// </summary>
     public void ClickQuitToStageSelect()
     {
-        ResumeAndLoadScene(SelectSceneName);
+        ResumeAndLoadSceneWithTransition(SelectSceneName);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public class PauseMenuUIController : MonoBehaviour
     /// </summary>
     public void ClickQuitToTitle()
     {
-        ResumeAndLoadScene(TitleSceneName);
+        ResumeAndLoadSceneWithTransition(TitleSceneName);
     }
 
     //========================================
@@ -100,12 +100,29 @@ public class PauseMenuUIController : MonoBehaviour
     //========================================
 
     /// <summary>
-    /// ゲームを再開して指定シーンを読み込む。
+    /// ゲームを再開し、TransitionManager経由で指定シーンを読み込む。
     /// </summary>
     /// <param name="sceneName">遷移先のシーン名</param>
-    private void ResumeAndLoadScene(string sceneName)
+    private void ResumeAndLoadSceneWithTransition(string sceneName)
     {
+        // 1. ゲームを再開 (Time.timeScale = 1)
+        // トランジションアニメーションを正常な速度で動かすために、ポーズを解除する必要があります。
         GameManager.Instance.ResumeFromPauseMenu();
-        SceneManager.LoadScene(sceneName);
+
+        // 2. ポーズUIを閉じる（すぐにトランジションが上書きしますが念のため）
+        ClosePauseMenu();
+
+        // 3. TransitionManagerを使用してフェード遷移を開始
+        // SceneManager.LoadScene(sceneName); // 従来の即時ロードを削除
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.PlayTransitionAndLoadScene(sceneName);
+        }
+        else
+        {
+            // TransitionManagerがない場合のフォールバック（デバッグ用）
+            Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
+            SceneManager.LoadScene(sceneName);
+        }
     }
 }

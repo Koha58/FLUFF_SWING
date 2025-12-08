@@ -197,6 +197,13 @@ public class PlayerAnimatorController : MonoBehaviour
         var currentPriority = GetStatePriority(_currentState);
         var newPriority = GetStatePriority(newState);
 
+        // 現在 Wire 状態であれば、Wire 状態以外への遷移を禁止
+        if (_currentState == PlayerState.Wire && newState != PlayerState.Wire)
+        {
+            // WireActionScript からの StopSwingAnimation/OnWireCut 以外で Wire から離脱しないようにする
+            return false;
+        }
+
         // High優先度（Damage/Goal）中に、それ以下の優先度の遷移を無効化
         if (currentPriority == PlayerStatePriority.High && newPriority < currentPriority)
             return false;
@@ -286,9 +293,9 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="moveInput">移動入力値（-1.0～1.0）</param>
     public void UpdateMoveAnimation(float moveInput)
     {
-        // 特定状態中は移動アニメーションの更新を無効化
+        // ワイヤー、攻撃、ダメージ、着地中は常にリターン。Jump中は移動入力によるRun/Idleへの遷移はしない。
         if (_pendingWireTransition || _isAttacking || IsDamagePlaying ||
-            _currentState == PlayerState.Wire || _currentState == PlayerState.Landing || _currentState == PlayerState.Jump)
+            _currentState == PlayerState.Wire || _currentState == PlayerState.Landing)
             return;
 
         // 移動判定ロジック
@@ -395,27 +402,91 @@ public class PlayerAnimatorController : MonoBehaviour
     /// ワイヤー切断時（プレイヤーがワイヤーを離した/ワイヤーが切れた）の挙動。
     /// </summary>
     /// <param name="swingDirection">切断時の移動方向</param>
-    public void OnWireCut(float swingDirection)
+    /// <param name="isPlayerGrounded">切断時にプレイヤーが地面に接触していたか</param>
+    public void OnWireCut(float swingDirection, bool isPlayerGrounded)
     {
+        // PlayerMove側にワイヤー切断を通知するロジックがもしあれば、ここで呼び出す (例: playerMove?.SetJustCutWireFlag())
+
         // Wire関連のフラグをリセット
         ResetWireFlags();
 
-        // Wire状態以外、またはすでにLanding中であれば何もしない
-        // ただし、Landing状態への遷移は強制で行うため、_currentState == PlayerState.Wire ではない場合でも
-        // 強制的に遷移させるロジックに変更する
-        if (_currentState == PlayerState.Landing) return;
-
         // Landing後のIdle遷移コルーチンがもし残っていれば確実に停止
-        // StopCoroutine(nameof(...)) の代わりに、参照変数 (_landingToIdleCoroutine) を利用して確実に停止
         if (_landingToIdleCoroutine != null)
         {
             StopCoroutine(_landingToIdleCoroutine);
             _landingToIdleCoroutine = null;
         }
 
-        // Landing状態へ強制遷移
-        // SetPlayerState内でLandingSE再生、およびTransitionToIdleAfterLandingコルーチンが開始される
-        SetPlayerState(PlayerState.Landing, swingDirection, Speeds.None, true);
+        // 既にDamageステートなどの最高優先度ステートであれば何もしない
+        if (GetStatePriority(_currentState) == PlayerStatePriority.High) return;
+
+        // どの状態へ遷移すべきか決定
+        PlayerState targetState = isPlayerGrounded ? PlayerState.Idle : PlayerState.Landing;
+
+        // 遷移先の状態ごとのスピード倍率を決定
+        float speedMultiplier = targetState == PlayerState.Landing ? AnimatorSpeeds.Landing : AnimatorSpeeds.Idle;
+
+        // 🚨 修正ロジック: アニメーションコントローラーのチェックをバイパスし、直接遷移を実行 🚨
+
+        // 現在の状態がTargetStateと異なる、またはWire状態からの離脱であれば強制実行
+        if (_currentState != targetState)
+        {
+            // 1. 状態の更新
+            Debug.Log($"[OnWireCut] Forcing transition: {_currentState} -> {targetState} (Grounded: {isPlayerGrounded})");
+            _previousState = _currentState; // 履歴を更新
+            _currentState = targetState;
+
+            // 2. アニメーターへの反映（直接書き込み）
+            _animator.SetInteger(AnimatorParams.State, (int)targetState);
+            _animator.SetFloat(AnimatorParams.SpeedMultiplier, speedMultiplier);
+
+            //// 🚨 最終手段: 攻撃アニメーションのフラグを全てリセット 🚨
+            //// 攻撃とワイヤーカットの同時入力による競合を防ぐ。
+            //_animator.SetBool(AnimatorParams.IsAttacking, false);
+            //_animator.SetBool(AnimatorParams.IsWindingUp, false); // もしあれば
+            //_animator.ResetTrigger(AnimatorParams.AttackTrigger); // 攻撃トリガーをリセット
+            //                                                      // 念のため、他の高優先度フラグもリセット
+            //                                                      // _animator.SetBool(AnimatorParams.IsDamaged, false); 
+
+            //// 3. アニメーターを即座に評価 (重要)
+            // 次のフレームを待たずにアニメーターを強制的に更新し、固着を防ぐ。
+            _animator.Update(0f);
+
+            // 3. スプライト反転 (この時点で実行)
+            FlipSprite(swingDirection);
+
+            // 4. 状態ごとの追加処理
+            if (targetState == PlayerState.Landing)
+            {
+                PlayLandingSE();
+                // Landing後のIdle遷移コルーチンを開始
+                StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
+            }
+        }
+        else if (_currentState == PlayerState.Wire && targetState == PlayerState.Idle)
+        {
+            // 稀に Wire -> Idle への遷移で targetState が Idle だが _currentState も Idle になっていないケースのための再実行
+            Debug.Log($"[OnWireCut] State was Wire, forcing Idle again.");
+            _currentState = PlayerState.Idle;
+            _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Idle);
+            _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
+            FlipSprite(swingDirection);
+        }
+
+
+        // 🌟 最終保険: SetPlayerState や上記ロジックによる強制遷移が失敗した場合のリカバリー 🌟
+        // どんな手段を講じても _currentState が Wire のままである場合に備える
+        if (_currentState == PlayerState.Wire)
+        {
+            Debug.LogWarning("[OnWireCut] State transition failed. Forcing Idle state integer as final safeguard.");
+
+            // アニメーターの State パラメータに直接 Idle の値を強制的に書き込む
+            _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Idle);
+            _currentState = PlayerState.Idle;
+
+            // 念のため、Wire関連のフラグを再度リセット
+            ResetWireFlags();
+        }
     }
 
     /// <summary>
