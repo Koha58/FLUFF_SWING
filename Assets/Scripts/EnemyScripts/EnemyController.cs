@@ -138,6 +138,16 @@ public class EnemyController : MonoBehaviour, IDamageable
             // 死亡SEを再生
             AudioManager.Instance?.PlaySE(deathSE);
 
+            // --- ▼ 死亡時のコライダー無効化 (ターゲットアイコン対策) ▼ ---
+            // 全てのコライダーを無効化し、プレイヤー側のターゲット検出から外す
+            foreach (var c in GetComponents<Collider2D>())
+            {
+                c.enabled = false;
+            }
+
+            // 2. タグを一時的に変更 (これにより PlayerAttack.FindNearestEnemy から検出されなくなる)
+            gameObject.tag = "Untagged";
+
             // 死亡ステートに遷移
             stateMachine.ChangeState(stateMachineSO.deadState);
         }
@@ -209,6 +219,9 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     public void HandleDead()
     {
+        // オブジェクトプールに戻す前に、次の再利用に備えて敵の状態を初期化する
+        ResetEnemy();
+
         // EnemyPoolに返却して非アクティブ化
         EnemyPool.Instance.ReturnToPool(this);
     }
@@ -241,6 +254,9 @@ public class EnemyController : MonoBehaviour, IDamageable
         // 死亡時の上下反転を解除
         if (spriteRenderer != null)
             spriteRenderer.flipY = false;
+
+        // --- ▼ タグを "Enemy" に戻す ▼ ---
+        gameObject.tag = "Enemy";
 
         // 全コライダーを再有効化
         foreach (var c in GetComponents<Collider2D>())
