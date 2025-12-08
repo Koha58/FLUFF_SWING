@@ -1,25 +1,40 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
-public class KeyUnlockAnimation : MonoBehaviour
+public class LockOpen : MonoBehaviour
 {
-    [SerializeField] private Image keyImage;      // 鍵のImage
-    [SerializeField] private Sprite[] keySprites; // 3枚の画像（0→1→2）
+    [Header("アニメーション用スプライト3枚")]
+    [SerializeField] private Sprite[] frames;
+    [SerializeField] private float frameTime = 0.25f;
 
-    [SerializeField] private float interval = 0.5f; // 切替間隔（2～3秒なら0.5 × 3 など）
+    private Image img;
+    private bool isPlaying = false;
 
-    public void PlayUnlockAnimation()
+    private void Awake()
     {
-        StartCoroutine(UnlockRoutine());
+        img = GetComponent<Image>();
     }
 
-    private IEnumerator UnlockRoutine()
+    public void PlayUnlockAnimation(Action onFinished = null)
     {
-        for (int i = 0; i < keySprites.Length; i++)
+        if (isPlaying) return;
+        StartCoroutine(PlayRoutine(onFinished));
+    }
+
+    private IEnumerator PlayRoutine(Action onFinished)
+    {
+        isPlaying = true;
+
+        foreach (var frame in frames)
         {
-            keyImage.sprite = keySprites[i];
-            yield return new WaitForSeconds(interval);
+            img.sprite = frame;
+            yield return new WaitForSeconds(frameTime);
         }
+
+        isPlaying = false;
+        onFinished?.Invoke();
     }
+
 }

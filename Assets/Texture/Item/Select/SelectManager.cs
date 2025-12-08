@@ -53,7 +53,7 @@ public class SelectManager : MonoBehaviour
         int clearedStage = Mathf.Max(1, PlayerPrefs.GetInt("ClearedStage", 0));
         int lastUnlocedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
 
-        for(int i = 0; i < stageLocks.Length; i++)
+        for (int i = 0; i < stageLocks.Length; i++)
         {
             GameObject lockObj = stageLocks[i];
             if (lockObj == null) continue;
