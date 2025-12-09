@@ -7,7 +7,7 @@ using UnityEngine.Audio;
 
 public class SelectManager : MonoBehaviour
 {
-    #region インスペクター
+    #region === インスペクター ===
 
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
@@ -36,7 +36,7 @@ public class SelectManager : MonoBehaviour
 
     #endregion
 
-    #region パネルの初期設定・ロックの状態更新
+    #region === パネルの初期設定 ===
 
     private void Start()
     {
@@ -50,10 +50,12 @@ public class SelectManager : MonoBehaviour
         UpdateStageLocks();
     }
 
-    // ======== 各ステージのロック状態を更新 =========
+    #endregion
+
+    #region === ロックの状態更新 ===
+
     private void UpdateStageLocks()
     {
-        //int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
         int clearedStage = Mathf.Max(1, PlayerPrefs.GetInt("ClearedStage", 0));
         int lastUnlocedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
 
@@ -64,14 +66,14 @@ public class SelectManager : MonoBehaviour
 
             int stageNumber = i + 1;
 
-            // 解放済み→非表示
+            // --- 解放済み→非表示 ---
             if (stageNumber < lastUnlocedStage)
             {
                 lockObj.SetActive(false);
                 continue;
             }
 
-            // 今回新たに解放されたステージ→アニメーション再生
+            // --- 今回新たに解放されたステージ→アニメーション再生 ---
             if (stageNumber == lastUnlocedStage)
             {
                 var anim = lockObj.GetComponent<LockOpen>();
@@ -94,74 +96,24 @@ public class SelectManager : MonoBehaviour
                 continue;
             }
 
-            // 未解放→表示
-            bool isUnlocked = stageNumber <= clearedStage;
+            // --- 未解放→表示 ---
+            int unlockedMax = PlayerPrefs.GetInt("UnlockedMaxStage", 1);
+            bool isUnlocked = stageNumber <= unlockedMax;
             lockObj.SetActive(!isUnlocked);
         }
 
-        // 一度再生したらリセット
+        // --- 一度再生したらリセット ---
         if (lastUnlocedStage != -1)
         {
             PlayerPrefs.SetInt("LastUnlockedStage", -1);
             PlayerPrefs.Save();
         }
-
-        #region === バグ修正前 ===
-        //int clearedStage = PlayerPrefs.GetInt("ClearedStage", 0);
-        //int lastUnlocked = PlayerPrefs.GetInt("LastUnlockedStage", -1);
-
-        //for (int i = 0; i < stageLocks.Length; i++)
-        //{
-        //    GameObject lockObj = stageLocks[i];
-        //    if (lockObj == null) continue;
-
-        //    bool unlocked = i <= clearedStage;
-
-        //    // すでに開放済み（アニメ済み）
-        //    if (i < lastUnlocked)
-        //    {
-        //        lockObj.SetActive(false);
-        //        continue;
-        //    }
-
-        //    // 今回新しく解除されたステージ → アニメ再生
-        //    if (i == lastUnlocked)
-        //    {
-        //        var anim = lockObj.GetComponent<LockOpen>();
-        //        lockObj.SetActive(true);
-
-        //        if (anim != null)
-        //        {
-        //            anim.PlayUnlockAnimation(() =>
-        //            {
-        //                lockObj.SetActive(false); // アニメ終了後に鍵を消す
-        //            });
-        //        }
-        //        else
-        //        {
-        //            lockObj.SetActive(false);
-        //        }
-        //        continue;
-        //    }
-
-        //    // まだロック中
-        //    lockObj.SetActive(!unlocked);
-        //}
-
-        //// 1度再生したらリセットして2度目は再生させない
-        //if (lastUnlocked != -1)
-        //{
-        //    PlayerPrefs.SetInt("LastUnlockedStage", -1);
-        //    PlayerPrefs.Save();
-        //}
-        #endregion
     }
 
     #endregion
 
-    #region ステージ遷移
+    #region === ステージ遷移 ===
 
-    // ======== ステージ遷移 =========
     public void SelectStage(String StageName)
     {
         // --- ロックチェック ---
@@ -170,32 +122,30 @@ public class SelectManager : MonoBehaviour
         {
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySE(offClickSE);
-            Debug.Log(StageName + " はロック中です。");
+            Debug.Log("<color=green>" + StageName + " はロック中です。</color>");
             return;
         }
 
         nextStageName = StageName;
 
-        // AudioManager経由でSEを再生（統一音量）
+        // --- AudioManager経由でSEを再生(統一音量) ---
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
 
-        // 効果音の長さ分だけ待ってからシーン移動
+        // --- 効果音の長さ分だけ待ってからシーン移動 ---
         float delay = onClickSE != null ? onClickSE.length : 0.1f;
         Invoke(nameof(LoadNextScene), delay);
     }
 
-    // シーン移動用
+    // --- シーン移動用 ---
     private void LoadNextScene()
     {
-        //SceneManager.LoadScene(nextStageName);
         TransitionManager.Instance.PlayTransitionAndLoadScene(nextStageName);
     }
 
-    // ======== Stage名 → Index変換 ========
+    // --- Stage名 → Index変換 ---
     private int GetStageIndex(string stageName)
     {
-        // 例：Stage1, Stage2,... を前提
         if (stageName.StartsWith("Stage"))
         {
             if (int.TryParse(stageName.Replace("Stage", ""), out int num))
@@ -204,7 +154,7 @@ public class SelectManager : MonoBehaviour
         return -1;
     }
 
-    // ========タイトルに戻る========
+    // --- タイトルに戻る ---
     public void TitleBack(String StageName)
     {
         nextStageName = StageName;
@@ -216,7 +166,7 @@ public class SelectManager : MonoBehaviour
         Invoke(nameof(LoadNextScene), delay);
     }
 
-    // ======== アプリ終了 =========
+    // --- アプリ終了 ---
     public void OnApplicationQuit()
     {
         if (AudioManager.Instance != null)
@@ -229,7 +179,7 @@ public class SelectManager : MonoBehaviour
 
     #region パネルの表示・非表示切り替え
 
-    // ======== パネル表示 =========
+    // --- パネル表示 ---
     public void OnSetPanel()
     {
         if (setPanel == null) return;
@@ -239,7 +189,7 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
 
-        Debug.Log("音量設定パネル表示");
+        Debug.Log("<color=green>音量設定パネル表示</color>");
     }
 
     public void OnResetPanel()
@@ -251,10 +201,10 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(resetClickSE);
 
-        Debug.Log("データリセットパネル表示");
+        Debug.Log("<color=green>データリセットパネル表示</color>");
     }
 
-    // ======== パネル非表示 =========
+    // --- パネル非表示 ---
     public void OffSetPanel()
     {
         if (setPanel == null) return;
@@ -264,7 +214,7 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
-        Debug.Log("音量設定パネル非表示");
+        Debug.Log("<color=green>音量設定パネル非表示</color>");
     }
 
     public void OffResetPanel()
@@ -276,7 +226,7 @@ public class SelectManager : MonoBehaviour
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
-        Debug.Log("データリセットパネル非表示");
+        Debug.Log("<color=green>データリセットパネル非表示</color>");
     }
 
     #endregion
@@ -295,7 +245,7 @@ public class SelectManager : MonoBehaviour
     /// </summary>
     private void CheckDebugUnlockInput()
     {
-        // 全ステージ解放
+        // --- 全ステージ解放 ---
         if (Input.GetKey(KeyCode.LeftControl) &&
             Input.GetKey(KeyCode.LeftShift) &&
             Input.GetKeyDown(KeyCode.U))
@@ -306,7 +256,7 @@ public class SelectManager : MonoBehaviour
                 AudioManager.Instance.PlaySE(onClickSE);
         }
 
-        // ロック初期化（ステージ1だけ解放）
+        // --- ロック初期化（ステージ1だけ解放）---
         if (Input.GetKey(KeyCode.LeftControl) &&
             Input.GetKey(KeyCode.LeftShift) &&
             Input.GetKeyDown(KeyCode.R))
@@ -323,9 +273,10 @@ public class SelectManager : MonoBehaviour
         int totalStages = stageLocks.Length;
 
         PlayerPrefs.SetInt("ClearedStage", totalStages);
+        PlayerPrefs.SetInt("UnlockedMaxStage", totalStages);
         PlayerPrefs.Save();
 
-        Debug.Log($"【デバッグ】全 {totalStages} ステージを解放しました");
+        Debug.Log("<b><color=orange>【デバッグ】Ctrl+Shift+U→全ステージを解放しました</color></b>");
 
         UpdateStageLocks();
 
@@ -335,12 +286,13 @@ public class SelectManager : MonoBehaviour
 
     private void DebugResetStages()
     {
-        // 初期状態：ClearedStage = 0 → ステージ1だけ解放
+        // --- 初期状態：ClearedStage = 0 → ステージ1だけ解放 ---
         PlayerPrefs.SetInt("ClearedStage", 0);
         PlayerPrefs.SetInt("LastUnlockedStage", -1);
+        PlayerPrefs.SetInt("UnlockedMaxStage", 1);
         PlayerPrefs.Save();
 
-        Debug.Log("【デバッグ】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
+        Debug.Log("<b><color=orange>【デバッグ】Ctrl+Shift+R→ステージロックを初期状態に戻しました（ステージ1のみ解放）</color></b>");
 
         UpdateStageLocks();
 
@@ -356,11 +308,12 @@ public class SelectManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("ClearedStage", 0);
         PlayerPrefs.SetInt("LastUnlockedStage", -1);
+        PlayerPrefs.SetInt("UnlockedMaxStage", 1);
         PlayerPrefs.Save();
 
-        Debug.Log("【デバッグ】ステージデータをリセットしました（ステージ1のみ解放）");
+        Debug.Log("<b><color=orange>ステージデータをリセットしました（ステージ1のみ解放）</color></b>");
 
-        // ロック状態を即時更新
+        // --- ロック状態を即時更新 ---
         UpdateStageLocks();
 
         if (AudioManager.Instance != null)
