@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
 
             if (ctrl && shift && g)
             {
-                Debug.Log("【デバッグ】Ctrl+Shift+G → 強制クリア発動");
+                Debug.Log("<b><color=orange>【デバッグ】Ctrl+Shift+G→ステージクリア判定</color></b>");
 
                 // プレイヤー取得（失敗時は無視）
                 var playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -175,12 +175,11 @@ public class GameManager : MonoBehaviour
     private void SaveStageClear()
     {
         string sceneName = SceneManager.GetActiveScene().name;
-
         int stageIndex = GetStageIndex(sceneName);
 
         if (stageIndex < 0)
         {
-            Debug.LogWarning("ステージ番号が取得できません: " + sceneName);
+            Debug.LogWarning("<b>ステージ番号が取得できません: " + sceneName + "</b>");
             return;
         }
 
@@ -198,11 +197,19 @@ public class GameManager : MonoBehaviour
             // 次のステージ番号
             int nextStage = clearedStageNumber + 1;
 
+            // 解放済みステージを記録
+            int unlockedMax = PlayerPrefs.GetInt("UnlockedMaxStage", 1);
+
+            if (nextStage > unlockedMax && nextStage <= 6)
+            {
+                PlayerPrefs.SetInt("UnlockedMaxStage", nextStage);
+            }
+
             // ステージ数が 6 なら解放なし
             if (nextStage <= 6)
             {
                 PlayerPrefs.SetInt("LastUnlockedStage", nextStage);
-                Debug.Log("LastUnlockedStage → " + nextStage);
+                Debug.Log("<b><color=green>ステージ" + nextStage + "まで解放</color></b>");
             }
             else
             {
@@ -210,8 +217,6 @@ public class GameManager : MonoBehaviour
             }
 
             PlayerPrefs.Save();
-
-            Debug.Log("ClearedStage → " + clearedStageNumber + " まで解放");
         }
     }
 
