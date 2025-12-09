@@ -180,7 +180,7 @@ public class WireActionScript : MonoBehaviour
         // 🔹② Tilemap以外のコライダー (静的 or 動的)
         else
         {
-            // 💡 修正点: 正確な法線を取得するために、コライダーに沿ったRaycastを実行する
+            // 正確な法線を取得するために、コライダーに沿ったRaycastを実行する
             // プレイヤーからヒット点へ向かう方向のRaycast
             Vector2 directionToHit = (connectPoint - (Vector2)transform.position).normalized;
 
@@ -241,18 +241,10 @@ public class WireActionScript : MonoBehaviour
         lineRenderer.enabled = false;
         SetNeedleVisible(false);
 
-        // 発射中の針コルーチン停止（ここでは念のためcurrentNeedleCoroutineとは別にワイヤー処理全体を停止）
-        // ※ currentNeedleCoroutineを流用している場合はこのチェックは不要
-        // if (currentNeedleCoroutine != null)
-        // {
-        //     StopCoroutine(currentNeedleCoroutine);
-        //     currentNeedleCoroutine = null;
-        // }
-
         // アニメーションフラグリセット
         animatorController.ResetWireFlags();
 
-        // 🚨 修正: アニメーション処理をコルーチンで実行し、FixedUpdateを待つ 🚨
+        // アニメーション処理をコルーチンで実行し、FixedUpdateを待つ
         // 攻撃処理との競合を避けるため、アニメーション遷移を物理フレームの後に遅延させる。
         // currentNeedleCoroutineをワイヤー切断後の遷移管理にも流用する
         currentNeedleCoroutine = StartCoroutine(CutWireAndTransitionCo());
@@ -279,27 +271,6 @@ public class WireActionScript : MonoBehaviour
         // コルーチン終了
         currentNeedleCoroutine = null;
     }
-
-    ///// <summary>ワイヤー切断後のアニメーション遷移</summary>
-    //private IEnumerator HandleWireCutTransition()
-    //{
-    //    // 物理更新後にアニメーション更新
-    //    yield return new WaitForFixedUpdate();
-
-    //    // 接地判定
-    //    bool groundedNow = playerMove != null && playerMove.IsGrounded;
-    //    bool almostGroundedNow = playerMove != null && playerMove.IsAlmostGrounded(GroundCheckThreshold);
-
-    //    if (groundedNow || almostGroundedNow)
-    //        animatorController.ForceIdle(lastSwingDirectionX); // 接地中はIdle
-    //    else
-    //    {
-    //        animatorController.ForceLanding(lastSwingDirectionX); // 空中ならLanding
-    //        yield return new WaitForSeconds(SwingAnimationStopDelay); // スイング停止待機
-    //        if (playerMove != null && playerMove.IsGrounded)
-    //            animatorController.ForceIdle(lastSwingDirectionX); // 着地後Idle
-    //    }
-    //}
 
     #endregion
 
@@ -353,14 +324,14 @@ public class WireActionScript : MonoBehaviour
             {
                 distanceJoint.connectedBody = hitRb;
 
-                // 💡 修正点: ワールド座標のヒット位置を、Rigidbodyのローカル座標に変換
+                // ワールド座標のヒット位置を、Rigidbodyのローカル座標に変換
                 distanceJoint.connectedAnchor = hitRb.transform.InverseTransformPoint(targetPosition);
 
-                // 🔹後で針位置を更新できるよう保存
+                // 後で針位置を更新できるよう保存
                 isConnectedToMovingObject = true;
                 connectedObject = hitObject;
             }
-            else // 🔹Tilemapなどの静的オブジェクト
+            else // Tilemapなどの静的オブジェクト
             {
                 distanceJoint.connectedBody = null;
                 distanceJoint.connectedAnchor = _hookedPosition;
@@ -449,16 +420,16 @@ public class WireActionScript : MonoBehaviour
 
             Tilemap tilemap = hitObj.GetComponent<Tilemap>() ?? hitObj.GetComponentInParent<Tilemap>();
 
-            // 🔹① Tilemapの場合
+            // ① Tilemapの場合
             if (tilemap != null)
             {
                 // Tilemapの特殊な補正ロジック
                 adjustedTarget = FindSurfaceAlongPlayerDirectionTilemap(connectPoint);
             }
-            // 🔹② Tilemap以外のコライダー (静的 or 動的)
+            // ② Tilemap以外のコライダー (静的 or 動的)
             else
             {
-                // 💡 安定した法線を取得するためのRaycastを改めて実行
+                // 安定した法線を取得するためのRaycastを改めて実行
                 // プレイヤーからヒット点へ向かう方向のRaycast
                 Vector2 directionToHit = (connectPoint - (Vector2)transform.position).normalized;
 
@@ -498,16 +469,6 @@ public class WireActionScript : MonoBehaviour
 
     #endregion
 
-    #region === アニメーション・補助 ===
-
-    /// <summary>スイング停止アニメーションを遅延して再生</summary>
-    private IEnumerator DelayedStopSwingAnimation(float directionX)
-    {
-        yield return new WaitForSeconds(SwingAnimationStopDelay); // 遅延
-        animatorController.StopSwingAnimation(directionX);
-    }
-
-    #endregion
 
     #region === ユーティリティ ===
 
@@ -579,7 +540,7 @@ public class WireActionScript : MonoBehaviour
         Rigidbody2D connectedRb = connectedObject.GetComponent<Rigidbody2D>();
         if (connectedRb == null) return;
 
-        // 💡 修正点: RigidbodyのTransformを使ってローカルアンカーをワールド座標に変換
+        // RigidbodyのTransformを使ってローカルアンカーをワールド座標に変換
         Vector2 localAnchor = distanceJoint.connectedAnchor;
         Vector2 newHookedPosition = connectedRb.transform.TransformPoint(localAnchor);
 

@@ -227,7 +227,18 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <summary>
     /// 攻撃入力を受け付けられる状態か（攻撃中でなく、入力ロックもかかっていないか）
     /// </summary>
-    public bool CanAcceptAttackInput() => !_isAttacking && !_attackInputLocked;
+    // CanAcceptAttackInput のデバッグ強化
+    public bool CanAcceptAttackInput()
+    {
+        bool canAttack = !_isAttacking && !_attackInputLocked;
+
+        // 攻撃がブロックされた時のみログ出力
+        if (!canAttack)
+        {
+            Debug.LogWarning($"[Attack Blocked] IsAttacking: {_isAttacking}, InputLocked: {_attackInputLocked}, CurrentState: {_currentState}");
+        }
+        return canAttack;
+    }
     #endregion
 
     #region === ステート遷移 ===
@@ -249,8 +260,26 @@ public class PlayerAnimatorController : MonoBehaviour
         if (!CanTransitionTo(newState, force)) return;
 
         var oldState = _currentState;
+
+        // 攻撃終了後のステートへ移行する場合、入力ロックを解除する
+        // 攻撃ステート (MeleeAttack, RangedAttack) 以外へ遷移する時
+        if (oldState == PlayerState.MeleeAttack || oldState == PlayerState.RangedAttack)
+        {
+            if (newState != PlayerState.MeleeAttack && newState != PlayerState.RangedAttack)
+            {
+                // 攻撃ステートから離脱する際には、フラグを強制リセット
+                if (_attackTimeoutCoroutine != null)
+                {
+                    StopCoroutine(_attackTimeoutCoroutine);
+                    _attackTimeoutCoroutine = null;
+                }
+                _isAttacking = false;
+                _attackInputLocked = false;
+                Debug.Log("[SetPlayerState] Attack -> Non-Attack: Input Lock Forced Reset.");
+            }
+        }
+
         _currentState = newState; // 状態の更新
-        Debug.Log($"[SetPlayerState] {oldState} -> {newState}");
 
         // 攻撃中フラグの更新
         _isAttacking = newState == PlayerState.MeleeAttack || newState == PlayerState.RangedAttack;
@@ -405,10 +434,21 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="isPlayerGrounded">切断時にプレイヤーが地面に接触していたか</param>
     public void OnWireCut(float swingDirection, bool isPlayerGrounded)
     {
-        // PlayerMove側にワイヤー切断を通知するロジックがもしあれば、ここで呼び出す (例: playerMove?.SetJustCutWireFlag())
-
         // Wire関連のフラグをリセット
         ResetWireFlags();
+
+        // ワイヤー切断時は、攻撃中の状態を強制的に解除し、ロックを外す
+        if (_isAttacking || _attackInputLocked)
+        {
+            Debug.Log("[OnWireCut] Forcing attack flags reset due to wire cut.");
+            _isAttacking = false;
+            _attackInputLocked = false;
+            if (_attackTimeoutCoroutine != null)
+            {
+                StopCoroutine(_attackTimeoutCoroutine);
+                _attackTimeoutCoroutine = null;
+            }
+        }
 
         // Landing後のIdle遷移コルーチンがもし残っていれば確実に停止
         if (_landingToIdleCoroutine != null)
@@ -421,18 +461,20 @@ public class PlayerAnimatorController : MonoBehaviour
         if (GetStatePriority(_currentState) == PlayerStatePriority.High) return;
 
         // どの状態へ遷移すべきか決定
-        PlayerState targetState = isPlayerGrounded ? PlayerState.Idle : PlayerState.Landing;
+        // 💡 修正点: isPlayerGrounded にかかわらず、必ず Landing へ遷移させる。
+        PlayerState targetState = PlayerState.Landing; // 常に Landing に設定
 
         // 遷移先の状態ごとのスピード倍率を決定
-        float speedMultiplier = targetState == PlayerState.Landing ? AnimatorSpeeds.Landing : AnimatorSpeeds.Idle;
+        float speedMultiplier = AnimatorSpeeds.Landing; // Landing の速度倍率を使用
 
         // 🚨 修正ロジック: アニメーションコントローラーのチェックをバイパスし、直接遷移を実行 🚨
 
         // 現在の状態がTargetStateと異なる、またはWire状態からの離脱であれば強制実行
-        if (_currentState != targetState)
+        // Wire状態からの離脱時は、targetState が Landing と同じであってもアニメーターに書き込む必要がある。
+        if (_currentState != targetState || _currentState == PlayerState.Wire)
         {
             // 1. 状態の更新
-            Debug.Log($"[OnWireCut] Forcing transition: {_currentState} -> {targetState} (Grounded: {isPlayerGrounded})");
+            Debug.Log($"[OnWireCut] Forcing transition: {_currentState} -> {targetState} (Always Landing First)");
             _previousState = _currentState; // 履歴を更新
             _currentState = targetState;
 
@@ -440,53 +482,43 @@ public class PlayerAnimatorController : MonoBehaviour
             _animator.SetInteger(AnimatorParams.State, (int)targetState);
             _animator.SetFloat(AnimatorParams.SpeedMultiplier, speedMultiplier);
 
-            //// 🚨 最終手段: 攻撃アニメーションのフラグを全てリセット 🚨
-            //// 攻撃とワイヤーカットの同時入力による競合を防ぐ。
-            //_animator.SetBool(AnimatorParams.IsAttacking, false);
-            //_animator.SetBool(AnimatorParams.IsWindingUp, false); // もしあれば
-            //_animator.ResetTrigger(AnimatorParams.AttackTrigger); // 攻撃トリガーをリセット
-            //                                                      // 念のため、他の高優先度フラグもリセット
-            //                                                      // _animator.SetBool(AnimatorParams.IsDamaged, false); 
-
-            //// 3. アニメーターを即座に評価 (重要)
+            // 3. アニメーターを即座に評価 (重要)
             // 次のフレームを待たずにアニメーターを強制的に更新し、固着を防ぐ。
             _animator.Update(0f);
 
-            // 3. スプライト反転 (この時点で実行)
+            // 4. スプライト反転 (この時点で実行)
             FlipSprite(swingDirection);
 
-            // 4. 状態ごとの追加処理
+            // 5. 状態ごとの追加処理
             if (targetState == PlayerState.Landing)
             {
                 PlayLandingSE();
                 // Landing後のIdle遷移コルーチンを開始
-                StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
+                _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
             }
         }
-        else if (_currentState == PlayerState.Wire && targetState == PlayerState.Idle)
-        {
-            // 稀に Wire -> Idle への遷移で targetState が Idle だが _currentState も Idle になっていないケースのための再実行
-            Debug.Log($"[OnWireCut] State was Wire, forcing Idle again.");
-            _currentState = PlayerState.Idle;
-            _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Idle);
-            _animator.SetFloat(AnimatorParams.SpeedMultiplier, AnimatorSpeeds.Idle);
-            FlipSprite(swingDirection);
-        }
 
-
-        // 🌟 最終保険: SetPlayerState や上記ロジックによる強制遷移が失敗した場合のリカバリー 🌟
+        // 最終保険: SetPlayerState や上記ロジックによる強制遷移が失敗した場合のリカバリー
         // どんな手段を講じても _currentState が Wire のままである場合に備える
         if (_currentState == PlayerState.Wire)
         {
-            Debug.LogWarning("[OnWireCut] State transition failed. Forcing Idle state integer as final safeguard.");
+            Debug.LogWarning("[OnWireCut] State transition failed. Forcing Landing state integer as final safeguard.");
 
-            // アニメーターの State パラメータに直接 Idle の値を強制的に書き込む
-            _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Idle);
-            _currentState = PlayerState.Idle;
+            // アニメーターの State パラメータに直接 Landing の値を強制的に書き込む
+            _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Landing);
+            _currentState = PlayerState.Landing;
+
+            // Landing 後処理を再実行して Idle に繋げる
+            PlayLandingSE();
+            if (_landingToIdleCoroutine != null) StopCoroutine(_landingToIdleCoroutine);
+            _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
 
             // 念のため、Wire関連のフラグを再度リセット
             ResetWireFlags();
         }
+
+        // 攻撃フラグの状態チェック
+        Debug.Log($"[OnWireCut End] Attack Flags: IsAttacking={_isAttacking}, InputLocked={_attackInputLocked}");
     }
 
     /// <summary>
@@ -747,17 +779,16 @@ public class PlayerAnimatorController : MonoBehaviour
 
     private IEnumerator TransitionToIdleAfterLandingInternal(float direction)
     {
-        yield return new WaitForSeconds(Timings.LandingToIdleDelay);
+        yield return new WaitForSeconds(Timings.LandingToIdleDelay); // 0.5秒待機
 
-        if (_isAttacking) { _landingToIdleCoroutine = null; yield break; } // 着地直後に攻撃が開始された場合は中断
-                                                                           // ... (以降、ロジックは変更なし) ...
+        if (_isAttacking) { _landingToIdleCoroutine = null; yield break; }
 
         if (_currentState == PlayerState.Landing)
         {
-            // ... (遷移処理) ...
+            // Landing アニメーション終了後、ここで Idle に遷移する
             SetPlayerState(PlayerState.Idle, direction);
         }
-        _landingToIdleCoroutine = null; // 終了時に参照をクリア
+        _landingToIdleCoroutine = null;
     }
 
     /// <summary>
