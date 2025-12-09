@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ani : MonoBehaviour
+public class ChangeScene : MonoBehaviour
 {
     /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
     private const string SelectSceneName = "SelectScene";
@@ -19,7 +19,7 @@ public class ani : MonoBehaviour
         
     }
 
-    public void ChangeScene()
+    public void ChangeScenes()
     {
         // TransitionManagerによるフェード付きのロードのみを実行
         if (TransitionManager.Instance != null)

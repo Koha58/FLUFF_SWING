@@ -14,13 +14,16 @@ public class SpawnManagerWithPool : MonoBehaviour
     public Transform player;
 
     /// <summary>プレイヤーからのスポーン有効範囲</summary>
-    private float spawnRange = 40f;
+    private float spawnRange = 70f;
 
     /// <summary>現在のシーン用の SpawnDataSO</summary>
     private SpawnDataSO spawnData;
 
     /// <summary>生成済みオブジェクトを ID で管理</summary>
     private readonly Dictionary<int, GameObject> spawnedObjects = new();
+
+    // 倒されたが、まだ範囲内にいるため再スポーンをブロックすべきID
+    private readonly HashSet<int> defeatedButInRangeIds = new();
 
     /// <summary>
     /// Start: シーン名に応じて SpawnDataSO をロード
@@ -44,47 +47,50 @@ public class SpawnManagerWithPool : MonoBehaviour
 
         foreach (var entry in spawnData.entries)
         {
+            // プレイヤーとスポーンポイントの距離を判定（固定）
             float distanceToSpawnPoint = Vector3.Distance(player.position, entry.position);
-            bool inRangeOfSpawnPoint = distanceToSpawnPoint <= spawnRange;
+            bool inRangeOfSpawnPoint = distanceToSpawnPoint <= spawnRange; // スポーンポイントが範囲内か
 
-            bool isVisibleFromCamera = IsVisibleFromCamera(entry.position);
-
-            // 🎯 生成判定（どちらも SpawnDataEntry の position を使う）
-            if ((inRangeOfSpawnPoint || isVisibleFromCamera) && !spawnedObjects.ContainsKey(entry.id))
+            // --- 🎯 生成判定 ---
+            // defeatedButInRangeIds に含まれていないことを確認
+            if (inRangeOfSpawnPoint && !spawnedObjects.ContainsKey(entry.id) && !defeatedButInRangeIds.Contains(entry.id))
             {
-                // 💡 1つ目の obj を宣言
-                var newObj = SpawnFromPool(entry); // <-- 変数名を 'newObj' などに変更
+                var newObj = SpawnFromPool(entry);
                 if (newObj != null) spawnedObjects.Add(entry.id, newObj);
             }
 
-            // 🎯 回収判定（Coin と Enemy で分ける）
-            // 💡 2つ目の obj を宣言 (名前を変更)
-            if (spawnedObjects.TryGetValue(entry.id, out GameObject targetObj)) // <-- 変数名を 'targetObj' などに変更
+            // --- 🎯 回収判定 ---
+            // 1. 既にスポーンされている敵の回収 (プレイヤーが遠ざかった場合)
+            if (spawnedObjects.TryGetValue(entry.id, out GameObject targetObj))
             {
                 bool shouldDespawn = false;
 
                 if (entry.type.Equals("coin", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Coin (固定) → 元のSpawn位置で判定
-                    shouldDespawn = !inRangeOfSpawnPoint && !IsVisibleFromCamera(entry.position);
+                    // Coin (固定) → スポーンポイントが範囲外なら回収
+                    shouldDespawn = !inRangeOfSpawnPoint;
                 }
                 else if (entry.type.Equals("enemy", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Enemy (移動) → 現在位置で判定！
-                    // 💡 targetObj を使用
-                    float currentDistance = Vector3.Distance(player.position, targetObj.transform.position);
-                    bool enemyInRange = currentDistance <= spawnRange;
-                    // 💡 targetObj を使用
-                    bool enemyVisible = IsVisibleFromCamera(targetObj.transform.position);
-
-                    shouldDespawn = !enemyInRange && !enemyVisible;
+                    shouldDespawn = !inRangeOfSpawnPoint;
                 }
 
                 if (shouldDespawn)
                 {
-                    // 💡 targetObj を使用
                     ReturnToPool(targetObj, entry);
+                    // 回収したら、次のスポーンに備えてIDを削除
                     spawnedObjects.Remove(entry.id);
+                }
+            }
+
+            // 2. 倒された敵のブロック解除判定
+            if (defeatedButInRangeIds.Contains(entry.id))
+            {
+                // スポーンポイントが範囲外になったら、ブロックを解除（再スポーン可能にする）
+                if (!inRangeOfSpawnPoint)
+                {
+                    defeatedButInRangeIds.Remove(entry.id);
+                    Debug.Log($"[SpawnManager] Entry ID {entry.id} respawn block lifted.");
                 }
             }
         }
@@ -104,7 +110,27 @@ public class SpawnManagerWithPool : MonoBehaviour
             // Enemy は EnemyPool から取得
             string enemyName = System.IO.Path.GetFileName(entry.prefabName);
             var enemy = EnemyPool.Instance.GetFromPool(enemyName, entry.position);
-            return enemy ? enemy.gameObject : null;
+
+            if (enemy != null)
+            {
+                var enemyCtrl = enemy.GetComponent<EnemyController>();
+                if (enemyCtrl != null)
+                {
+                    // 1. スポーンマネージャーの参照とIDを渡す
+                    enemyCtrl.Setup(this, entry.id);
+
+                    // 2. パトロール敵なら、ここでPatrolStartXを設定する
+                    // PatrolMoveStateSO.Enter に依存せず、スポーン位置を起点とする
+                    if (enemyCtrl.Type == EnemyType.Patrol)
+                    {
+                        enemyCtrl.PatrolStartX = entry.position.x;
+                        enemyCtrl.Direction = -1; // 初期方向も強制
+                    }
+                }
+
+                return enemy.gameObject;
+            }
+            return null;
         }
         else if (type == "coin")
         {
@@ -146,17 +172,19 @@ public class SpawnManagerWithPool : MonoBehaviour
         }
     }
 
-    bool IsVisibleFromCamera(Vector3 position)
+    /// <summary>
+    /// オブジェクトが倒された（または永続的にプールに返却された）ことを通知し、
+    /// SpawnManagerの管理対象から削除する。これにより、再度スポーン可能になる。
+    /// </summary>
+    public void NotifyObjectDestroyed(int entryId)
     {
-        var viewportPos = Camera.main.WorldToViewportPoint(position);
-        const float margin = 0.1f; // 画面外側にマージンを設定
-
-        // Zが正であること（カメラの手前にあること）は必須
-        if (viewportPos.z <= 0) return false;
-
-        // XとYをマージン付きでチェック
-        return viewportPos.x > -margin && viewportPos.x < (1f + margin) &&
-               viewportPos.y > -margin && viewportPos.y < (1f + margin);
+        // spawnedObjects から削除（この ID は倒されたため追跡不要）
+        if (spawnedObjects.Remove(entryId))
+        {
+            // 倒されたIDをブロックリストに追加
+            defeatedButInRangeIds.Add(entryId);
+            Debug.Log($"[SpawnManager] Enemy ID {entryId} defeated. Blocking respawn until player leaves range.");
+        }
     }
 
 }

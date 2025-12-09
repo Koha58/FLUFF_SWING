@@ -47,6 +47,10 @@ public class EnemyController : MonoBehaviour, IDamageable
     private WireActionScript wireToCut;                 // ワイヤーを一時保持
     private int originalSortingOrder;                   // 元のSpriteRenderer.sortingOrder
 
+    // スポーン管理のためのフィールド
+    private SpawnManagerWithPool spawnManager;
+    private int spawnEntryId;
+
     #endregion
 
     #region === Properties ===
@@ -60,6 +64,10 @@ public class EnemyController : MonoBehaviour, IDamageable
     public bool IsMovementDisabledByAnimation { get; private set; } // アニメーション中の移動無効化
     public int Direction { get; set; } = DEFAULT_DIRECTION;          // 方向状態 (-1:左, 1:右)
     public int OriginalSortingOrder => originalSortingOrder;         // 元のsortingOrder
+
+    // 外部から参照できるようにするためのプロパティ
+    public SpawnManagerWithPool Spawner => spawnManager;
+    public int SpawnEntryId => spawnEntryId;
 
     #endregion
 
@@ -193,6 +201,16 @@ public class EnemyController : MonoBehaviour, IDamageable
             ReverseDirection();
     }
 
+    // SpawnManagerWithPool から呼ばれる初期設定メソッド
+    /// <summary>
+    /// SpawnManagerからの初期設定（どのEntry IDで生成されたか）を行う。
+    /// </summary>
+    public void Setup(SpawnManagerWithPool manager, int entryId)
+    {
+        spawnManager = manager;
+        spawnEntryId = entryId;
+    }
+
     /// <summary>
     /// 方向反転処理
     /// </summary>
@@ -219,11 +237,28 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     public void HandleDead()
     {
+        // SpawnManagerにIDの管理削除を通知
+        // これにより、倒されたこの敵のIDがspawnedObjectsから削除され、再生成が可能になる
+        if (spawnManager != null)
+        {
+            spawnManager.NotifyObjectDestroyed(spawnEntryId);
+        }
+
         // オブジェクトプールに戻す前に、次の再利用に備えて敵の状態を初期化する
         ResetEnemy();
 
         // EnemyPoolに返却して非アクティブ化
+        // EnemyPool.Instance.ReturnToPool(this) を呼ぶ前に通知するのが安全
         EnemyPool.Instance.ReturnToPool(this);
+    }
+
+    /// <summary>
+    /// パトロール開始位置を初期化（スポーンマネージャーから呼ばれる）
+    /// </summary>
+    public void ResetPatrolStart()
+    {
+        patrolStartX = 0f; // floatの初期値は0fでよい
+        patrolDirection = DEFAULT_DIRECTION;
     }
 
     /// <summary>
@@ -254,6 +289,10 @@ public class EnemyController : MonoBehaviour, IDamageable
         // 死亡時の上下反転を解除
         if (spriteRenderer != null)
             spriteRenderer.flipY = false;
+
+        // パトロール関連の初期値をリセット
+        patrolStartX = 0f; // パトロール開始位置をリセット
+        patrolDirection = DEFAULT_DIRECTION;
 
         // --- ▼ タグを "Enemy" に戻す ▼ ---
         gameObject.tag = "Enemy";

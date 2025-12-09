@@ -779,7 +779,7 @@ public class PlayerAnimatorController : MonoBehaviour
 
     private IEnumerator TransitionToIdleAfterLandingInternal(float direction)
     {
-        yield return new WaitForSeconds(Timings.LandingToIdleDelay); // 0.5秒待機
+       // yield return new WaitForSeconds(Timings.LandingToIdleDelay); // 0.5秒待機
 
         if (_isAttacking) { _landingToIdleCoroutine = null; yield break; }
 
