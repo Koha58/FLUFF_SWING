@@ -118,7 +118,18 @@ public class GameResultUIController : MonoBehaviour
     public void ClickRetry()
     {
         ResumeGameTime();
-        TransitionManager.Instance.PlayTransitionAndLoadScene(SceneManager.GetActiveScene().name);
+
+        // TransitionManagerによるフェード付きのロードのみを実行
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.PlayTransitionAndLoadScene(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            // TransitionManagerが見つからない場合のフォールバック（緊急用）
+            Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 
     /// <summary>
@@ -127,11 +138,22 @@ public class GameResultUIController : MonoBehaviour
     public void ClickQuitToTitle()
     {
         ResumeGameTime();
-        TransitionManager.Instance.PlayTransitionAndLoadScene(TitleSceneName);
+
+        // TransitionManagerによるフェード付きのロードのみを実行
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.PlayTransitionAndLoadScene(TitleSceneName);
+        }
+        else
+        {
+            // TransitionManagerが見つからない場合のフォールバック（緊急用）
+            Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
+            SceneManager.LoadScene(TitleSceneName);
+        }
     }
 
     /// <summary>
-    /// 「次のステージへ」ボタン押下時の処理（※現在は同一シーンを再ロード）。
+    /// 「次のステージへ」ボタン押下時の処理。
     /// </summary>
     public void ClickNext()
     {
@@ -139,7 +161,19 @@ public class GameResultUIController : MonoBehaviour
         int currentIndex = SceneManager.GetActiveScene().buildIndex;
         int totalScenes = SceneManager.sceneCountInBuildSettings;
         int nextIndex = (currentIndex + 1 < totalScenes) ? currentIndex + 1 : 0; // 最後ならタイトルに戻る
-        TransitionManager.Instance.PlayTransitionAndLoadScene(SceneUtility.GetScenePathByBuildIndex(nextIndex));
+
+        // TransitionManagerによるフェード付きのロードのみを実行
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.PlayTransitionAndLoadScene(SceneUtility.GetScenePathByBuildIndex(nextIndex));
+        }
+        else
+        {
+            // TransitionManagerが見つからない場合のフォールバック（緊急用）
+            Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
+            SceneManager.LoadScene(nextIndex);
+        }
+        
     }
 
     /// <summary>
@@ -148,8 +182,19 @@ public class GameResultUIController : MonoBehaviour
     public void ClickQuitToStageSelect()
     {
         ResumeGameTime();
-        // SceneManager.LoadScene(SelectSceneName);
-        TransitionManager.Instance.PlayTransitionAndLoadScene(SelectSceneName);
+
+        // TransitionManagerによるフェード付きのロードのみを実行
+        if (TransitionManager.Instance != null)
+        {
+            // TransitionManagerにセレクトシーンへの遷移を依頼
+            TransitionManager.Instance.PlayTransitionAndLoadScene(SelectSceneName);
+        }
+        else
+        {
+            // TransitionManagerが見つからない場合のフォールバック（緊急用）
+            Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
+            SceneManager.LoadScene(SelectSceneName);
+        }
     }
 
     #endregion

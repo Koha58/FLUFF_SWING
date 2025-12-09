@@ -92,14 +92,21 @@ public class PlayerMove : MonoBehaviour
         // 接地判定を実施（Raycastで足元をチェック）
         isGrounded = CheckGrounded();
 
-        // ワイヤー接続中でないことを確認してから Landing を強制開始 🌟
+        // 現在Landingアニメーション再生中なら、再トリガーしない
+        bool isLanding = animatorController?.CurrentState == PlayerAnimatorController.PlayerState.Landing;
+
+        // ワイヤー接続中でないことを確認してから Landing を強制開始
         if (isGrounded && !wasGrounded)
         {
-            // ワイヤー接続中は、接地してもLandingアニメーションを再生しない！
-            if (!wireActionScript.IsConnected)
+            // Landingアニメーション再生中は、リトリガーしないことでコルーチンのリセットを防ぐ
+            if (isLanding)
+            {
+                Debug.Log("Landing中に再接地を検知したが、アニメーションをリセットしません。");
+            }
+            // Landing中でなければ、通常通りアニメーションを再生
+            else if (!wireActionScript.IsConnected)
             {
                 Debug.Log("着地瞬間: Landingアニメーションを強制開始");
-                // アニメーションコントローラーのForceLandingを呼び出し
                 float directionX = transform.localScale.x > 0 ? 1f : -1f;
                 animatorController?.ForceLanding(directionX);
             }

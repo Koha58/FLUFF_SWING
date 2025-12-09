@@ -20,11 +20,11 @@ public class PatrolMoveStateSO : EnemyMoveStateSO
     {
         base.Enter(owner);
 
-        // 現在位置をパトロール開始位置として記録
-        owner.PatrolStartX = owner.transform.position.x;
-
-        // 初期の移動方向を左に設定
-        owner.Direction = -1;
+        // スポーンマネージャーが方向を設定していなければ初期化
+        if (owner.Direction == 0) // Directionが初期値のままなら
+        {
+            owner.Direction = -1;
+        }
     }
 
     /// <summary>
