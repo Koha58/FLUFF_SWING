@@ -369,8 +369,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u30DC\u30BF\u30F3\u3092\u30E9\u30A4\u30D5\u306B\u4EA4\u63DB\u3059\u308B\uFF1F"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 52cb9448b36e1154296732157c93a6db, type: 2}
-  m_sharedMaterial: {fileID: 7868808197633715189, guid: 52cb9448b36e1154296732157c93a6db, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 86539048d170a8149a6e6c390426a0ea, type: 2}
+  m_sharedMaterial: {fileID: 7868808197633715189, guid: 86539048d170a8149a6e6c390426a0ea, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
