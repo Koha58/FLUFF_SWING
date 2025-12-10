@@ -29,6 +29,10 @@ public class EnemyThrowAttack : MonoBehaviour
     /// </summary>
     [SerializeField] private AudioClip throwSE;
 
+    [Header("▼ 距離とサウンド制御")]
+    // [SerializeField] private float attackRangeMax = 10f; // 投擲攻撃の距離制限は削除
+    [SerializeField] private float soundMaxDistance = 15f; // 投擲SEが届く最大距離 
+
     /// <summary>
     /// 投げる力の最小値（内部固定値）。
     /// </summary>
@@ -38,6 +42,13 @@ public class EnemyThrowAttack : MonoBehaviour
     /// 投げる力の最大値（内部固定値）。
     /// </summary>
     private float maxThrowForce = 8f;
+
+    private Transform enemyTransform; // 自身のTransform
+
+    private void Awake()
+    {
+        enemyTransform = transform;
+    }
 
     private void Start()
     {
@@ -67,11 +78,12 @@ public class EnemyThrowAttack : MonoBehaviour
 
     /// <summary>
     /// アニメーションイベントから呼ばれるメソッド。
-    /// 爆弾を生成し、プレイヤー方向に投げる。
+    /// 爆弾を生成し、プレイヤー方向に投げる。（距離制限なし）
     /// </summary>
     public void Throw()
     {
         Debug.Log("Throw() called.");
+
 
         if (bombPrefab == null)
         {
@@ -114,6 +126,9 @@ public class EnemyThrowAttack : MonoBehaviour
 
         if (bombScript != null)
         {
+            // BombのSetupを呼び出し、プレイヤーのTransformを渡す
+            bombScript.Setup(player);
+
             Vector2 dir = dirToPlayer.normalized;
             bombScript.Launch(dir.x, randomForce, status.attack);
             Debug.Log($"Bomb launched with random force: {randomForce}");
@@ -126,15 +141,28 @@ public class EnemyThrowAttack : MonoBehaviour
 
     /// <summary>
     /// 投げモーションの途中（アニメーションイベント）で呼ばれるSE再生用。
+    /// (距離減衰を適用)
     /// </summary>
     public void PlayThrowSE()
     {
-        if (throwSE != null)
+        if (throwSE == null || player == null || enemyTransform == null) return;
+
+        float distanceToPlayer = Vector3.Distance(enemyTransform.position, player.position);
+
+        // 1. 距離制限: SEが届く範囲外なら再生リクエストを破棄
+        if (distanceToPlayer > soundMaxDistance)
         {
-            AudioManager.Instance?.PlaySE(throwSE);
-            Debug.Log("PlayThrowSE() called early.");
+            Debug.Log("Throw SE aborted: Player out of sound range.");
+            return;
         }
+
+        // 2. 距離減衰: 距離に応じて音量を計算
+        float distanceRatio = distanceToPlayer / soundMaxDistance;
+        float attenuatedVolume = 1.0f * (1f - distanceRatio);
+
+        // 3. AudioManagerに減衰後の音量で再生リクエストを送信
+        AudioManager.Instance?.PlaySE(throwSE, attenuatedVolume);
+
+        Debug.Log($"PlayThrowSE() called with volume: {attenuatedVolume}");
     }
-
-
 }

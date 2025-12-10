@@ -35,6 +35,13 @@ public class EnemyController : MonoBehaviour, IDamageable
     [SerializeField] private AudioClip popSE;    // モグラ飛び出し/潜り時SE
     [SerializeField] private AudioClip rabbitSE; // ウサギ移動時SE
 
+    [Header("Sound Management")]
+    // プレイヤーのTransform (Start/Awakeなどで取得)
+    private Transform playerTransform;
+
+    // プレイヤーがこの敵の音を聞ける最大距離 (Inspectorで設定)
+    [SerializeField] private float soundMaxDistance = 15f;
+
     #endregion
 
     #region === Private Fields ===
@@ -88,6 +95,9 @@ public class EnemyController : MonoBehaviour, IDamageable
         // 元のsortingOrderを保存
         if (spriteRenderer != null)
             originalSortingOrder = spriteRenderer.sortingOrder;
+
+        // プレイヤーオブジェクトを見つけてTransformを取得
+        playerTransform = FindFirstObjectByType<PlayerMove>().transform;
     }
 
     private void OnEnable()
@@ -357,6 +367,36 @@ public class EnemyController : MonoBehaviour, IDamageable
     #region === SE Play ===
 
     /// <summary>
+    /// 攻撃音、足音などの単発のSEを再生する際に呼び出すメソッド。
+    /// </summary>
+    /// <param name="clip">再生したいオーディオクリップ</param>
+    /// <param name="volume">基本の音量</param>
+    public void RequestSoundPlay(AudioClip clip, float baseVolume = 1f)
+    {
+        if (clip == null || playerTransform == null) return;
+
+        // プレイヤーとの距離を計算
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
+        // 1. 距離制限: 音の届く範囲外なら、再生リクエストを破棄
+        if (distanceToPlayer > soundMaxDistance)
+        {
+            return;
+        }
+
+        // 2. 距離減衰: 距離に応じて音量を計算
+        // 0 (近) から 1 (遠) の間の比率を求め、音量を調整する
+        float distanceRatio = distanceToPlayer / soundMaxDistance;
+
+        // 減衰後の音量 (線形減衰の例)
+        float attenuatedVolume = baseVolume * (1f - distanceRatio);
+
+        // 3. AudioManagerに再生リクエストを送信
+        // 重要なのは、ここで計算した**減衰後の音量**を渡すことです。
+        AudioManager.Instance?.PlaySE(clip, attenuatedVolume);
+    }
+
+    /// <summary>
     /// ワイヤーカット時のSEを再生する
     /// </summary>
     public void PlayCutSE()
@@ -371,7 +411,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     public void PlayPopSE()
     {
         // AudioManagerが存在すれば再生
-        AudioManager.Instance?.PlaySE(popSE);
+        RequestSoundPlay(popSE);
     }
 
     /// <summary>
@@ -379,8 +419,7 @@ public class EnemyController : MonoBehaviour, IDamageable
     /// </summary>
     public void PlayRabbitSE()
     {
-        // AudioManagerが存在すれば再生
-        AudioManager.Instance?.PlaySE(rabbitSE);
+        RequestSoundPlay(rabbitSE);
     }
 
     #endregion

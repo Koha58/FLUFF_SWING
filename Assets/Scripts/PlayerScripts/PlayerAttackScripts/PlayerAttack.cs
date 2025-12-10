@@ -191,7 +191,7 @@ public class PlayerAttack : MonoBehaviour, IDamageable
     /// 攻撃可能範囲内の最も近い敵の上にターゲットアイコンを表示する
     /// 敵がいなければ非表示にする
     /// </summary>
-    private void UpdateTargetIcon() // ← 新規追加
+    private void UpdateTargetIcon()
     {
         if (currentTargetIcon == null) return;
 
@@ -319,6 +319,10 @@ public class PlayerAttack : MonoBehaviour, IDamageable
         // 爆弾にターゲット座標と攻撃力を渡す
         if (bomb != null)
         {
+            // プレイヤー自身の Transform を Bomb の Setup に渡す
+            // Bomb の Explode() メソッド内で、プレイヤーとの距離計算が可能になる。
+            bomb.Setup(this.transform);
+
             bomb.LaunchToward(pendingRangedTarget, status.attack);
         }
     }

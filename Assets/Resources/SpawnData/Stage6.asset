@@ -216,39 +216,39 @@ MonoBehaviour:
   - id: 51
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 10.77, y: -3.54, z: 0}
+    position: {x: 10.77, y: -3.46, z: 0}
   - id: 52
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 49.44, y: -8.66, z: 0}
+    position: {x: 49.44, y: -8.58, z: 0}
   - id: 53
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 67.89, y: -8.66, z: 0}
+    position: {x: 67.89, y: -8.58, z: 0}
   - id: 54
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 119.846, y: -4.597, z: 0}
+    position: {x: 119.846, y: -4.517, z: 0}
   - id: 55
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 149.941, y: -6.62, z: 0}
+    position: {x: 149.941, y: -6.54, z: 0}
   - id: 56
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 169.33, y: -8.67, z: 0}
+    position: {x: 169.33, y: -8.59, z: 0}
   - id: 57
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 176.44, y: -8.67, z: 0}
+    position: {x: 176.44, y: -8.59, z: 0}
   - id: 58
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 243.303, y: -39.274, z: 0}
+    position: {x: 243.303, y: -39.194, z: 0}
   - id: 59
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 276.971, y: -41.316, z: 0}
+    position: {x: 276.971, y: -41.236, z: 0}
   - id: 60
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit

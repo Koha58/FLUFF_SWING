@@ -56,11 +56,11 @@ MonoBehaviour:
   - id: 11
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 138, y: -51.5, z: 0}
+    position: {x: 138, y: -51.413, z: 0}
   - id: 12
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 79.055, y: -47.428, z: 0}
+    position: {x: 78.861, y: -47.338, z: 0}
   - id: 13
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin

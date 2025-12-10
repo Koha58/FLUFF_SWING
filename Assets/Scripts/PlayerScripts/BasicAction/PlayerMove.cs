@@ -60,6 +60,7 @@ public class PlayerMove : MonoBehaviour
     /// <summary>移動入力アクション（Input Systemの"Move"）</summary>
     private InputAction moveAction;
 
+    private bool isInitialized = false; // 初期化フラグ
 
     #endregion
 
@@ -81,11 +82,32 @@ public class PlayerMove : MonoBehaviour
         moveSpeed = characterData.moveSpeed;
     }
 
+    private void Start()
+    {
+        // 1. 最初の接地状態をチェックし、wasGroundedを初期化する
+        // これにより、ゲーム開始時の最初のフレームで「空中から着地した」という誤判定を防ぐ
+        wasGrounded = CheckGrounded();
+
+        Debug.Log($"PlayerMove initialized. Initial wasGrounded: {wasGrounded}");
+
+        // 2. 初期化完了フラグを立てる（これで次フレームからUpdateが有効になる）
+        isInitialized = true;
+    }
+
     /// <summary>
     /// 毎フレームの入力取得と接地判定、アニメーション制御
     /// </summary>
     private void Update()
     {
+        // 初期化が完了していない場合は、着地判定を無視する
+        // Start() 処理が完了するまで Update の主要ロジックをブロックします。
+        if (!isInitialized)
+        {
+            // ただし、Input取得は続けても問題ない
+            moveInput = moveAction?.ReadValue<Vector2>().x ?? 0f;
+            return;
+        }
+
         // 水平方向の移動入力を取得（-1から1）
         moveInput = moveAction?.ReadValue<Vector2>().x ?? 0f;
 
@@ -218,8 +240,6 @@ public class PlayerMove : MonoBehaviour
 
         return true; // それ以外（Idle, Run, Jumpなど）は移動OK
     }
-
-
 
     #endregion
 

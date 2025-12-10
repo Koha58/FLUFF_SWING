@@ -269,33 +269,57 @@ public class AudioManager : MonoBehaviour
     //====================================================================
     // 🔊 SE再生関数
     //====================================================================
+
     /// <summary>
-    /// AudioClipを直接指定して再生。
+    /// AudioClipを直接指定して、カスタム音量で再生。
     /// PlayOneShotを使用して同時再生も可能。
     /// </summary>
-    public void PlaySE(AudioClip clip)
+    /// <param name="clip">再生するオーディオクリップ。</param>
+    /// <param name="volume">再生するカスタム音量（0.0～1.0）。AudioMixerの設定音量と掛け合わせられる。</param>
+    public void PlaySE(AudioClip clip, float volume)
     {
         if (clip == null || seSource == null) return;
-        seSource.PlayOneShot(clip);
+
+        // 距離で減衰された音量をPlayOneShotに渡す。
+        // 最終的な音量は、volume * seSource.volume (Mixer設定値) となる。
+        seSource.PlayOneShot(clip, volume);
     }
 
     /// <summary>
-    /// クリップ名を指定して再生（辞書検索）。
-    /// 名前が登録されていない場合は警告を出す。
+    /// AudioClipを直接指定して、標準音量 (1.0f) で再生。
     /// </summary>
-    public void PlaySE(string clipName)
+    public void PlaySE(AudioClip clip)
     {
-        // 無効な名前や辞書未初期化を防止
+        // カスタム音量 1.0f で新しいオーバーロードを呼び出す
+        PlaySE(clip, 1.0f);
+    }
+
+    /// <summary>
+    /// クリップ名を指定して、カスタム音量で再生。
+    /// </summary>
+    /// <param name="clipName">登録されているクリップ名。</param>
+    /// <param name="volume">再生するカスタム音量（0.0～1.0）。</param>
+    public void PlaySE(string clipName, float volume)
+    {
         if (string.IsNullOrEmpty(clipName) || seClipDict == null) return;
 
-        // 辞書からクリップを検索して再生
         if (seClipDict.TryGetValue(clipName, out var clip))
         {
-            PlaySE(clip);
+            PlaySE(clip, volume);
         }
         else
         {
             Debug.LogWarning($"指定されたSE '{clipName}' はAudioManagerに登録されていません。");
         }
+    }
+
+    /// <summary>
+    /// クリップ名を指定して、標準音量 (1.0f) で再生（辞書検索）。
+    /// 名前が登録されていない場合は警告を出す。
+    /// </summary>
+    public void PlaySE(string clipName)
+    {
+        // 標準音量 1.0f でカスタム音量オーバーロードを呼び出す
+        PlaySE(clipName, 1.0f);
     }
 }
