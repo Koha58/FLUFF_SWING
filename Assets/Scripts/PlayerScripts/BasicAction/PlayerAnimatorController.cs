@@ -461,13 +461,13 @@ public class PlayerAnimatorController : MonoBehaviour
         if (GetStatePriority(_currentState) == PlayerStatePriority.High) return;
 
         // どの状態へ遷移すべきか決定
-        // 💡 修正点: isPlayerGrounded にかかわらず、必ず Landing へ遷移させる。
+        // isPlayerGrounded にかかわらず、必ず Landing へ遷移させる。
         PlayerState targetState = PlayerState.Landing; // 常に Landing に設定
 
         // 遷移先の状態ごとのスピード倍率を決定
         float speedMultiplier = AnimatorSpeeds.Landing; // Landing の速度倍率を使用
 
-        // 🚨 修正ロジック: アニメーションコントローラーのチェックをバイパスし、直接遷移を実行 🚨
+        // アニメーションコントローラーのチェックをバイパスし、直接遷移を実行
 
         // 現在の状態がTargetStateと異なる、またはWire状態からの離脱であれば強制実行
         // Wire状態からの離脱時は、targetState が Landing と同じであってもアニメーターに書き込む必要がある。

@@ -267,6 +267,38 @@ public class AudioManager : MonoBehaviour
     }
 
     //====================================================================
+    // 🔊 BGM再生制御
+    //====================================================================
+
+    /// <summary>
+    /// 新しいBGMをセットし、再生を開始します。
+    /// </summary>
+    /// <param name="newClip">再生する新しいBGMクリップ。nullの場合は現在のBGMを停止します。</param>
+    public void PlayBGM(AudioClip newClip)
+    {
+        if (bgmSource == null) return;
+
+        if (bgmSource.clip == newClip && bgmSource.isPlaying)
+        {
+            // 現在と同じクリップが再生中なら何もしない
+            return;
+        }
+
+        if (newClip == null)
+        {
+            // nullが渡されたら停止
+            bgmSource.Stop();
+            bgmSource.clip = null;
+            return;
+        }
+
+        // 新しいクリップに切り替えて再生
+        bgmSource.clip = newClip;
+        bgmSource.Play();
+         bgmSource.loop = true; 
+    }
+
+    //====================================================================
     // 🔊 SE再生関数
     //====================================================================
 
