@@ -1699,7 +1699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee730e385f6ca7540856b1120521ae09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneBGM: {fileID: 8300000, guid: 610ff7fbdd94e854e83e8af086da1f84, type: 3}
+  sceneBGM: {fileID: 8300000, guid: 19f8a4d52b83c6c4ea38e778e95fb2c0, type: 3}
 --- !u!4 &556616677
 Transform:
   m_ObjectHideFlags: 0
