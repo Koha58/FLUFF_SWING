@@ -686,6 +686,7 @@ public class PlayerAnimatorController : MonoBehaviour
     #endregion
 
     #region === ダメージ・ゴール関連 ===
+
     /// <summary>
     /// ダメージアニメーション再生を開始する。
     /// </summary>
@@ -711,17 +712,6 @@ public class PlayerAnimatorController : MonoBehaviour
         IsDamagePlaying = true; // ダメージ中フラグON
         // ダメージ状態へ遷移（SetPlayerState内でResetFromDamageコルーチンが開始される）
         SetPlayerState(PlayerState.Damage, direction, Speeds.None);
-
-
-        //// ✅ 先に遷移を試みる（Wire中でもAが入ってれば成功する）
-        //SetPlayerState(PlayerState.Damage, direction, Speeds.None);
-
-        //// ✅ 遷移できた時だけ true にする（遷移失敗時の置き去り防止）
-        //IsDamagePlaying = (_currentState == PlayerState.Damage);
-
-        //// ✅ 遷移できてないのに true になってたら即座に戻す（最終保険）
-        //if (_currentState != PlayerState.Damage)
-        //    IsDamagePlaying = false;
     }
 
     /// <summary>
