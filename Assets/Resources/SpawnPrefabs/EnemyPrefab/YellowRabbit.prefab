@@ -149,7 +149,7 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.42}
   m_Size: {x: 4.23, y: 3.9}
   m_Direction: 0
 --- !u!61 &3086167564063175385
@@ -249,6 +249,7 @@ MonoBehaviour:
   cutSE: {fileID: 0}
   popSE: {fileID: 0}
   rabbitSE: {fileID: 8300000, guid: 2938bb122dd29ae4bb901178f69e2bdc, type: 3}
+  soundMaxDistance: 15
 --- !u!114 &8674018978880111537
 MonoBehaviour:
   m_ObjectHideFlags: 0

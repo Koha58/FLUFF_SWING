@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 279a1832ee4a8254da869e6f91e122eb, type: 3}
+  m_Name: CreditData
+  m_EditorClassIdentifier: 
+  entries:
+  - type: LOGO
+    title: FLUFFSWING_0.png
+    name: 
+    specialData: 
+  - type: LINEBREAK
+    title: 300
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Director
+    name: Koha
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Art Director
+    name: Sample
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Programmer
+    name: Koha, Sample
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Title Designer
+    name: Bia
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Sounds Used
+    name: "\u30D5\u30EA\u30FC\u52B9\u679C\u97F3\u7D20\u6750 \u304F\u3089\u3052\u5DE5\u5320,
+      OtoLogic, \u52B9\u679C\u97F3\u5DE5\u623F, \u30DD\u30B1\u30C3\u30C8\u30B5\u30A6\u30F3\u30C9,
+      \u30A4\u30EF\u30B7\u30ED\u97F3\u697D\u7D20\u6750"
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Fonts Used
+    name: "\u7F8E\u54B2\u30D5\u30A9\u30F3\u30C8"
+    specialData: 
+  - type: LINEBREAK
+    title: 80
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Special Thanks
+    name: All Players
+    specialData: 
+  - type: LINEBREAK
+    title: 300
+    name: 
+    specialData: 
+  - type: THANKYOU
+    title: THANK YOU FOR PLAYING!
+    name: 
+    specialData: 
+  - type: END
+    title: 
+    name: 
+    specialData: 
