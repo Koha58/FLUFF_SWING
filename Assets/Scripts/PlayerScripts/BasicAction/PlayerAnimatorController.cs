@@ -134,6 +134,8 @@ public class PlayerAnimatorController : MonoBehaviour
     private bool _justGrappled = false;             // グラップル（ジャンプアニメ）開始直後フラグ（タイマーでの自動ワイヤー遷移制御用）
     private bool _isMoving = false;                 // 移動入力が継続しているかどうかのフラグ
 
+    private bool _isGameOver = false;                 // ゲームオーバー可能かどうかのフラグ
+
     private float _grappleTimer = Defaults.TimeZero; // グラップル（Jump）からワイヤー（Wire）へ自動遷移するためのタイマー
     private float _wireDirection = Directions.None;  // ワイヤー方向（スプライト反転保持用）
     private float _moveStopTimer = Defaults.TimeZero;// 移動入力停止を検出するためのタイマー
@@ -153,6 +155,8 @@ public class PlayerAnimatorController : MonoBehaviour
 
     private void Update()
     {
+        if (_isGameOver) return;
+
         // グラップル開始直後の処理：JumpアニメーションからWireアニメーションへ自動遷移
         if (_justGrappled)
         {
@@ -200,7 +204,12 @@ public class PlayerAnimatorController : MonoBehaviour
         // 現在 Wire 状態であれば、Wire 状態以外への遷移を禁止
         if (_currentState == PlayerState.Wire && newState != PlayerState.Wire)
         {
-            // WireActionScript からの StopSwingAnimation/OnWireCut 以外で Wire から離脱しないようにする
+            // ✅ 例外：高優先度（Damage/Goal）は Wire を上書きしてよい
+            if (newState == PlayerState.Damage || newState == PlayerState.Goal)
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -251,6 +260,8 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="force">遷移可能判定を無視して強制的に遷移するか</param>
     public void SetPlayerState(PlayerState newState, float direction = Directions.None, float speed = Speeds.None, bool force = false)
     {
+        if (_isGameOver) return;
+
         if (_animator == null) return;
         // 既に同じ状態への遷移を試みた場合は、force=trueでない限り無視
         if (!force && _currentState == newState) return;
@@ -390,6 +401,8 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="swingDirection">スイング方向</param>
     public void PlayGrappleSwingAnimation(float swingDirection)
     {
+        if (_isGameOver) return;
+
         _wireDirection = swingDirection;
 
         // すでにワイヤー中なら無視
@@ -434,6 +447,8 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="isPlayerGrounded">切断時にプレイヤーが地面に接触していたか</param>
     public void OnWireCut(float swingDirection, bool isPlayerGrounded)
     {
+        if (_isGameOver) return;
+
         // Wire関連のフラグをリセット
         ResetWireFlags();
 
@@ -696,6 +711,17 @@ public class PlayerAnimatorController : MonoBehaviour
         IsDamagePlaying = true; // ダメージ中フラグON
         // ダメージ状態へ遷移（SetPlayerState内でResetFromDamageコルーチンが開始される）
         SetPlayerState(PlayerState.Damage, direction, Speeds.None);
+
+
+        //// ✅ 先に遷移を試みる（Wire中でもAが入ってれば成功する）
+        //SetPlayerState(PlayerState.Damage, direction, Speeds.None);
+
+        //// ✅ 遷移できた時だけ true にする（遷移失敗時の置き去り防止）
+        //IsDamagePlaying = (_currentState == PlayerState.Damage);
+
+        //// ✅ 遷移できてないのに true になってたら即座に戻す（最終保険）
+        //if (_currentState != PlayerState.Damage)
+        //    IsDamagePlaying = false;
     }
 
     /// <summary>
@@ -703,6 +729,8 @@ public class PlayerAnimatorController : MonoBehaviour
     /// </summary>
     public void OnDamageAnimationEnd()
     {
+        if (_isGameOver) return;
+
         IsDamagePlaying = false;
         _isAttacking = false;
         _attackInputLocked = false;
@@ -740,7 +768,38 @@ public class PlayerAnimatorController : MonoBehaviour
     /// <param name="direction">ゴール時の向き</param>
     public void PlayGoalAnimation(float direction) =>
         SetPlayerState(PlayerState.Goal, direction, Speeds.None);
+
+
+
+    /// <summary>
+    /// ゲームオーバー時の見た目・アニメーション状態を強制的にリセットする。
+    /// GameManager からのみ呼ばれることを想定。
+    /// </summary>
+    public void OnGameOverVisual(float directionX, bool forceIdle = true)
+    {
+        _isGameOver = true;
+
+        StopAllCoroutines();
+
+        ResetWireFlags();
+        IsDamagePlaying = false;
+        _isAttacking = false;
+        _attackInputLocked = false;
+
+        // 見た目をLandingに固定（SetPlayerStateは使わない）
+        _currentState = PlayerState.Landing;
+        _animator.SetInteger("State", (int)PlayerState.Landing);
+        _animator.SetFloat("speedMultiplier", 1.0f);
+        _animator.Update(0f);
+
+        FlipSprite(directionX);
+
+        Debug.Log($"[GameOverVisual] state={_currentState} pending={_pendingWireTransition} just={_justGrappled}");
+
+    }
+
     #endregion
+
 
     #region === コルーチン ===
     /// <summary>
@@ -750,6 +809,9 @@ public class PlayerAnimatorController : MonoBehaviour
     private IEnumerator ResetFromDamage(float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        if (_isGameOver) yield break;
+
         IsDamagePlaying = false;
         // 現在のステートに応じて遷移先を決定
         if (_currentState == PlayerState.Damage)

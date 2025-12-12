@@ -573,5 +573,38 @@ public class WireActionScript : MonoBehaviour
         lastSwingDirectionX = ResetSwingDirectionX;
     }
 
+    /// <summary>
+    /// ゲームオーバー専用：ワイヤーの物理・描画だけを即時解除する。
+    /// ※アニメ遷移（OnWireCut）を絶対に発生させない
+    /// </summary>
+    public void ForceClearWireOnlyForGameOver()
+    {
+        // 走ってるコルーチン全部止める（ThrowNeedle / CutWireAndTransitionCo など）
+        StopAllCoroutines();
+        currentNeedleCoroutine = null;
+
+        // 物理的な切断
+        if (distanceJoint != null) distanceJoint.enabled = false;
+        targetObject = null;
+
+        // 動く床追従情報もクリア
+        isConnectedToMovingObject = false;
+        connectedObject = null;
+
+        // 描画OFF
+        if (lineRenderer != null) lineRenderer.enabled = false;
+        SetNeedleVisible(false);
+
+        // 予測線OFF
+        if (previewLineRenderer != null)
+        {
+            previewLineRenderer.enabled = false;
+            previewLineRenderer.positionCount = 0;
+        }
+
+        // ※重要：animatorController.ResetWireFlags() も呼ばない（アニメ側には触れない）
+    }
+
+
     #endregion
 }

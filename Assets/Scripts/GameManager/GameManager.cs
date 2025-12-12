@@ -266,9 +266,17 @@ public class GameManager : MonoBehaviour
         }
         if (wireActionScript != null)
         {
+            wireActionScript.ForceClearWireOnlyForGameOver();
             wireActionScript.enabled = false;
-            wireActionScript.ResetState();
         }
+
+        var anim = GameObject.FindGameObjectWithTag("Player")?.GetComponent<PlayerAnimatorController>();
+        if (anim != null)
+        {
+            float dir = (anim.transform.localScale.x >= 0) ? 1f : -1f;
+            anim.OnGameOverVisual(dir);
+        }
+
 
         Debug.Log("Player died. Controls disabled.");
 
