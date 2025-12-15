@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SubTitle.unity
     guid: 7ab665960927ab7409711e03ed72168b
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/info.unity
     guid: 42ea7e96828571c4ba6eb249dedd1ce1
   - enabled: 1
@@ -20,7 +20,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/GameScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Stage0Scene.unity
     guid: 095db8ffdaee41142b140c7e8cdd7ab3
   - enabled: 0
