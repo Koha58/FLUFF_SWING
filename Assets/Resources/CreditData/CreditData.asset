@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - type: LOGO
-    title: FLUFFSWING_0.png
+    title: TitleLogo
     name: 
     specialData: 
   - type: LINEBREAK
-    title: 300
+    title: 600
     name: 
     specialData: 
   - type: ROLE
@@ -26,7 +26,7 @@ MonoBehaviour:
     name: Koha
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -34,7 +34,7 @@ MonoBehaviour:
     name: Sample
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -42,7 +42,7 @@ MonoBehaviour:
     name: Koha, Sample
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -50,7 +50,7 @@ MonoBehaviour:
     name: Bia
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -60,7 +60,7 @@ MonoBehaviour:
       \u30A4\u30EF\u30B7\u30ED\u97F3\u697D\u7D20\u6750"
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -68,7 +68,7 @@ MonoBehaviour:
     name: "\u7F8E\u54B2\u30D5\u30A9\u30F3\u30C8"
     specialData: 
   - type: LINEBREAK
-    title: 80
+    title: 500
     name: 
     specialData: 
   - type: ROLE
@@ -76,7 +76,7 @@ MonoBehaviour:
     name: All Players
     specialData: 
   - type: LINEBREAK
-    title: 300
+    title: 700
     name: 
     specialData: 
   - type: THANKYOU
