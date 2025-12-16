@@ -18,12 +18,12 @@ MonoBehaviour:
     name: 
     specialData: 
   - type: LINEBREAK
-    title: 600
+    title: 300
     name: 
     specialData: 
   - type: ROLE
     title: Director
-    name: Koha
+    name: Koharubiyori
     specialData: 
   - type: LINEBREAK
     title: 500
@@ -39,7 +39,7 @@ MonoBehaviour:
     specialData: 
   - type: ROLE
     title: Programmer
-    name: Koha, Sample
+    name: Koharubiyori, Sample
     specialData: 
   - type: LINEBREAK
     title: 500
@@ -47,7 +47,7 @@ MonoBehaviour:
     specialData: 
   - type: ROLE
     title: Title Designer
-    name: Bia
+    name: bia
     specialData: 
   - type: LINEBREAK
     title: 500
