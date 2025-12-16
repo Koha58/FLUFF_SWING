@@ -4,7 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(SpriteRenderer))]
 
-public class Plyerscrool : MonoBehaviour
+public class Playerscroll : MonoBehaviour
 {
     public float runSpeed = 5f;
 

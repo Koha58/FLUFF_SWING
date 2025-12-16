@@ -5400,8 +5400,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   setPanel: {fileID: 1216068677}
   resetPanel: {fileID: 1744621193}
-  onClickSE: {fileID: 8300000, guid: 0376a4af07106cb4cb978d63626f10e4, type: 3}
-  offClickSE: {fileID: 8300000, guid: 241d73df83b4c1d4abf92849f454750a, type: 3}
+  onClickSE: {fileID: 8300000, guid: a752af88d9bf53242809faf8ce0b54fb, type: 3}
+  offClickSE: {fileID: 8300000, guid: 32755f957ab1be34c8a4515d60fc596b, type: 3}
   seMixerGroup: {fileID: -2906945877356610051, guid: 31fae0cc7d4333447b2db0aa68a7ea03, type: 2}
 --- !u!1 &2082707084
 GameObject:
