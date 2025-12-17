@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
@@ -12,6 +13,12 @@ public class CreditImageController : MonoBehaviour
     // === プライベートフィールド ===
     private Image _image;
     private RectTransform _rectTransform;
+
+    /// <summary>
+    /// 画像が完全に非表示になった (アルファ値が0になった) ときに一度だけ発行されるイベント。
+    /// </summary>
+    public Action OnFullyHidden;
+    private bool _isFullyHidden = false; // イベントの二重発行を防ぐためのフラグ
 
     // === インスペクター設定: Visibility Control ===
     [Header("Visibility Control")]
@@ -53,6 +60,10 @@ public class CreditImageController : MonoBehaviour
         Color c = _image.color;
         c.a = 0f;
         _image.color = c;
+
+        // 初期化時にアルファ値が0になったことによる即時イベント発生を防ぐため、
+        //  _isFullyHidden フラグを一時的に true に設定します。
+        _isFullyHidden = true;
 
         // 初期位置を保存
         if (_rectTransform != null)
@@ -130,7 +141,23 @@ public class CreditImageController : MonoBehaviour
         c.a = alpha;
         _image.color = c;
 
-        // 4. 位置調整（移動処理なし）
-        // 位置は固定（_initialPosition）に保たれる。
+        // ====================================================================
+        // 4. シーン遷移トリガーロジック
+        // ====================================================================
+
+        // アルファ値が0になり、かつ、まだ一度もイベントを発行していない場合
+        if (alpha == 0f && !_isFullyHidden)
+        {
+            _isFullyHidden = true; // フラグを立て、二度目の発行を防ぐ
+
+            // イベントを発行
+            // OnFullyHidden?.Invoke() は C# 6.0 以降の null 条件演算子を使った安全な呼び出し
+            OnFullyHidden?.Invoke();
+        }
+        else if (alpha > 0f)
+        {
+            // スクロールが巻き戻されたなど、再表示された場合はフラグをリセット
+            _isFullyHidden = false;
+        }
     }
 }
