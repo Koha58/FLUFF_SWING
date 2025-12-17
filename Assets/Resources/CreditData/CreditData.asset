@@ -31,7 +31,7 @@ MonoBehaviour:
     specialData: 
   - type: ROLE
     title: Art Director
-    name: Sample
+    name: Bon
     specialData: 
   - type: LINEBREAK
     title: 500
@@ -39,7 +39,7 @@ MonoBehaviour:
     specialData: 
   - type: ROLE
     title: Programmer
-    name: Koharubiyori, Sample
+    name: Koharubiyori, Bon
     specialData: 
   - type: LINEBREAK
     title: 500
@@ -66,6 +66,14 @@ MonoBehaviour:
   - type: ROLE
     title: Fonts Used
     name: "\u7F8E\u54B2\u30D5\u30A9\u30F3\u30C8, Melonano"
+    specialData: 
+  - type: LINEBREAK
+    title: 500
+    name: 
+    specialData: 
+  - type: ROLE
+    title: Tool Used
+    name: "\u30DF\u30CB\u30C9\u30C3\u30C8\u7D75\u30E1\u30FC\u30AB\u30FC\uFF13"
     specialData: 
   - type: LINEBREAK
     title: 500
