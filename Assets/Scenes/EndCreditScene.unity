@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -3300
-  endContentYOffset: -2100
+  startContentYOffset: -3600
+  endContentYOffset: -2200
 --- !u!114 &60183198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,8 +589,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -900
-  endContentYOffset: 200
+  startContentYOffset: -800
+  endContentYOffset: 400
 --- !u!114 &296662341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -680,8 +680,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: 400
-  endContentYOffset: 1000
+  startContentYOffset: 500
+  endContentYOffset: 1100
 --- !u!114 &344811521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -771,8 +771,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -2100
-  endContentYOffset: -900
+  startContentYOffset: -2200
+  endContentYOffset: -800
 --- !u!114 &406575597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -862,8 +862,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -4500
-  endContentYOffset: -3300
+  startContentYOffset: -5000
+  endContentYOffset: -3600
 --- !u!114 &465301000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -953,8 +953,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: 400
-  endContentYOffset: 1000
+  startContentYOffset: 500
+  endContentYOffset: 1100
 --- !u!114 &562370346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1124,8 +1124,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: 400
-  endContentYOffset: 1000
+  startContentYOffset: 500
+  endContentYOffset: 1100
 --- !u!114 &745632594
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1785,8 +1785,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -2100
-  endContentYOffset: -900
+  startContentYOffset: -2200
+  endContentYOffset: -800
 --- !u!114 &1278906867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2116,8 +2116,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -4500
-  endContentYOffset: -3300
+  startContentYOffset: -5000
+  endContentYOffset: -3600
 --- !u!114 &1560909853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2248,8 +2248,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: 400
-  endContentYOffset: 1000
+  startContentYOffset: 500
+  endContentYOffset: 1100
 --- !u!114 &1689624756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2463,8 +2463,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -3300
-  endContentYOffset: -2100
+  startContentYOffset: -3600
+  endContentYOffset: -2200
 --- !u!114 &1744234382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2804,8 +2804,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: 400
-  endContentYOffset: 1000
+  startContentYOffset: 500
+  endContentYOffset: 1100
 --- !u!114 &1902034087
 MonoBehaviour:
   m_ObjectHideFlags: 0
