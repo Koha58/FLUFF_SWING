@@ -65,7 +65,7 @@ MonoBehaviour:
     specialData: 
   - type: ROLE
     title: Fonts Used
-    name: "\u7F8E\u54B2\u30D5\u30A9\u30F3\u30C8"
+    name: "\u7F8E\u54B2\u30D5\u30A9\u30F3\u30C8, Melonano"
     specialData: 
   - type: LINEBREAK
     title: 500

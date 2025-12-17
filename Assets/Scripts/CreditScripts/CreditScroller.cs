@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -32,6 +33,11 @@ public class CreditScroller : MonoBehaviour
     [SerializeField] private float startPadding = 200f;
     [Tooltip("コンテンツの上端がViewportの上端からどれだけ離れた位置（正のY）でスクロールを停止するか")]
     [SerializeField] private float endOffset = 400f;
+
+    // === シーン遷移設定 ===
+    [Header("Scene Transition")]
+    [Tooltip("遷移先のタイトルシーン名")]
+    [SerializeField] private string titleSceneName = "TitleScene";
 
     // === 画像フェード制御 ===
     [Header("Image Fade Controllers")]
@@ -312,10 +318,48 @@ public class CreditScroller : MonoBehaviour
         // 5. 画像コントローラーを初期化し、非表示状態にする
         InitializeImages(viewW, viewH, contentHeight);
 
+        // 最後の画像コントローラーにイベントを登録
+        RegisterLastImageHiddenEvent();
+
         // スクロール開始フラグを立てる
         scrolling = true;
 
         Debug.Log($"startPadding={startPadding}, viewH={viewH}, contentHeight={contentHeight}, startY={content.anchoredPosition.y}");
+    }
+
+    /// <summary>
+    /// 最後の画像コントローラーのイベントを購読する
+    /// </summary>
+    private void RegisterLastImageHiddenEvent()
+    {
+        // imageControllers配列に要素があり、かつ、有効なインスタンスが設定されているか確認
+        if (imageControllers != null && imageControllers.Length > 0)
+        {
+            // 配列の最後の要素を取得 (これがクレジットの最後にフェードアウトする画像だと仮定)
+            CreditImageController lastImage = imageControllers[imageControllers.Length - 1];
+
+            if (lastImage != null)
+            {
+                // イベントハンドラを登録
+                // 画像が完全に消えたら GoToTitleScene メソッドを呼び出す
+                lastImage.OnFullyHidden -= GoToTitleScene; // 二重登録防止のため
+                lastImage.OnFullyHidden += GoToTitleScene;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 最後の画像が完全に非表示になったときに呼び出される。タイトルシーンへ遷移する。
+    /// </summary>
+    private void GoToTitleScene()
+    {
+        // スクロールを停止
+        scrolling = false;
+
+        Debug.Log($"最後の画像が非表示になりました。'{titleSceneName}' シーンに遷移します。");
+
+        // シーン遷移を実行
+        SceneManager.LoadScene(titleSceneName);
     }
 
     /// <summary>
