@@ -765,7 +765,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7815346a3bb30cd49afe5d3a40ed899f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitionCanvasPrefab: {fileID: 2698614452115964496, guid: 12dae678f33b12245b74083ef6a08393, type: 3}
+  transitionCanvasPrefab: {fileID: 4100668039871583290, guid: 0e8277e63367b5447a9364228f69fb0b, type: 3}
 --- !u!4 &249577767
 Transform:
   m_ObjectHideFlags: 0
