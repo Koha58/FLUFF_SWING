@@ -84,6 +84,14 @@ MonoBehaviour:
     name: All Players
     specialData: 
   - type: LINEBREAK
+    title: 600
+    name: 
+    specialData: 
+  - type: LOGO
+    title: TeamLogo
+    name: 
+    specialData: 
+  - type: LINEBREAK
     title: 700
     name: 
     specialData: 
