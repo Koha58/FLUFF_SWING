@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraFollowScript : MonoBehaviour
 {
@@ -100,6 +101,30 @@ public class CameraFollowScript : MonoBehaviour
 
         // 現在のカメラ位置を基にターゲット位置へスムーズに移動
         Vector3 targetPos = new Vector3(targetX, targetY, currentPos.z);
+
+        // === Stage6 限定のカメラY制限 ===
+        if (SceneManager.GetActiveScene().name == "Stage6")
+        {
+            float x = targetPos.x;
+
+            // x座標 -40 ～ 220
+            if (x >= -40f && x <= 220f)
+            {
+                if (targetPos.y < -20f)
+                {
+                    targetPos.y = -20f;
+                }
+            }
+            // x座標 221 以降
+            else if (x >= 221f)
+            {
+                if (targetPos.y < -60f)
+                {
+                    targetPos.y = -60f;
+                }
+            }
+        }
+        // === ここまで ===
 
         transform.position = Vector3.SmoothDamp(currentPos, targetPos, ref velocity, smoothTime);
 
