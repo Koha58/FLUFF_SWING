@@ -30,7 +30,7 @@ public class CreditScroller : MonoBehaviour
     [Header("Scroll")]
     [SerializeField] private float scrollSpeed = 80f;
     [Tooltip("コンテンツの下端がViewportの下端からどれだけ離れた位置（負のY）でスクロールを開始するか")]
-    [SerializeField] private float startPadding = 200f;
+    [SerializeField] private float startPadding = 0f;
     [Tooltip("コンテンツの上端がViewportの上端からどれだけ離れた位置（正のY）でスクロールを停止するか")]
     [SerializeField] private float endOffset = 400f;
 

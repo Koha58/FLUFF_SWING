@@ -8,42 +8,97 @@
 /// </summary>
 public class Coin : MonoBehaviour
 {
+    // === コイン獲得時の効果音 ===
     [Header("コイン獲得SE")]
-    [SerializeField] private AudioClip coinSE; // コイン獲得時の効果音
+    [SerializeField] private AudioClip coinSE;
 
-    // FixedUpdateは物理演算の更新タイミングで呼ばれる
-    // 毎フレーム、プレイヤーとの接触を確認
+    // === スポーン管理用 ===
+
+    // このコインを管理している SpawnManager
+    private SpawnManagerWithPool _spawnManager;
+
+    // SpawnDataEntry に紐づく一意なID
+    private int _entryId;
+
+    // コインが既に取得済みかどうか（多重取得防止用）
+    // FixedUpdateで毎フレーム判定するため必須
+    private bool _consumed;
+
+    /// <summary>
+    /// SpawnManagerWithPool から生成時に呼ばれる初期化メソッド。
+    /// このコインを管理する SpawnManager と、
+    /// 対応する SpawnDataEntry の ID を受け取る。
+    /// </summary>
+    /// <param name="manager">このコインを管理する SpawnManager</param>
+    /// <param name="entryId">SpawnDataEntry の ID</param>
+    public void Setup(SpawnManagerWithPool manager, int entryId)
+    {
+        _spawnManager = manager;
+        _entryId = entryId;
+        _consumed = false;
+    }
+
+    /// <summary>
+    /// プールから再利用されてアクティブ化された際に呼ばれる。
+    /// 前回の取得状態をリセットする。
+    /// </summary>
+    private void OnEnable()
+    {
+        _consumed = false;
+    }
+
+    /// <summary>
+    /// 物理演算の更新タイミングで毎フレーム呼ばれる。
+    /// プレイヤーとの接触判定を行う。
+    /// </summary>
     private void FixedUpdate()
     {
+        // 既に取得済みの場合は何もしない
+        if (_consumed) return;
+
         CheckForCoinOverlap();
     }
 
     /// <summary>
-    /// コインの中心を中心とした一定半径内にプレイヤーが存在するかを判定する。
-    /// 該当する場合、コイン獲得処理を行い、オブジェクトプールへ返却する。
+    /// コインの中心を基準に一定半径内に
+    /// プレイヤーが存在するかを判定する。
+    /// 該当した場合、コイン取得処理を行う。
     /// </summary>
-    void CheckForCoinOverlap()
+    private void CheckForCoinOverlap()
     {
-        // 半径0.5fの円範囲内にあるすべてのCollider2Dを取得
+        // 半径0.5fの円範囲内にある Collider2D を取得
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.5f);
 
         foreach (var hit in hits)
         {
-            // "Player"タグを持つオブジェクト（プレイヤー）との接触を検出
-            if (hit.CompareTag("Player"))
+            // プレイヤー以外は無視
+            if (!hit.CompareTag("Player")) continue;
+
+            // 取得済みフラグを立てて多重処理を防止
+            _consumed = true;
+
+            // コイン取得SEを再生
+            AudioManager.Instance.PlaySE(coinSE);
+
+            // コインUIの表示を更新
+            PlayerCoinUI.Instance.AddCoin(1);
+
+            // SpawnManager が設定されている場合は、
+            // スポーン管理側に「取得された」ことを通知する
+            // （プール返却 ＋ 範囲内リスポーン禁止）
+            if (_spawnManager != null)
             {
-                // 🎵 AudioManager経由でSEを再生
-                AudioManager.Instance.PlaySE(coinSE);
-
-                // コインUIのカウントを1つ増やす（シングルトンパターンを使用）
-                PlayerCoinUI.Instance.AddCoin(1);
-
-                // このコインを非アクティブ化し、オブジェクトプールに返却
-                CoinPoolManager.Instance.ReturnCoin(this.gameObject);
-
-                // 1つのプレイヤーにのみ反応すれば十分なのでループを抜ける
-                break;
+                _spawnManager.NotifyObjectDestroyed(_entryId);
             }
+            else
+            {
+                // 何らかの理由で Setup されていない場合は、
+                // 従来どおり直接プールへ返却する
+                CoinPoolManager.Instance.ReturnCoin(this.gameObject);
+            }
+
+            // 1回取得できれば十分なのでループを抜ける
+            break;
         }
     }
 }

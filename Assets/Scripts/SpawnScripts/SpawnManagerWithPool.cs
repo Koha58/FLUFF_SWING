@@ -25,6 +25,10 @@ public class SpawnManagerWithPool : MonoBehaviour
     // 倒されたが、まだ範囲内にいるため再スポーンをブロックすべきID
     private readonly HashSet<int> defeatedButInRangeIds = new();
 
+    // id → entry を引けるようにする（拾った瞬間に正しいプールへ返すため）
+    private readonly Dictionary<int, SpawnDataEntry> entryById = new();
+
+
     /// <summary>
     /// Start: シーン名に応じて SpawnDataSO をロード
     /// </summary>
@@ -39,6 +43,14 @@ public class SpawnManagerWithPool : MonoBehaviour
         {
             Debug.LogError($"SpawnDataSO が見つかりません: Resources/SpawnData/{sceneName}");
         }
+
+        if (spawnData != null)
+        {
+            entryById.Clear();
+            foreach (var e in spawnData.entries)
+                entryById[e.id] = e;
+        }
+
     }
 
     void Update()
@@ -134,9 +146,20 @@ public class SpawnManagerWithPool : MonoBehaviour
         }
         else if (type == "coin")
         {
-            // Coin は CoinPoolManager から取得
-            return CoinPoolManager.Instance.GetCoin(entry.position);
+            var coin = CoinPoolManager.Instance.GetCoin(entry.position);
+
+            if (coin != null)
+            {
+                var coinCtrl = coin.GetComponent<Coin>();
+                if (coinCtrl != null)
+                {
+                    coinCtrl.Setup(this, entry.id); // マネージャとIDを渡す
+                }
+            }
+
+            return coin;
         }
+
         else
         {
             Debug.LogWarning($"Unknown spawn type: {entry.type}");
@@ -178,13 +201,22 @@ public class SpawnManagerWithPool : MonoBehaviour
     /// </summary>
     public void NotifyObjectDestroyed(int entryId)
     {
-        // spawnedObjects から削除（この ID は倒されたため追跡不要）
-        if (spawnedObjects.Remove(entryId))
+        // id から entry を引く（coin/enemy どちらでもプール返却できる）
+        if (!entryById.TryGetValue(entryId, out var entry))
+            return;
+
+        // spawnedObjects にいるならプールへ返す
+        if (spawnedObjects.TryGetValue(entryId, out var obj))
         {
-            // 倒されたIDをブロックリストに追加
-            defeatedButInRangeIds.Add(entryId);
-            Debug.Log($"[SpawnManager] Enemy ID {entryId} defeated. Blocking respawn until player leaves range.");
+            ReturnToPool(obj, entry);
+            spawnedObjects.Remove(entryId);
         }
+
+        // 範囲内での再スポーンを禁止
+        defeatedButInRangeIds.Add(entryId);
+
+        Debug.Log($"[SpawnManager] Entry ID {entryId} consumed/destroyed. Blocking respawn until player leaves range.");
     }
+
 
 }

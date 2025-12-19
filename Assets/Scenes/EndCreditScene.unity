@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -3600
-  endContentYOffset: -2200
+  startContentYOffset: -4000
+  endContentYOffset: -2500
 --- !u!114 &60183198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -589,7 +589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -800
+  startContentYOffset: -1000
   endContentYOffset: 400
 --- !u!114 &296662341
 MonoBehaviour:
@@ -771,8 +771,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -2200
-  endContentYOffset: -800
+  startContentYOffset: -2500
+  endContentYOffset: -1000
 --- !u!114 &406575597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -862,8 +862,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -5000
-  endContentYOffset: -3600
+  startContentYOffset: -5500
+  endContentYOffset: -4000
 --- !u!114 &465301000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1414,7 +1414,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.8, g: 1, b: 1, a: 0}
+  m_BackGroundColor: {r: 0.58367383, g: 0.90188676, b: 0.90188676, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1790,8 +1790,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -2200
-  endContentYOffset: -800
+  startContentYOffset: -2500
+  endContentYOffset: -1000
 --- !u!114 &1278906867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2121,8 +2121,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -5000
-  endContentYOffset: -3600
+  startContentYOffset: -5500
+  endContentYOffset: -4000
 --- !u!114 &1560909853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2375,7 +2375,7 @@ MonoBehaviour:
   thankYouRowPrefab: {fileID: 1389232965970013863, guid: 30ee7741437fcba4da2e052958693105, type: 3}
   spacerRowPrefab: {fileID: 2493688652441358031, guid: 1f9b5c113fd4c4641882fbe9aa842aa8, type: 3}
   scrollSpeed: 50
-  startPadding: 20
+  startPadding: 0
   endOffset: 400
   titleSceneName: TitleScene
   imageControllers:
@@ -2469,8 +2469,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fadeDistance: 50
-  startContentYOffset: -3600
-  endContentYOffset: -2200
+  startContentYOffset: -4000
+  endContentYOffset: -2500
 --- !u!114 &1744234382
 MonoBehaviour:
   m_ObjectHideFlags: 0

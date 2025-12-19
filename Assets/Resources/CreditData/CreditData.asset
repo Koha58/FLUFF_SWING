@@ -18,7 +18,7 @@ MonoBehaviour:
     name: 
     specialData: 
   - type: LINEBREAK
-    title: 300
+    title: 200
     name: 
     specialData: 
   - type: ROLE
@@ -84,7 +84,7 @@ MonoBehaviour:
     name: All Players
     specialData: 
   - type: LINEBREAK
-    title: 600
+    title: 100
     name: 
     specialData: 
   - type: LOGO
@@ -92,7 +92,7 @@ MonoBehaviour:
     name: 
     specialData: 
   - type: LINEBREAK
-    title: 700
+    title: 200
     name: 
     specialData: 
   - type: THANKYOU
