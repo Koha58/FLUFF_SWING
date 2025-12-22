@@ -11,8 +11,10 @@ public class TitleManager : MonoBehaviour
 
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
-    [Header("データリセットパネル")]
-    [SerializeField] private GameObject resetPanel;
+    [Header("操作画面パネル")]
+    [SerializeField] private GameObject infoPanel;
+    [Header("操作画面パネル")]
+    [SerializeField] private GameObject infoPaneII;
 
     [Header("クリック音設定")]
     [Tooltip("ステージ選択・設定ボタンを押したときに鳴らす効果音")]
@@ -37,8 +39,8 @@ public class TitleManager : MonoBehaviour
         // --- パネルの初期設定 ---
         if (setPanel != null)
             setPanel.SetActive(false);
-        if (resetPanel != null)
-            resetPanel.SetActive(false);
+        if (infoPanel != null)
+            infoPanel.SetActive(false);
     }
 
 
@@ -69,16 +71,28 @@ public class TitleManager : MonoBehaviour
         Debug.Log("音量設定パネル表示");
     }
 
-    public void OnControlPanel()
+    public void OnInfoMovePanel()
     {
-        if (resetPanel == null) return;
+        if (infoPanel == null) return;
 
-        resetPanel.SetActive(true);
+        infoPanel.SetActive(true);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
 
-        Debug.Log("データリセットパネル表示");
+        Debug.Log("操作方法移動パネル表示");
+    }
+
+    public void OnInfoWirePanel()
+    {
+        if (infoPaneII == null) return;
+
+        infoPaneII.SetActive(true);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(onClickSE);
+
+        Debug.Log("操作方法ワイヤーパネル表示");
     }
 
     // ======== パネル非表示 =========
@@ -96,9 +110,9 @@ public class TitleManager : MonoBehaviour
 
     public void OffControlPanel()
     {
-        if (resetPanel == null) return;
+        if (infoPanel == null) return;
 
-        resetPanel.SetActive(false);
+        infoPanel.SetActive(false);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
