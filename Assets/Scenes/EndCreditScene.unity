@@ -2374,7 +2374,7 @@ MonoBehaviour:
   roleRowPrefab: {fileID: 3751711757992967122, guid: d679117a89b7c85438ccc5944d78fa1d, type: 3}
   thankYouRowPrefab: {fileID: 1389232965970013863, guid: 30ee7741437fcba4da2e052958693105, type: 3}
   spacerRowPrefab: {fileID: 2493688652441358031, guid: 1f9b5c113fd4c4641882fbe9aa842aa8, type: 3}
-  scrollSpeed: 50
+  scrollSpeed: 100
   startPadding: 0
   endOffset: 400
   titleSceneName: TitleScene

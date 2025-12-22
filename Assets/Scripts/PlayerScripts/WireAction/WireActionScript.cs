@@ -150,14 +150,26 @@ public class WireActionScript : MonoBehaviour
     {
         if (IsConnected) return;
 
+        // 1. マウスのスクリーン座標をゲーム内のワールド座標（Vector3）に変換
         Vector3 mouseWorldPos = GetMouseWorldPosition();
-        // 最初の点判定でコライダーの有無を確認する
-        RaycastHit2D initialHit = Physics2D.Raycast(mouseWorldPos, Vector2.zero);
+
+        // 2. 判定対象とするレイヤーを "Ground" のみに限定するためのマスクを取得
+        int groundLayer = LayerMask.GetMask("Ground");
+
+        // 3. マウス位置にコライダー（Groundレイヤー）が存在するか「点判定」を行う
+        // Physics2D.Raycast(地点, 方向, 距離, レイヤー)
+        // 方向を zero、距離を 0 にすることで、その地点に重なっているものだけを検出する
+        RaycastHit2D initialHit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f, groundLayer);
+
+        // 4. Groundレイヤーのオブジェクトにヒットしなかった場合は、ここで処理を終了（針を投げない）
         if (initialHit.collider == null) return;
 
+        // 5. ヒットしたオブジェクトの参照と、実際にクリックされた座標（ヒット地点）を保持
         GameObject hitObj = initialHit.collider.gameObject;
         Vector2 connectPoint = initialHit.point;
 
+        // 6. ヒットしたオブジェクトが「動く床（Rigidbody2Dあり）」か「タイルマップ」かを判定
+        // 後のステップで、それぞれの性質に合わせた接続位置の補正を行うために取得しておく
         Rigidbody2D hitRb = hitObj.GetComponent<Rigidbody2D>();
         Tilemap tilemap = hitObj.GetComponent<Tilemap>() ?? hitObj.GetComponentInParent<Tilemap>();
 
@@ -204,12 +216,9 @@ public class WireActionScript : MonoBehaviour
         }
 
         // 接続判定
-        if (hitObj.CompareTag("WireConnectable") ||
-            hitObj.layer == LayerMask.NameToLayer("Ground") ||
-            hitRb != null)
+        // すでにLayerMaskで絞っているため、タグ判定は補助的に
+        if (hitObj.CompareTag("WireConnectable") || hitObj.layer == LayerMask.NameToLayer("Ground"))
         {
-            // 動く床の場合、ここで finalConnectPoint (オフセット済みワールド座標) を渡す
-            // ThrowNeedle内でこのワールド座標をローカルアンカーに変換する
             TryConnectWire(finalConnectPoint, hitObj);
         }
     }
