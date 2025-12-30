@@ -11,10 +11,14 @@ public class TitleManager : MonoBehaviour
 
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
-    [Header("操作画面パネル")]
-    [SerializeField] private GameObject infoPanel;
-    [Header("操作画面パネル")]
-    [SerializeField] private GameObject infoPaneII;
+    [Header("移動操作画面パネル")]
+    [SerializeField] private GameObject MoveinfoPanel;
+    [Header("ワイヤー操作画面パネル")]
+    [SerializeField] private GameObject WireinfoPanel;
+    [Header("攻撃操作画面パネル")]
+    [SerializeField] private GameObject AttackinfoPanel;
+
+    private GameObject currentInfoPanel;
 
     [Header("クリック音設定")]
     [Tooltip("ステージ選択・設定ボタンを押したときに鳴らす効果音")]
@@ -36,15 +40,41 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
-        // --- パネルの初期設定 ---
         if (setPanel != null)
             setPanel.SetActive(false);
-        if (infoPanel != null)
-            infoPanel.SetActive(false);
+
+        if (MoveinfoPanel != null)
+            MoveinfoPanel.SetActive(false);
+        if (WireinfoPanel != null)
+            WireinfoPanel.SetActive(false);
+        if (AttackinfoPanel != null)
+            AttackinfoPanel.SetActive(false);
+
+        currentInfoPanel = null;
     }
 
 
+
     #endregion
+
+    private void ShowInfoPanel(GameObject panel)
+    {
+        if (panel == null) return;
+
+        // すでに別のパネルが表示されていれば閉じる
+        if (currentInfoPanel != null && currentInfoPanel != panel)
+        {
+            currentInfoPanel.SetActive(false);
+        }
+
+        // 指定パネルを表示
+        currentInfoPanel = panel;
+        currentInfoPanel.SetActive(true);
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlaySE(onClickSE);
+    }
+
 
 
     // ======== アプリ終了 =========
@@ -73,27 +103,22 @@ public class TitleManager : MonoBehaviour
 
     public void OnInfoMovePanel()
     {
-        if (infoPanel == null) return;
-
-        infoPanel.SetActive(true);
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(onClickSE);
-
+        ShowInfoPanel(MoveinfoPanel);
         Debug.Log("操作方法移動パネル表示");
     }
 
     public void OnInfoWirePanel()
     {
-        if (infoPaneII == null) return;
-
-        infoPaneII.SetActive(true);
-
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(onClickSE);
-
+        ShowInfoPanel(WireinfoPanel);
         Debug.Log("操作方法ワイヤーパネル表示");
     }
+
+    public void OnInfoAttackPanel()
+    {
+        ShowInfoPanel(AttackinfoPanel);
+        Debug.Log("操作方法攻撃パネル表示");
+    }
+
 
     // ======== パネル非表示 =========
     public void OffSetPanel()
@@ -108,17 +133,20 @@ public class TitleManager : MonoBehaviour
         Debug.Log("音量設定パネル非表示");
     }
 
-    public void OffControlPanel()
+    public void OffInfoPanel()
     {
-        if (infoPanel == null) return;
+        // 表示中の操作パネルがなければ何もしない
+        if (currentInfoPanel == null) return;
 
-        infoPanel.SetActive(false);
+        currentInfoPanel.SetActive(false);
+        currentInfoPanel = null;
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
-        Debug.Log("データリセットパネル非表示");
+        Debug.Log("操作方法パネル非表示");
     }
+
 
     #endregion
 

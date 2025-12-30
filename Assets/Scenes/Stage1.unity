@@ -42007,10 +42007,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1345820745274120624, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1377923673178632383, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1430290039451670778, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: m_Name
       value: TutorialSign_Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 2213065201248026738, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3157938605551871981, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 6b5cf7ce853ea124cbfcb87a373bc372, type: 3}
     - target: {fileID: 8241657241552145191, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: player
       value: 
@@ -42027,6 +42043,14 @@ PrefabInstance:
       propertyPath: wireSkillDemo
       value: 
       objectReference: {fileID: 1441658200}
+    - target: {fileID: 9083100380344624679, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 9083100380344624679, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.03
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 810347048270899780, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
     m_RemovedGameObjects: []
