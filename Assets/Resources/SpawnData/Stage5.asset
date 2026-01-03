@@ -16,23 +16,23 @@ MonoBehaviour:
   - id: 1
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: 4.586, y: -1.624, z: 0}
+    position: {x: 4.586, y: -1.56, z: 0}
   - id: 2
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: 5.83, y: -1.624, z: 0}
+    position: {x: 7.28, y: -1.54, z: 0}
   - id: 3
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Bird
-    position: {x: 41.8, y: 79.8, z: 0}
+    position: {x: 41.8, y: 174.524, z: 0}
   - id: 4
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 13.35, y: 3.616, z: 0}
+    position: {x: -8.07, y: 1.61, z: 0}
   - id: 5
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 11.56, y: -2, z: 0}
+    position: {x: 39.8, y: 4.12, z: 0}
   - id: 6
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
@@ -140,80 +140,80 @@ MonoBehaviour:
   - id: 32
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: -7.93, y: 1.63, z: 0}
+    position: {x: -7.93, y: 139, z: 0}
   - id: 33
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: -7.45, y: 8.77, z: 0}
+    position: {x: -7.45, y: 146.14, z: 0}
   - id: 34
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: -8.69, y: 31.2, z: 0}
+    position: {x: -8.69, y: 168.56999, z: 0}
   - id: 35
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 13.26, y: 30.18, z: 0}
+    position: {x: 13.26, y: 167.54999, z: 0}
   - id: 36
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 12.8, y: 38.354, z: 0}
+    position: {x: 12.8, y: 175.724, z: 0}
   - id: 37
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 12.68, y: 47.531002, z: 0}
+    position: {x: 12.68, y: 184.901, z: 0}
   - id: 38
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: -6.22, y: 7.58, z: 0}
+    position: {x: -6.22, y: 144.95, z: 0}
   - id: 39
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: 11.93, y: 22.89, z: 0}
+    position: {x: 11.93, y: 160.26, z: 0}
   - id: 40
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: -7.65, y: 26.88, z: 0}
+    position: {x: -7.65, y: 164.25, z: 0}
   - id: 41
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: -16.36, y: 70.83, z: 0}
+    position: {x: -16.36, y: 208.2, z: 0}
   - id: 42
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/BlueRabbit
-    position: {x: 19.07, y: 70.81, z: 0}
+    position: {x: 19.07, y: 208.18, z: 0}
   - id: 43
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: -4.84, y: 7.55, z: 0}
+    position: {x: -4.84, y: 144.92, z: 0}
   - id: 44
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: 13.24, y: 22.91, z: 0}
+    position: {x: 13.24, y: 160.28, z: 0}
   - id: 45
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: -8.67, y: 27.94, z: 0}
+    position: {x: -8.67, y: 165.31, z: 0}
   - id: 46
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: -17.57, y: 70.83, z: 0}
+    position: {x: -17.57, y: 208.2, z: 0}
   - id: 47
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: 20.5, y: 70.8, z: 0}
+    position: {x: 20.5, y: 208.17, z: 0}
   - id: 48
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Bird
-    position: {x: 56, y: 103.5, z: 0}
+    position: {x: 56, y: 240.87, z: 0}
   - id: 49
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 10.49, y: 46.93, z: 0}
+    position: {x: 48.97, y: 4.12, z: 0}
   - id: 50
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: -8.87, y: 70.39, z: 0}
+    position: {x: 58.09, y: 4.1, z: 0}
   - id: 51
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/Mole
-    position: {x: 15.98, y: 70.38, z: 0}
+    position: {x: 15.98, y: 207.75, z: 0}

@@ -94,6 +94,19 @@ public class MovingPlatform : MonoBehaviour
             // プレイヤーをこの動く床の子オブジェクトにする
             collision.transform.SetParent(this.transform);
         }
+
+        // 敵のタグで判定
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // 敵をこの動く床の子オブジェクトにする
+            Transform enemy = collision.transform;
+
+            // 親子付け
+            enemy.SetParent(transform);
+
+            // ★Y座標を +1.1 する（ワールド座標）
+            enemy.position += Vector3.up * 1.1f;
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -102,6 +115,16 @@ public class MovingPlatform : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             // プレイヤーの親子関係を解除し、シーンルートに戻す
+            collision.transform.SetParent(null);
+
+            // 必要に応じてスケール継承の影響をリセットする場合はコメントを外す
+            // collision.transform.localScale = Vector3.one; 
+        }
+
+        // 敵のタグで判定
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            // 敵の親子関係を解除し、シーンルートに戻す
             collision.transform.SetParent(null);
 
             // 必要に応じてスケール継承の影響をリセットする場合はコメントを外す

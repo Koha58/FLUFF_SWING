@@ -6613,6 +6613,18 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 7824020957431669722, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: bendAmount
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7824020957431669722, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: segmentCount
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7824020957431669722, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: gravityInfluence
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 8002546484496251694, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: m_LocalPosition.z
       value: -1
@@ -38809,6 +38821,18 @@ PrefabInstance:
     - target: {fileID: 1430290039451670778, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: m_Name
       value: TutorialSign_Wire
+      objectReference: {fileID: 0}
+    - target: {fileID: 2213065201248026738, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2499918472096140842, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: bendAmount
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2499918472096140842, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
+      propertyPath: gravityInfluence
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 4842038994016596153, guid: bbf1e4b45711c55429e265bb134fa628, type: 3}
       propertyPath: m_SortingOrder
