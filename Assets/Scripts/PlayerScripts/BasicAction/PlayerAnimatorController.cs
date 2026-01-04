@@ -10,58 +10,67 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimatorController : MonoBehaviour
 {
-    #region === Animator本体 ===
-    private Animator _animator; // プレイヤーのAnimatorコンポーネント本体
+    #region === Animator 本体 ===
+
+    /// <summary>
+    /// プレイヤーの Animator コンポーネント本体
+    /// </summary>
+    private Animator _animator;
+
     #endregion
 
-    #region === Animatorパラメータ名 ===
+
+    #region === Animator パラメータ定義 ===
+
     /// <summary>
-    /// Animatorコントローラ内で使用するパラメータ名を定数化。
-    /// 文字列リテラル誤りを防ぎ、コードの可読性を向上させる。
+    /// Animator Controller 内で使用するパラメータ名。
+    /// 文字列リテラルの直書きを防ぎ、安全に参照するための定数群。
     /// </summary>
     private static class AnimatorParams
     {
-        public const string State = "State"; // プレイヤーの現在の状態(Int)
-        public const string SpeedMultiplier = "speedMultiplier"; // アニメーション再生速度の倍率(Float)
+        public const string State = "State";                 // 現在のアニメーション状態（Int）
+        public const string SpeedMultiplier = "speedMultiplier"; // 再生速度倍率（Float）
     }
+
     #endregion
 
-    #region === 定数定義 ===
+
+    #region === アニメーション関連定数 ===
+
     /// <summary>
-    /// 各アニメーションの再生スピード倍率を定義。
-    /// アニメーションの「テンポ」を調整するために使用される。
+    /// 各ステートごとのアニメーション再生速度倍率。
     /// </summary>
     private static class AnimatorSpeeds
     {
-        public const float RunMin = 0.5f;   // 最小移動速度でのRunアニメーション倍率
-        public const float RunMax = 3.0f;   // 最大移動速度でのRunアニメーション倍率
-        public const float Swing = 1.5f;    // ワイヤースイング時のアニメーション倍率
-        public const float Grapple = 1.5f;  // グラップル開始時のアニメーション倍率（Jumpと併用）
-        public const float Landing = 1.0f;  // 着地アニメーション倍率
-        public const float MeleeAttack = 1.0f; // 近接攻撃アニメーション倍率
-        public const float RangedAttack = 1.0f; // 遠距離攻撃アニメーション倍率
-        public const float Damage = 1.0f;   // ダメージアニメーション倍率
-        public const float Goal = 1.0f;     // ゴールアニメーション倍率
-        public const float Idle = 1.0f;     // 待機アニメーション倍率
+        public const float RunMin = 0.5f;        // 最低移動時の Run 速度
+        public const float RunMax = 3.0f;        // 最大移動時の Run 速度
+        public const float Swing = 1.5f;         // ワイヤースイング
+        public const float Grapple = 1.5f;       // グラップル開始（Jump）
+        public const float Landing = 1.0f;       // 着地
+        public const float MeleeAttack = 1.0f;   // 近接攻撃
+        public const float RangedAttack = 1.0f;  // 遠距離攻撃
+        public const float Damage = 1.0f;        // ダメージ
+        public const float Goal = 1.0f;          // ゴール
+        public const float Idle = 1.0f;          // 待機
     }
 
     /// <summary>
-    /// アニメーション遷移・入力検出・演出タイミングに関する定数。
+    /// アニメーション遷移や演出タイミングに関する定数。
     /// </summary>
     private static class Timings
     {
-        public const float MoveThreshold = 0.05f;           // 移動入力がこれ以上（絶対値）で「移動中」と判定する閾値
-        public const float MoveDelayTime = 0.1f;            // 入力が途切れてから「停止中(Idle)」と判定するまでの遅延時間
-        public const float GrappleTransitionTime = 0.3f;    // グラップル（Jumpアニメ）からワイヤー（Wireアニメ）へ切り替わるまでの時間
-        public const float FlipThreshold = 0.01f;           // 左右反転を行う入力の最小閾値
-        public const float LandingToIdleDelay = 0.5f;       // 着地後、自動的にIdleに戻るまでの時間
-        public const float FootstepInterval = 0.25f;        // 足音を再生する最小間隔
-        public const float DamageResetDelay = 1.0f;         // ダメージアニメーション終了後、強制的にIdleへ戻すまでの時間
-        public const float AttackTimeout = 1.2f;            // 攻撃アニメーションが正常終了しなかった場合に強制終了する時間
+        public const float MoveThreshold = 0.05f;        // 移動と判定する最小入力
+        public const float MoveDelayTime = 0.1f;         // 入力停止 → Idle までの猶予
+        public const float GrappleTransitionTime = 0.3f; // Jump → Wire までの遅延
+        public const float FlipThreshold = 0.01f;        // 反転を行う入力閾値
+        public const float LandingToIdleDelay = 0.5f;    // Landing → Idle 遷移時間
+        public const float FootstepInterval = 0.25f;     // 足音の最小間隔
+        public const float DamageResetDelay = 1.0f;      // ダメージ復帰時間
+        public const float AttackTimeout = 1.2f;         // 攻撃強制終了時間
     }
 
     /// <summary>
-    /// 方向値を定義（左右・なし）。スプライト反転や攻撃方向決定に使用。
+    /// 向き関連の定数。
     /// </summary>
     private static class Directions
     {
@@ -71,7 +80,7 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 汎用スピード定数（主に引数のデフォルト値として使用）。
+    /// 引数用の汎用スピード定数。
     /// </summary>
     private static class Speeds
     {
@@ -79,72 +88,125 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// デフォルト初期値。
+    /// 初期値定義。
     /// </summary>
     private static class Defaults
     {
-        public const int LastFootstepIndexDefault = -1; // 足音のインデックス初期値
-        public const float TimeZero = 0f; // 時間の初期値（0秒）
+        public const int LastFootstepIndexDefault = -1;
+        public const float TimeZero = 0f;
     }
+
     #endregion
 
-    #region === プレイヤーステート ===
+
+    #region === プレイヤーアニメーションステート ===
+
     /// <summary>
     /// プレイヤーのアニメーション状態。
-    /// AnimatorのIntパラメータ「State」と同期し、アニメーション切り替えを行う。
+    /// Animator の State(Int) と同期する。
     /// </summary>
     public enum PlayerState
     {
-        Idle = 0, // 待機
-        Run = 1, // 走行
-        Jump = 2, // ジャンプ・落下・グラップル初期
-        Wire = 3, // ワイヤースイング中
-        Landing = 4, // 着地
-        MeleeAttack = 5, // 近接攻撃
-        RangedAttack = 6, // 遠距離攻撃
-        Damage = 7, // ダメージ
-        Goal = 8 // ゴール
+        Idle = 0,
+        Run = 1,
+        Jump = 2,          // ジャンプ / 落下 / グラップル初動
+        Wire = 3,          // ワイヤースイング
+        Landing = 4,       // 着地
+        MeleeAttack = 5,   // 近接攻撃
+        RangedAttack = 6,  // 遠距離攻撃
+        Damage = 7,        // ダメージ
+        Goal = 8           // ゴール
     }
 
     /// <summary>
-    /// ステートの優先度。
-    /// 優先度が高いステート（例: ダメージ、ゴール）は、低いステートからの遷移を上書きできる。
+    /// ステート遷移の優先度。
+    /// 高いステートは低いステートを上書きできる。
     /// </summary>
-    private enum PlayerStatePriority { Low, Medium, High }
+    private enum PlayerStatePriority
+    {
+        Low,
+        Medium,
+        High
+    }
+
     #endregion
 
-    #region === 変数・フラグ類 ===
+
+    #region === Inspector 参照 ===
+
     [Header("参照")]
-    [SerializeField] private PlayerAttack playerAttack; // 攻撃処理スクリプトへの参照（アニメーションイベント用）
-    [SerializeField] private AudioClip landingSE;        // 着地音SEのクリップ
-    [SerializeField] private AudioClip[] footstepSEs;    // 足音SEのクリップ候補（ランダム再生用）
+    [SerializeField] private PlayerAttack playerAttack; // 攻撃処理（Animation Event 用）
+    [SerializeField] private AudioClip landingSE;        // 着地SE
+    [SerializeField] private AudioClip[] footstepSEs;    // 足音SE候補
 
-    private PlayerState _currentState = PlayerState.Idle;    // 現在のアニメーション状態
-    public PlayerState CurrentState => _currentState; // 外部公開用プロパティ
-
-    private PlayerState _previousState = PlayerState.Idle; // ダメージ前のステートを保持
-
-    private bool _isAttacking = false;              // 攻撃アニメーション再生中フラグ（攻撃判定の持続などにも使用）
-    public bool IsAttacking => _isAttacking; // 外部公開用プロパティ
-
-    private bool _attackInputLocked = false;        // 攻撃入力の一時ロックフラグ（連打防止やアニメーション終了までの待ちに使用）
-    public bool IsDamagePlaying { get; private set; } // ダメージアニメーション再生中フラグ（外部から読み取り可能）
-
-    private bool _pendingWireTransition = false;    // 攻撃などの後にワイヤー状態に遷移するのを待っているフラグ
-    private bool _justGrappled = false;             // グラップル（ジャンプアニメ）開始直後フラグ（タイマーでの自動ワイヤー遷移制御用）
-    private bool _isMoving = false;                 // 移動入力が継続しているかどうかのフラグ
-
-    private bool _isGameOver = false;                 // ゲームオーバー可能かどうかのフラグ
-
-    private float _grappleTimer = Defaults.TimeZero; // グラップル（Jump）からワイヤー（Wire）へ自動遷移するためのタイマー
-    private float _wireDirection = Directions.None;  // ワイヤー方向（スプライト反転保持用）
-    private float _moveStopTimer = Defaults.TimeZero;// 移動入力停止を検出するためのタイマー
-    private int lastFootstepIndex = Defaults.LastFootstepIndexDefault; // 前回再生した足音SEのインデックス
-    private float lastFootstepTime = Defaults.TimeZero;              // 前回足音を再生したUnity時間
-
-    private Coroutine _attackTimeoutCoroutine; // 攻撃タイムアウトコルーチンの参照を保持
-    private Coroutine _landingToIdleCoroutine; // Landing後のIdle遷移コルーチンの参照を保持
     #endregion
+
+
+    #region === 実行時ステート管理 ===
+
+    /// <summary>現在のアニメーション状態</summary>
+    private PlayerState _currentState = PlayerState.Idle;
+    public PlayerState CurrentState => _currentState;
+
+    /// <summary>ダメージ前など、直前の状態保持用</summary>
+    private PlayerState _previousState = PlayerState.Idle;
+
+    /// <summary>攻撃アニメーション再生中か</summary>
+    private bool _isAttacking = false;
+    public bool IsAttacking => _isAttacking;
+
+    /// <summary>攻撃入力ロック中か</summary>
+    private bool _attackInputLocked = false;
+
+    /// <summary>ダメージアニメーション再生中か</summary>
+    public bool IsDamagePlaying { get; private set; }
+
+    /// <summary>攻撃後に Wire へ遷移する待ち状態</summary>
+    private bool _pendingWireTransition = false;
+
+    /// <summary>グラップル直後フラグ（Jump → Wire 自動遷移用）</summary>
+    private bool _justGrappled = false;
+
+    /// <summary>移動入力が継続しているか</summary>
+    private bool _isMoving = false;
+
+    /// <summary>ゲームオーバー状態</summary>
+    private bool _isGameOver = false;
+
+    #endregion
+
+
+    #region === タイマー・補助変数 ===
+
+    private float _grappleTimer = Defaults.TimeZero;      // Jump → Wire タイマー
+    private float _wireDirection = Directions.None;       // ワイヤー方向保持
+    private float _moveStopTimer = Defaults.TimeZero;     // 移動停止検出用
+    private int lastFootstepIndex = Defaults.LastFootstepIndexDefault;
+    private float lastFootstepTime = Defaults.TimeZero;
+
+    #endregion
+
+
+    #region === SE 制御 ===
+
+    private float _lastLandingSETime = -999f;
+    private const float LandingSECooldown = 0.12f;
+
+    /// <summary>
+    /// 着地SEを次の Landing で 1 回だけ鳴らすための許可フラグ
+    /// </summary>
+    private bool _landingSEAllowed = false;
+
+    #endregion
+
+
+    #region === コルーチン参照 ===
+
+    private Coroutine _attackTimeoutCoroutine;   // 攻撃タイムアウト
+    private Coroutine _landingToIdleCoroutine;   // Landing → Idle 遷移
+
+    #endregion
+
 
     #region === Unityイベント ===
     private void Awake()
@@ -318,7 +380,6 @@ public class PlayerAnimatorController : MonoBehaviour
         _animator.SetFloat(AnimatorParams.SpeedMultiplier, speedMultiplier);
 
         // 状態ごとの追加処理（コルーチン開始、SE再生など）
-        if (newState == PlayerState.Landing) PlayLandingSE();
         if (newState == PlayerState.Run) PlayFootstepSE(); // 初回Runアニメーション開始時の足音（連続再生はUpdateMoveAnimationで制御）
         if (newState == PlayerState.Damage) StartCoroutine(ResetFromDamage(Timings.DamageResetDelay)); // ダメージ後の自動復帰
         if (newState == PlayerState.Landing) StartCoroutine(TransitionToIdleAfterLanding(direction)); // 着地後の自動Idle遷移
@@ -475,60 +536,52 @@ public class PlayerAnimatorController : MonoBehaviour
         // 既にDamageステートなどの最高優先度ステートであれば何もしない
         if (GetStatePriority(_currentState) == PlayerStatePriority.High) return;
 
-        // どの状態へ遷移すべきか決定
-        // isPlayerGrounded にかかわらず、必ず Landing へ遷移させる。
-        PlayerState targetState = PlayerState.Landing; // 常に Landing に設定
+        // --- 遷移処理の開始 ---
 
-        // 遷移先の状態ごとのスピード倍率を決定
-        float speedMultiplier = AnimatorSpeeds.Landing; // Landing の速度倍率を使用
+        // isPlayerGrounded にかかわらず、まずは必ず Landing へ遷移させる
+        PlayerState targetState = PlayerState.Landing;
+        float speedMultiplier = AnimatorSpeeds.Landing;
 
-        // アニメーションコントローラーのチェックをバイパスし、直接遷移を実行
-
-        // 現在の状態がTargetStateと異なる、またはWire状態からの離脱であれば強制実行
-        // Wire状態からの離脱時は、targetState が Landing と同じであってもアニメーターに書き込む必要がある。
-        if (_currentState != targetState || _currentState == PlayerState.Wire)
+        // 現在の状態がターゲットと異なる、または Wire / Jump 状態からの離脱であれば強制実行
+        // Jump(グラップル予備動作)状態でカットされた場合も、遷移設定を無視して即Landingへ移すために条件に含める
+        if (_currentState != targetState || _currentState == PlayerState.Wire || _currentState == PlayerState.Jump)
         {
-            // 1. 状態の更新
-            Debug.Log($"[OnWireCut] Forcing transition: {_currentState} -> {targetState} (Always Landing First)");
+            Debug.Log($"[OnWireCut] Forcing transition: {_currentState} -> {targetState} (Forced Play)");
+
             _previousState = _currentState; // 履歴を更新
             _currentState = targetState;
 
-            // 2. アニメーターへの反映（直接書き込み）
+            // 1. パラメータ更新
             _animator.SetInteger(AnimatorParams.State, (int)targetState);
             _animator.SetFloat(AnimatorParams.SpeedMultiplier, speedMultiplier);
 
-            // 3. アニメーターを即座に評価 (重要)
-            // 次のフレームを待たずにアニメーターを強制的に更新し、固着を防ぐ。
+            // 2.【重要】Play()を使って強制的にステートを再生する
+            // これにより、Jump -> Landing への矢印(Transition)がなくても、
+            // またJumpアニメーションの途中であっても即座に切り替わる。
+            // ※Animatorウィンドウ内のステート名が "Landing" である必要がある。
+            _animator.Play("Landing", 0, 0f);
+
+            // 3. アニメーターを即座に評価
             _animator.Update(0f);
 
-            // 4. スプライト反転 (この時点で実行)
+            // 4. スプライト反転
             FlipSprite(swingDirection);
 
-            // 5. 状態ごとの追加処理
-            if (targetState == PlayerState.Landing)
-            {
-                PlayLandingSE();
-                // Landing後のIdle遷移コルーチンを開始
-                _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
-            }
+            // 5. Landing後の処理（Idleへの自動遷移コルーチン開始）
+            _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
         }
-
-        // 最終保険: SetPlayerState や上記ロジックによる強制遷移が失敗した場合のリカバリー
-        // どんな手段を講じても _currentState が Wire のままである場合に備える
-        if (_currentState == PlayerState.Wire)
+        // 念のためのフェイルセーフ（Play()を使えば基本的には不要だが、念の為残す）
+        else if (_currentState == PlayerState.Wire)
         {
-            Debug.LogWarning("[OnWireCut] State transition failed. Forcing Landing state integer as final safeguard.");
-
-            // アニメーターの State パラメータに直接 Landing の値を強制的に書き込む
+            Debug.LogWarning("[OnWireCut] State transition logic fallback triggered. Forcing Landing.");
             _animator.SetInteger(AnimatorParams.State, (int)PlayerState.Landing);
             _currentState = PlayerState.Landing;
 
-            // Landing 後処理を再実行して Idle に繋げる
-            PlayLandingSE();
+            _animator.Play("Landing", 0, 0f); // ここでも強制再生
+            _animator.Update(0f);
+
             if (_landingToIdleCoroutine != null) StopCoroutine(_landingToIdleCoroutine);
             _landingToIdleCoroutine = StartCoroutine(TransitionToIdleAfterLanding(swingDirection));
-
-            // 念のため、Wire関連のフラグを再度リセット
             ResetWireFlags();
         }
 
@@ -888,10 +941,47 @@ public class PlayerAnimatorController : MonoBehaviour
     }
 
     /// <summary>
-    /// 着地音を再生。
+    /// 次回の Landing アニメーション中に、
+    /// 着地SEを「1回だけ」再生することを許可する。
+    ///
+    /// PlayerMove 側で「空中 → 接地の瞬間」を検知したときに呼ばれる。
+    /// 実際の SE 再生は Animation Event（PlayLandingSE）に委ねる。
     /// </summary>
-    public void PlayLandingSE() =>
+    public void AllowLandingSEOnce()
+    {
+        // 着地SEの再生許可フラグを立てる
+        _landingSEAllowed = true;
+    }
+
+    /// <summary>
+    /// 着地アニメーション内の Animation Event から呼ばれる。
+    /// 許可されている場合のみ、着地SEを再生する。
+    ///
+    /// ・空中で Landing に入った場合
+    /// ・Landing が多重に再生された場合
+    /// ・ワイヤー切断などで強制遷移した場合
+    /// でも SE が鳴らないようにするための安全装置。
+    /// </summary>
+    public void PlayLandingSE()
+    {
+        // 許可フラグが立っていなければ再生しない
+        // （＝ 正しい「着地瞬間」ではない）
+        if (!_landingSEAllowed) return;
+
+        // 1回再生したら即消費（多重再生防止）
+        _landingSEAllowed = false;
+
+        // クールダウン時間内であれば再生しない
+        // （床の微振動・段差・MovingFloor対策）
+        if (Time.time - _lastLandingSETime < LandingSECooldown) return;
+
+        // 最終再生時刻を更新
+        _lastLandingSETime = Time.time;
+
+        // 着地SEを再生
         AudioManager.Instance?.PlaySE(landingSE);
+    }
+
     #endregion
 
     #region === 補助関数 ===

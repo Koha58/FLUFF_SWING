@@ -11,58 +11,104 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(Rigidbody2D))] // Rigidbody2D がアタッチされていない場合、自動で追加される
 public class PlayerMove : MonoBehaviour
 {
-    #region === Inspector設定・依存コンポーネント ===
+    #region === Inspector参照（外部コンポーネント・設定） ===
 
-    /// <summary>ワイヤーアクションの状態を管理するスクリプト</summary>
+    /// <summary>
+    /// ワイヤーアクションの状態を管理するスクリプト
+    /// （接続中かどうかの判定など）
+    /// </summary>
     [SerializeField] private WireActionScript wireActionScript;
 
-    /// <summary>アニメーション制御用スクリプト</summary>
+    /// <summary>
+    /// プレイヤーのアニメーション制御クラス
+    /// </summary>
     [SerializeField] private PlayerAnimatorController animatorController;
 
-    /// <summary>プレイヤーステータスデータ（移動速度など）</summary>
+    /// <summary>
+    /// キャラクターステータス（移動速度などの定数データ）
+    ///</summary>
     [SerializeField] private CharacterBase characterData;
 
-    /// <summary>地面判定用のTransform（プレイヤーの足元）</summary>
+    /// <summary>
+    /// 接地判定用のTransform（プレイヤーの足元）
+    /// </summary>
     [SerializeField] private Transform groundCheck;
 
-    /// <summary>地面判定で判定対象とするレイヤー</summary>
+    /// <summary>
+    /// 地面として判定するレイヤー
+    /// </summary>
     [SerializeField] private LayerMask groundLayer;
 
     #endregion
 
 
-    #region === 内部フィールド ===
+    #region === 物理・入力 ===
 
-    /// <summary>プレイヤーの物理挙動を制御する Rigidbody2D</summary>
+    /// <summary>
+    /// プレイヤーの物理挙動を制御する Rigidbody2D
+    /// </summary>
     private Rigidbody2D rb;
 
-    /// <summary>移動入力値（-1～1）</summary>
+    /// <summary>
+    /// 移動入力値（-1 ～ 1）
+    /// </summary>
     private float moveInput;
 
-    /// <summary>地上での移動速度（characterDataから取得）</summary>
+    /// <summary>
+    /// 地上での移動速度（CharacterBase から取得）
+    /// </summary>
     private float moveSpeed;
 
-    /// <summary>接地判定用の半径（OverlapCircleなどの判定範囲）</summary>
-    private float groundCheckRadius = 0.5f;
-
-    /// <summary>現在プレイヤーが地面に接地しているかのフラグ</summary>
-    private bool isGrounded;
-
-    /// <summary>前フレームでの接地状態（状態変化の検知に使用）</summary>
-    private bool wasGrounded = false;
-
-    /// <summary>角にハマった際に自動ジャンプするための上方向力</summary>
-    private float jumpPower = 3.0f;
-
-    /// <summary>現在接触している地面のカスタムタイル（接地判定時に更新）</summary>
-    private CustomTile currentGroundTile;
-
-    /// <summary>移動入力アクション（Input Systemの"Move"）</summary>
+    /// <summary>
+    /// Input System の Move アクション
+    /// </summary>
     private InputAction moveAction;
 
-    private bool isInitialized = false; // 初期化フラグ
+    #endregion
+
+
+    #region === 接地判定 ===
+
+    /// <summary>
+    /// 接地判定に使用する Raycast の距離（半径）
+    /// </summary>
+    private float groundCheckRadius = 0.5f;
+
+    /// <summary>
+    /// 現在フレームで地面に接地しているか
+    /// </summary>
+    private bool isGrounded;
+
+    /// <summary>
+    /// 前フレームの接地状態
+    /// （着地・離地の瞬間検知用）
+    /// </summary>
+    private bool wasGrounded;
+
+    /// <summary>
+    /// 現在接触している地面タイル（CustomTile）
+    /// null の場合は通常地面
+    /// </summary>
+    private CustomTile currentGroundTile;
 
     #endregion
+
+
+    #region === 移動補助・状態管理 ===
+
+    /// <summary>
+    /// 角に引っかかった際の救済用ジャンプ力
+    /// </summary>
+    private float jumpPower = 3.0f;
+
+    /// <summary>
+    /// Start 初期化完了フラグ
+    /// （初期フレームでの誤判定防止）
+    /// </summary>
+    private bool isInitialized = false;
+
+    #endregion
+
 
 
     #region === Unityイベントメソッド ===
@@ -125,13 +171,28 @@ public class PlayerMove : MonoBehaviour
             {
                 Debug.Log("Landing中に再接地を検知したが、アニメーションをリセットしません。");
             }
-            // Landing中でなければ、通常通りアニメーションを再生
+            // Landing中でなければ、通常通り Landing を開始する
+            // ※ ワイヤー接続中は着地扱いにしないため除外
             else if (!wireActionScript.IsConnected)
             {
+                // デバッグ用ログ：空中 → 接地した「瞬間」を検知
                 Debug.Log("着地瞬間: Landingアニメーションを強制開始");
+
+                // 現在のスプライトの向きから着地方向を決定
+                // （localScale.x > 0 : 右向き / < 0 : 左向き）
                 float directionX = transform.localScale.x > 0 ? 1f : -1f;
+
+                // 次の Landing アニメーション中に
+                // 着地SEを「1回だけ」鳴らすことを許可する
+                // （空中フレームでの誤発火・多重再生防止用）
+                animatorController?.AllowLandingSEOnce();
+
+                // Landing アニメーションを強制的に開始
+                // ・Jump / Wire / 空中状態から必ず Landing に遷移させる
+                // ・Idle への自動遷移は AnimatorController 側で制御
                 animatorController?.ForceLanding(directionX);
             }
+
         }
 
         // 接地状態が変化したらログを出す（デバッグ用）
