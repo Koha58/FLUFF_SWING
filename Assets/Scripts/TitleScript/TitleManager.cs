@@ -37,10 +37,20 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private GameObject attackInfoPanel;
 
     /// <summary>
-    /// 現在表示中の操作説明パネル
-    /// （同時表示防止用）
+    /// 現在表示中の操作説明パネル（同時表示防止用）
     /// </summary>
     private GameObject currentInfoPanel;
+
+    // =========================================================
+    // Input Blocker
+    // =========================================================
+
+    [Header("入力ブロッカー")]
+    [Tooltip(
+        "ポップアップ表示中に背面ボタンの入力を遮断するための全画面パネル。\n" +
+        "Canvas内で【背面ボタンより上】かつ【ポップアップより下】に配置してください。\n" +
+        "Image(透明でもOK)で Raycast Target をONにするのがポイント。")]
+    [SerializeField] private GameObject inputBlocker;
 
     // =========================================================
     // Audio
@@ -60,7 +70,7 @@ public class TitleManager : MonoBehaviour
     [Tooltip("SEを流すAudioMixerGroup")]
     [SerializeField] private AudioMixerGroup seMixerGroup;
 
-    /// <summary>タイトルシーンの名前（SceneManagerで使用）</summary>
+    /// <summary>ステージセレクトシーンの名前（SceneManagerで使用）</summary>
     private const string SelectSceneName = "SelectScene";
 
     #endregion
@@ -69,22 +79,18 @@ public class TitleManager : MonoBehaviour
     // Unity Lifecycle
     // =========================================================
 
-    void Start()
+    private void Start()
     {
         // 起動時はすべてのパネルを非表示にする
-        if (setPanel != null)
-            setPanel.SetActive(false);
-
-        if (moveInfoPanel != null)
-            moveInfoPanel.SetActive(false);
-
-        if (wireInfoPanel != null)
-            wireInfoPanel.SetActive(false);
-
-        if (attackInfoPanel != null)
-            attackInfoPanel.SetActive(false);
+        if (setPanel != null) setPanel.SetActive(false);
+        if (moveInfoPanel != null) moveInfoPanel.SetActive(false);
+        if (wireInfoPanel != null) wireInfoPanel.SetActive(false);
+        if (attackInfoPanel != null) attackInfoPanel.SetActive(false);
 
         currentInfoPanel = null;
+
+        // 起動時は入力ブロック解除
+        SetPopupState(false);
     }
 
     // =========================================================
@@ -96,27 +102,54 @@ public class TitleManager : MonoBehaviour
     /// </summary>
     public void ChangeScenes()
     {
-        // TransitionManagerによるフェード付きのロードのみを実行
-        if (TransitionManager.Instance != null)
+        if (TransitionManager.Instance == null)
         {
-            // 決定音
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySE(startClickSE);
-
-            // TransitionManagerにセレクトシーンへの遷移を依頼
-            TransitionManager.Instance.PlayTransitionAndLoadScene(SelectSceneName);
-        }
-        else
-        {
-            // TransitionManagerが見つからない場合のフォールバック（緊急用）
             Debug.LogError("TransitionManagerが見つかりません。直接シーンロードします。");
             SceneManager.LoadScene(SelectSceneName);
+            return;
+        }
+
+        // ★遷移開始できた時だけSEを鳴らす
+        bool started = TransitionManager.Instance.TryPlayTransitionAndLoadScene(SelectSceneName);
+        if (started && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySE(startClickSE);
         }
     }
+
 
     // =========================================================
     // Panel Control (Internal)
     // =========================================================
+
+    /// <summary>
+    /// 入力ブロッカーのON/OFFを切り替える。
+    /// ポップアップ表示中は true（背面入力遮断）にする。
+    /// </summary>
+    private void SetPopupState(bool isOpen)
+    {
+        if (inputBlocker != null)
+            inputBlocker.SetActive(isOpen);
+    }
+
+    /// <summary>
+    /// 何かしらのポップアップ（設定 or 操作説明）が開いているか
+    /// </summary>
+    private bool IsAnyPopupOpen()
+    {
+        bool setOpen = setPanel != null && setPanel.activeSelf;
+        bool infoOpen = currentInfoPanel != null && currentInfoPanel.activeSelf;
+        return setOpen || infoOpen;
+    }
+
+    /// <summary>
+    /// ポップアップを閉じたあと、まだ別ポップアップが開いていないか確認し、
+    /// 全部閉じたときだけ入力ブロッカーを解除する。
+    /// </summary>
+    private void RefreshInputBlocker()
+    {
+        SetPopupState(IsAnyPopupOpen());
+    }
 
     /// <summary>
     /// 指定した操作説明パネルを表示する。
@@ -136,7 +169,10 @@ public class TitleManager : MonoBehaviour
         currentInfoPanel = panel;
         currentInfoPanel.SetActive(true);
 
-        // 決定音
+        // ポップアップが開いたので背面入力を遮断
+        SetPopupState(true);
+
+        // 決定音（※背面ボタンが押せなくなるので、余計なSEは鳴らなくなる）
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
     }
@@ -169,6 +205,9 @@ public class TitleManager : MonoBehaviour
         if (setPanel == null) return;
 
         setPanel.SetActive(true);
+
+        // ポップアップが開いたので背面入力を遮断
+        SetPopupState(true);
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
@@ -216,6 +255,9 @@ public class TitleManager : MonoBehaviour
 
         setPanel.SetActive(false);
 
+        // ほかのポップアップが開いていなければ、背面入力を戻す
+        RefreshInputBlocker();
+
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
@@ -232,6 +274,9 @@ public class TitleManager : MonoBehaviour
 
         currentInfoPanel.SetActive(false);
         currentInfoPanel = null;
+
+        // ほかのポップアップが開いていなければ、背面入力を戻す
+        RefreshInputBlocker();
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);

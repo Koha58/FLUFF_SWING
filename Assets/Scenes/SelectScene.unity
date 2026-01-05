@@ -262,6 +262,7 @@ GameObject:
   - component: {fileID: 113806205}
   - component: {fileID: 113806207}
   - component: {fileID: 113806206}
+  - component: {fileID: 113806208}
   m_Layer: 5
   m_Name: SetText
   m_TagString: Untagged
@@ -285,7 +286,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 218.96}
+  m_AnchoredPosition: {x: 0, y: 204}
   m_SizeDelta: {x: 1000, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &113806206
@@ -335,8 +336,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 200
-  m_fontSizeBase: 200
+  m_fontSize: 150
+  m_fontSizeBase: 150
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -387,6 +388,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 113806204}
   m_CullTransparentMesh: 1
+--- !u!114 &113806208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113806204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 669fb37107b68f743bd095f1c4658c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: AUDIO_SETTINGS
 --- !u!1 &132241675
 GameObject:
   m_ObjectHideFlags: 0
@@ -6769,6 +6783,7 @@ GameObject:
   - component: {fileID: 2104782302}
   - component: {fileID: 2104782304}
   - component: {fileID: 2104782303}
+  - component: {fileID: 2104782305}
   m_Layer: 5
   m_Name: TitleText
   m_TagString: Untagged
@@ -6894,6 +6909,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2104782301}
   m_CullTransparentMesh: 1
+--- !u!114 &2104782305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2104782301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 669fb37107b68f743bd095f1c4658c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  key: STAGE_SELECT
 --- !u!1 &2135129528
 GameObject:
   m_ObjectHideFlags: 0

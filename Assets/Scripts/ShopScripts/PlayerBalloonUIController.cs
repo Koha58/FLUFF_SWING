@@ -1,11 +1,16 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// プレイヤーがNPCに近づいた際に吹き出しUIを表示・制御するクラス。
 /// プレイヤーが一定距離内にいるかを判定し、NPCの吹き出しメッセージの表示や
 /// UIのON/OFFを管理する。また、プレイヤーの「はい」「いいえ」ボタン操作を受けて
 /// 回復やメッセージ切り替えを行う。
+/// 
+/// ★ローカライズ対応版：
+/// - メッセージは直接日本語で書かず、キー（例：SHOP_THANKS）で渡す
+/// - BalloonTextController側がキー→言語文字列に変換して表示する
 /// </summary>
 public class PlayerBalloonUIController : MonoBehaviour
 {
@@ -33,11 +38,11 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// <summary>メッセージを元に戻すまでの遅延秒数</summary>
     [SerializeField] private float restoreDelay = 3f;
 
-    /// <summary>「まいどあり」時に再生するSE</summary>
+    /// <summary>「ありがとう」系のSE</summary>
     [SerializeField] private AudioClip thankYouSE;
 
-    /// <summary>「まいどあり」時に再生するSE</summary>
-    [SerializeField] private AudioClip GetLifeSE;
+    /// <summary>回復SE</summary>
+    [SerializeField] private AudioClip getLifeSE;
 
     /// <summary>プレイヤーの攻撃制御クラス（HP回復の際にコイン所持数を参照）</summary>
     private PlayerAttack playerAttack;
@@ -61,7 +66,7 @@ public class PlayerBalloonUIController : MonoBehaviour
     private enum MessageState
     {
         None,               // 通常状態
-        ShowingThankYou,    // 感謝メッセージ表示中
+        ShowingThankYou,    // 返答メッセージ表示中（UIを出さない）
         ShowingOriginal     // 元のメッセージ表示中
     }
 
@@ -71,19 +76,29 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// <summary>吹き出しテキストの通常位置</summary>
     private Vector3 originalTextPosition;
 
-    /// <summary>感謝メッセージ時にずらす位置</summary>
+    /// <summary>返答メッセージ時にずらす位置</summary>
     private Vector3 shiftedTextPosition;
+
+    //===============================
+    // ローカライズ用：メッセージキー
+    //===============================
+
+    // 「購入成功」系（ありがとう）
+    private const string KEY_SHOP_THANKS = "SHOP_THANKS";
+
+    // 「足りない」系
+    private const string KEY_SHOP_NOT_ENOUGH = "SHOP_NOT_ENOUGH";
 
     /// <summary>
     /// 初期化処理。UIを非表示にし、吹き出しのイベント登録とテキスト位置の初期値を取得する。
     /// </summary>
-    void Start()
+    private void Start()
     {
         // PlayerAttack をシーン内から検索して取得
         playerAttack = FindFirstObjectByType<PlayerAttack>();
 
         // UIパネルを最初は非表示に設定
-        uiPanel.SetActive(false);
+        if (uiPanel != null) uiPanel.SetActive(false);
 
         // npcBalloonが設定されていれば、吹き出しが完全表示されたイベントにハンドラを登録
         if (npcBalloon != null)
@@ -103,8 +118,10 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// 毎フレーム呼ばれ、プレイヤーとNPCの距離を測定して
     /// UIの表示状態を切り替える。
     /// </summary>
-    void Update()
+    private void Update()
     {
+        if (npcTransform == null) return;
+
         // プレイヤー（このオブジェクト）とNPCの距離を計算
         float distance = Vector3.Distance(transform.position, npcTransform.position);
 
@@ -128,14 +145,20 @@ public class PlayerBalloonUIController : MonoBehaviour
 
     /// <summary>
     /// NPCの吹き出しメッセージが完全表示されていて
-    /// 感謝メッセージ表示中でなければUIパネルを表示する。
+    /// 返答メッセージ表示中でなければUIパネルを表示する。
     /// </summary>
     private void TryShowUI()
     {
-        // 吹き出しが完全表示されているかつ感謝メッセージ表示中でなければ表示
+        if (uiPanel == null || npcBalloon == null) return;
+
+        // 吹き出しが完全表示されているかつ返答メッセージ表示中でなければ表示
         if (npcBalloon.IsFullyDisplayed && currentMessageState != MessageState.ShowingThankYou)
         {
             uiPanel.SetActive(true);
+
+            // 前回の選択状態をクリア
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(null);
         }
         else
         {
@@ -150,7 +173,9 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// </summary>
     private void OnBalloonFullyDisplayed()
     {
-        // 感謝メッセージ以外の状態で、プレイヤーが範囲内ならUI表示
+        if (uiPanel == null) return;
+
+        // 返答メッセージ以外の状態で、プレイヤーが範囲内ならUI表示
         if (currentMessageState != MessageState.ShowingThankYou && isInRange)
         {
             uiPanel.SetActive(true);
@@ -164,42 +189,46 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// </summary>
     public void OnClickYes()
     {
+        if (playerAttack == null || PlayerCoinUI.Instance == null || npcBalloon == null)
+            return;
+
         // コインを消費できるかチェック
         if (PlayerCoinUI.Instance.TryUseCoins(requiredCoinAmount))
         {
-            // コイン消費成功時は回復し感謝メッセージを表示
+            // コイン消費成功時は回復
             playerAttack.Heal(1);
 
-            // SEが設定されていれば再生
-            if (thankYouSE != null)
-            {
+            // SEは別々にチェック（片方がnullでも片方は鳴るようにする）
+            if (thankYouSE != null && AudioManager.Instance != null)
                 AudioManager.Instance.PlaySE(thankYouSE);
-                AudioManager.Instance.PlaySE(GetLifeSE);
-            }
 
-            HandleResponse("まいどあり！");
+            if (getLifeSE != null && AudioManager.Instance != null)
+                AudioManager.Instance.PlaySE(getLifeSE);
+
+            // ★メッセージはキーで表示（ローカライズ）
+            HandleResponseKey(KEY_SHOP_THANKS);
         }
         else
         {
-            // コイン不足時は警告メッセージを表示
-            HandleResponse("ボタンが足らないよ！", insufficientMessageWidth, insufficientMessageOffset);
+            // ★コイン不足時もキーで表示（ローカライズ）
+            HandleResponseKey(KEY_SHOP_NOT_ENOUGH, insufficientMessageWidth, insufficientMessageOffset);
         }
     }
 
     /// <summary>
-    /// 指定メッセージをNPCの吹き出しに表示し、UIは非表示に切り替える。
+    /// 指定キーのメッセージをNPCの吹き出しに表示し、UIは非表示に切り替える。
     /// メッセージ表示後、一定時間経過で元のメッセージに戻す処理を開始する。
     /// </summary>
-    /// <param name="message">表示する文字列</param>
+    /// <param name="key">表示するローカライズキー</param>
     /// <param name="optionalWidth">吹き出しの幅（-1で自動調整）</param>
     /// <param name="offset">テキストの位置オフセット</param>
-    private void HandleResponse(string message, float optionalWidth = -1f, Vector2? offset = null)
+    private void HandleResponseKey(string key, float optionalWidth = -1f, Vector2? offset = null)
     {
         // UIパネルを非表示に切り替え
         HideUI();
 
-        // NPCの吹き出しに新しいメッセージを表示（幅やオフセット指定可）
-        npcBalloon.ShowMessage(message, optionalWidth, offset);
+        // NPCの吹き出しに新しいメッセージを表示（キー→現在言語の文言）
+        npcBalloon.ShowMessageKey(key, optionalWidth, offset);
 
         // 既にメッセージ復帰のコルーチンが動いていれば停止する
         if (restoreMessageCoroutine != null)
@@ -207,10 +236,10 @@ public class PlayerBalloonUIController : MonoBehaviour
             StopCoroutine(restoreMessageCoroutine);
         }
 
-        // 現在のメッセージ状態を感謝メッセージ表示中に変更
+        // 現在のメッセージ状態を返答メッセージ表示中に変更
         currentMessageState = MessageState.ShowingThankYou;
 
-        // 吹き出しテキストの位置をずらす（感謝メッセージ用）
+        // 吹き出しテキストの位置をずらす（返答メッセージ用）
         if (balloonTextRectTransform != null)
         {
             balloonTextRectTransform.localPosition = shiftedTextPosition;
@@ -226,7 +255,6 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// </summary>
     public void OnClickNo()
     {
-        // UIパネルを非表示に切り替え
         HideUI();
     }
 
@@ -234,11 +262,16 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// 一定時間待機した後にNPCの吹き出しメッセージを元のメッセージに戻すコルーチン。
     /// 元に戻った時のイベント登録もここで行う。
     /// </summary>
-    /// <returns>IEnumerator</returns>
     private IEnumerator ShowOriginalMessageWithUIDelay()
     {
         // restoreDelay秒だけ待機
         yield return new WaitForSeconds(restoreDelay);
+
+        if (npcBalloon == null)
+        {
+            restoreMessageCoroutine = null;
+            yield break;
+        }
 
         // 古いイベントハンドラを解除
         npcBalloon.OnFullyDisplayed -= OnBalloonFullyDisplayed;
@@ -249,7 +282,7 @@ public class PlayerBalloonUIController : MonoBehaviour
         // 元に戻ったメッセージが完全表示されたとき用のイベントハンドラを登録
         npcBalloon.OnFullyDisplayed += OnBalloonFullyDisplayedAfterRestore;
 
-        // NPC吹き出しメッセージを元に戻す
+        // NPC吹き出しメッセージを元に戻す（★キー運用なので中身もローカライズされる）
         npcBalloon.RestoreInitialMessage();
 
         // 吹き出しテキストの位置も元に戻す
@@ -268,8 +301,10 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// </summary>
     private void OnBalloonFullyDisplayedAfterRestore()
     {
+        if (npcBalloon == null) return;
+
         // プレイヤーが範囲内ならUIを再表示
-        if (isInRange)
+        if (isInRange && uiPanel != null)
         {
             uiPanel.SetActive(true);
         }
@@ -289,6 +324,10 @@ public class PlayerBalloonUIController : MonoBehaviour
     /// </summary>
     private void HideUI()
     {
-        uiPanel.SetActive(false);
+        if (uiPanel != null) uiPanel.SetActive(false);
+
+        // 閉じる時にもクリアしておくと次回が安定する
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 }

@@ -1,109 +1,176 @@
-// ステージセレクト>SceneManagerで使用
-
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 
+
+// ステージセレクトシーンで使用するUI管理クラス
+// ・ステージ選択
+// ・各種パネルの表示/非表示
+// ・SE再生
+// ・連打によるSE多重再生・遷移多重実行の防止
+// を担当する
+
 public class SelectManager : MonoBehaviour
 {
-    #region === インスペクター ===
+    #region === Inspector ===
+
+    // =========================
+    // Panels
+    // =========================
 
     [Header("音量設定パネル")]
     [SerializeField] private GameObject setPanel;
+
     [Header("データリセットパネル")]
     [SerializeField] private GameObject resetPanel;
 
+    // =========================
+    // Audio
+    // =========================
+
     [Header("クリック音設定")]
-    [Tooltip("ステージ選択・設定ボタンを押したときに鳴らす効果音")]
+
+    [Tooltip("ステージ選択・設定ボタンを押したときに鳴らすSE")]
     public AudioClip onClickSE;
-    [Tooltip("ホーム・閉じるボタンを押したときに鳴らす効果音")]
+
+    [Tooltip("ホーム・閉じるボタンを押したときに鳴らすSE")]
     public AudioClip offClickSE;
-    [Tooltip("データリセットボタンを押したときに鳴らす効果音")]
+
+    [Tooltip("データリセットボタンを押したときに鳴らすSE")]
     public AudioClip resetClickSE;
-    [Tooltip("ステージのロックを解除するときに鳴らす効果音")]
+
+    [Tooltip("ステージのロックを解除するときに鳴らすSE")]
     public AudioClip unlockSE;
 
-    [Tooltip("接続するAudioMixerのSEグループ")]
+    [Tooltip("接続するAudioMixerのSEグループ（※AudioManager側で使う想定）")]
     public AudioMixerGroup seMixerGroup;
 
-    private AudioSource audioSource;
+    // =========================
+    // Stage Data
+    // =========================
 
+    /// <summary>
+    /// 次に遷移するステージ名（SE再生後に使う）
+    /// </summary>
     private string nextStageName;
 
-    [Header("各ステージのロック")]   // 各ボタンのLock（子オブジェクト）をリストに設定
+    [Header("各ステージのロックオブジェクト")]
+    [Tooltip("各ステージボタンのLock（子オブジェクト）を順番に設定")]
     [SerializeField] private GameObject[] stageLocks;
 
     #endregion
 
-    #region === パネルの初期設定 ===
+    #region === 連打対策 ===
+
+    /// <summary>
+    /// シーン遷移を予約済みかどうか。
+    /// true になった時点で、以降の入力はすべて無視する。
+    ///
+    /// 目的：
+    /// ・SE多重再生防止
+    /// ・Invokeの多重予約防止
+    /// ・TransitionManagerの多重呼び出し防止
+    /// </summary>
+    private bool _isSceneMoveReserved = false;
+
+    #endregion
+
+    #region === 初期化 ===
 
     private void Start()
     {
-        // --- パネルの初期設定 ---
-        if (setPanel != null)
-            setPanel.SetActive(false);
-        if (resetPanel != null)
-            resetPanel.SetActive(false);
+        // 起動時はパネルを閉じた状態にする（誤表示防止）
+        if (setPanel != null) setPanel.SetActive(false);
+        if (resetPanel != null) resetPanel.SetActive(false);
 
-        // --- ステージロックの状態を更新 ---
+        // ステージロック状態を反映
         UpdateStageLocks();
+
+        // 連打対策フラグ初期化（念のため）
+        _isSceneMoveReserved = false;
+
+        // もし前回の予約が残っていた場合に備えてキャンセル
+        CancelInvoke(nameof(LoadNextScene));
     }
 
     #endregion
 
-    #region === ロックの状態更新 ===
+    #region === ステージロック管理 ===
 
+    /// <summary>
+    /// PlayerPrefsの状態に応じてステージロック表示を更新する
+    /// </summary>
     private void UpdateStageLocks()
     {
-        int clearedStage = Mathf.Max(1, PlayerPrefs.GetInt("ClearedStage", 0));
-        int lastUnlocedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
+        // 前回「新規解放演出を出したステージ番号」（無ければ-1）
+        int lastUnlockedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
 
+        // stageLocks 配列を順に見て、表示を更新
         for (int i = 0; i < stageLocks.Length; i++)
         {
+            // 該当ロックオブジェクト（無ければスキップ）
             GameObject lockObj = stageLocks[i];
             if (lockObj == null) continue;
 
+            // ステージ番号は配列 i(0始まり) + 1
             int stageNumber = i + 1;
 
-            // --- 解放済み→非表示 ---
-            if (stageNumber < lastUnlocedStage)
+            // --------------------------
+            // 1) すでに解放済みのステージ
+            // --------------------------
+            // lastUnlockedStage より前は「演出対象よりも前＝既に解放済み」とみなし、ロック表示を消す
+            if (stageNumber < lastUnlockedStage)
             {
                 lockObj.SetActive(false);
                 continue;
             }
 
-            // --- 今回新たに解放されたステージ→アニメーション再生 ---
-            if (stageNumber == lastUnlocedStage)
+            // --------------------------
+            // 2) 今回新しく解放されたステージ（演出あり）
+            // --------------------------
+            if (stageNumber == lastUnlockedStage)
             {
-                var anim = lockObj.GetComponent<LockOpen>();
+                // いったんロックを表示して、解除アニメを再生する
                 lockObj.SetActive(true);
+
+                // ロック解除アニメーション用コンポーネント取得
+                var anim = lockObj.GetComponent<LockOpen>();
 
                 if (anim != null)
                 {
+                    // アニメ再生後にSE＆ロック非表示
                     anim.PlayUnlockAnimation(() =>
                     {
+                        // 解放SE
                         if (AudioManager.Instance != null)
                             AudioManager.Instance.PlaySE(unlockSE);
 
+                        // ロックを消す
                         lockObj.SetActive(false);
                     });
                 }
                 else
                 {
+                    // アニメが無いなら即ロックを消す
                     lockObj.SetActive(false);
                 }
                 continue;
             }
 
-            // --- 未解放→表示 ---
+            // --------------------------
+            // 3) 未解放ステージ
+            // --------------------------
+            // ここは通常のロック判定：UnlockedMaxStage 以下なら解放済み
             int unlockedMax = PlayerPrefs.GetInt("UnlockedMaxStage", 1);
             bool isUnlocked = stageNumber <= unlockedMax;
+
+            // 解放済み→ロック非表示 / 未解放→ロック表示
             lockObj.SetActive(!isUnlocked);
         }
 
-        // --- 一度再生したらリセット ---
-        if (lastUnlocedStage != -1)
+        // 「今回の新規解放演出」は一度見せたらリセットして次回に持ち越さない
+        if (lastUnlockedStage != -1)
         {
             PlayerPrefs.SetInt("LastUnlockedStage", -1);
             PlayerPrefs.Save();
@@ -114,119 +181,173 @@ public class SelectManager : MonoBehaviour
 
     #region === ステージ遷移 ===
 
-    public void SelectStage(String StageName)
+    /// <summary>
+    /// ステージボタンを押したときに呼ばれる
+    /// </summary>
+    public void SelectStage(string stageName)
     {
-        // --- ロックチェック ---
-        int stageIndex = GetStageIndex(StageName);
-        if (stageIndex >= 0 && stageLocks[stageIndex] != null && stageLocks[stageIndex].activeSelf)
+        // --------------------------
+        // 連打対策：すでに遷移予約済みなら何もしない
+        // --------------------------
+        // ここで return することで
+        // ・SEの多重再生
+        // ・Invokeの多重予約
+        // を根本的に防ぐ
+        if (_isSceneMoveReserved) return;
+
+        // --------------------------
+        // ロックチェック：ロック中なら遷移しない
+        // --------------------------
+        int index = GetStageIndex(stageName);
+
+        // index が妥当 かつ ロックオブジェクトが active ならロック中
+        if (index >= 0 && stageLocks[index] != null && stageLocks[index].activeSelf)
         {
+            // 失敗系のSE（押せたが遷移しない感を出す）
             if (AudioManager.Instance != null)
                 AudioManager.Instance.PlaySE(offClickSE);
-            Debug.Log("<color=green>" + StageName + " はロック中です。</color>");
+
+            Debug.Log($"{stageName} はロック中です。");
             return;
         }
 
-        nextStageName = StageName;
+        // --------------------------
+        // 遷移先名を保持（SE再生後に使う）
+        // --------------------------
+        nextStageName = stageName;
 
-        // --- AudioManager経由でSEを再生(統一音量) ---
+        // --------------------------
+        // ここで「遷移予約済み」にする（この行が連打の肝）
+        // --------------------------
+        _isSceneMoveReserved = true;
+
+        // --------------------------
+        // 決定SE（最初の1回のみ）
+        // --------------------------
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
 
-        // --- 効果音の長さ分だけ待ってからシーン移動 ---
+        // --------------------------
+        // 多重Invoke対策：念のため前回予約があれば消す
+        // --------------------------
+        CancelInvoke(nameof(LoadNextScene));
+
+        // --------------------------
+        // SEの長さ分待ってからシーン遷移
+        // --------------------------
         float delay = onClickSE != null ? onClickSE.length : 0.1f;
         Invoke(nameof(LoadNextScene), delay);
     }
 
-    // --- シーン移動用 ---
+    /// <summary>
+    /// 実際のシーン遷移処理（Invokeから呼ばれる）
+    /// </summary>
     private void LoadNextScene()
     {
-        TransitionManager.Instance.PlayTransitionAndLoadScene(nextStageName);
+        // TransitionManager が無ければ最低限のフォールバックで遷移する
+        if (TransitionManager.Instance == null)
+        {
+            SceneManager.LoadScene(nextStageName);
+            return;
+        }
+
+        // Try版を使うことで、TransitionManager側でも多重遷移を防止できる
+        TransitionManager.Instance.TryPlayTransitionAndLoadScene(nextStageName);
     }
 
-    // --- Stage名 → Index変換 ---
+    /// <summary>
+    /// "Stage1" → 0, "Stage2" → 1 ... のように配列Indexに変換する
+    /// （命名規則が崩れると -1 を返す）
+    /// </summary>
     private int GetStageIndex(string stageName)
     {
-        if (stageName.StartsWith("Stage"))
+        // "Stage" で始まる場合のみ数字を取り出す
+        if (stageName.StartsWith("Stage") &&
+            int.TryParse(stageName.Replace("Stage", ""), out int num))
         {
-            if (int.TryParse(stageName.Replace("Stage", ""), out int num))
-                return num - 1; // 配列は0始まりなので調整
+            // 配列は0始まりなので -1
+            return num - 1;
         }
         return -1;
     }
 
-    // --- タイトルに戻る ---
-    public void TitleBack(String StageName)
+    /// <summary>
+    /// タイトルに戻る（ホームボタン等）
+    /// </summary>
+    public void TitleBack(string stageName)
     {
-        nextStageName = StageName;
+        // 連打対策：すでに予約済みなら無視
+        if (_isSceneMoveReserved) return;
 
+        // 遷移先を保持
+        nextStageName = stageName;
+
+        // 予約済みにして以降の入力を遮断
+        _isSceneMoveReserved = true;
+
+        // 戻るSE（最初の1回のみ）
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
 
+        // 多重Invoke対策
+        CancelInvoke(nameof(LoadNextScene));
+
+        // SEの長さ分待ってから遷移
         float delay = offClickSE != null ? offClickSE.length : 0.1f;
         Invoke(nameof(LoadNextScene), delay);
     }
 
-    // --- アプリ終了 ---
-    public void OnApplicationQuit()
-    {
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.PlaySE(offClickSE);
-
-        Application.Quit();
-    }
-
     #endregion
 
-    #region パネルの表示・非表示切り替え
+    #region === パネル表示制御 ===
 
-    // --- パネル表示 ---
     public void OnSetPanel()
     {
+        // 参照が無ければ何もしない
         if (setPanel == null) return;
 
+        // パネルを表示
         setPanel.SetActive(true);
 
+        // 決定SE
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(onClickSE);
-
-        Debug.Log("<color=green>音量設定パネル表示</color>");
     }
 
     public void OnResetPanel()
     {
         if (resetPanel == null) return;
 
+        // リセット確認パネルを表示
         resetPanel.SetActive(true);
 
+        // リセット系SE
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(resetClickSE);
-
-        Debug.Log("<color=green>データリセットパネル表示</color>");
     }
 
-    // --- パネル非表示 ---
     public void OffSetPanel()
     {
         if (setPanel == null) return;
 
+        // 設定パネルを閉じる
         setPanel.SetActive(false);
 
+        // 戻るSE
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
-
-        Debug.Log("<color=green>音量設定パネル非表示</color>");
     }
 
     public void OffResetPanel()
     {
         if (resetPanel == null) return;
 
+        // リセットパネルを閉じる
         resetPanel.SetActive(false);
 
+        // 戻るSE
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(offClickSE);
-
-        Debug.Log("<color=green>データリセットパネル非表示</color>");
     }
 
     #endregion
@@ -286,7 +407,6 @@ public class SelectManager : MonoBehaviour
 
     private void DebugResetStages()
     {
-        // --- 初期状態：ClearedStage = 0 → ステージ1だけ解放 ---
         PlayerPrefs.SetInt("ClearedStage", 0);
         PlayerPrefs.SetInt("LastUnlockedStage", -1);
         PlayerPrefs.SetInt("UnlockedMaxStage", 1);
@@ -313,7 +433,6 @@ public class SelectManager : MonoBehaviour
 
         Debug.Log("<b><color=orange>ステージデータをリセットしました（ステージ1のみ解放）</color></b>");
 
-        // --- ロック状態を即時更新 ---
         UpdateStageLocks();
 
         if (AudioManager.Instance != null)
@@ -321,5 +440,4 @@ public class SelectManager : MonoBehaviour
     }
 
     #endregion
-
 }

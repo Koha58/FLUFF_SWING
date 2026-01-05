@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e2db0c993e575543950eba8ad43ea54, type: 3}
+  m_Name: LocalizationTable
+  m_EditorClassIdentifier: 
+  entries:
+  - key: SETTINGS_LANGUAGE
+    ja: "\u8A00\u8A9E"
+    en: Language
+    note: "\u8A2D\u5B9A\u753B\u9762"
+  - key: SETTINGS_QUIT
+    ja: "\u30B2\u30FC\u30E0\u3092\u7D42\u4E86\u3059\u308B"
+    en: Quit Game
+    note: "\u8A2D\u5B9A\u753B\u9762"
+  - key: TITLE_START
+    ja: "\u30B9\u30BF\u30FC\u30C8"
+    en: Start
+    note: "\u30BF\u30A4\u30C8\u30EB\u753B\u9762"
+  - key: TITLE_HOWTO
+    ja: "\u64CD\u4F5C\u65B9\u6CD5"
+    en: How to Play
+    note: "\u30BF\u30A4\u30C8\u30EB\u753B\u9762"
+  - key: TITLE_OPTIONS
+    ja: "\u30AA\u30D7\u30B7\u30E7\u30F3"
+    en: Options
+    note: "\u30BF\u30A4\u30C8\u30EB\u753B\u9762"
+  - key: HOWTO_MOVE
+    ja: "\u79FB\u52D5  \u2192  \u5DE6\u79FB\u52D5 A\u30AD\u30FC\n          \u53F3\u79FB\u52D5
+      D\u30AD\u30FC"
+    en: 'Move
+
+      A: Left
+
+      D: Right'
+    note: "\u64CD\u4F5C\u8AAC\u660E"
+  - key: HOWTO_WIRE
+    ja: "\u30EF\u30A4\u30E4\u30FC \u2192 \u767A\u5C04 \u5DE6\u30AF\u30EA\u30C3\u30AF\n           
+      \u89E3\u9664 \u53F3\u30AF\u30EA\u30C3\u30AF"
+    en: 'Wire
+
+      Shoot: Left Click
+
+      Release: Right Click'
+    note: "\u64CD\u4F5C\u8AAC\u660E"
+  - key: HOWTO_ATTACK
+    ja: "\u653B\u6483   \u2192   \u53F3\u30AF\u30EA\u30C3\u30AF"
+    en: 'Attack: Right Click'
+    note: "\u64CD\u4F5C\u8AAC\u660E"
+  - key: STAGE_SELECT
+    ja: "\u30B9\u30C6\u30FC\u30B8\u30BB\u30EC\u30AF\u30C8"
+    en: Stage Select
+    note: "\u30B9\u30C6\u30FC\u30B8\u9078\u629E"
+  - key: AUDIO_SETTINGS
+    ja: "\u97F3\u91CF\u8A2D\u5B9A"
+    en: Audio Settings
+    note: "\u8A2D\u5B9A\u753B\u9762"
+  - key: PAUSE
+    ja: "\u30DD\u30FC\u30BA"
+    en: Pause
+    note: "\u30DD\u30FC\u30BA\u753B\u9762"
+  - key: BACK_TO_TITLE
+    ja: "\u30BF\u30A4\u30C8\u30EB\u3078\u3082\u3069\u308B"
+    en: Back to Title
+    note: "\u30DD\u30FC\u30BA\u753B\u9762"
+  - key: RESUME
+    ja: "\u30D7\u30EC\u30A4\u753B\u9762\u3078\u3082\u3069\u308B"
+    en: Resume
+    note: "\u30DD\u30FC\u30BA\u753B\u9762"
+  - key: BACK_TO_STAGE_SELECT
+    ja: "\u30B9\u30C6\u30FC\u30B8\u30BB\u30EC\u30AF\u30C8\u3078\u3082\u3069\u308B"
+    en: Back to Stage Select
+    note: "\u30DD\u30FC\u30BA\u753B\u9762"
+  - key: RESULT_CLEAR
+    ja: "\u30AF\u30EA\u30A2\uFF01"
+    en: Clear!
+    note: "\u30AF\u30EA\u30A2\u753B\u9762"
+  - key: RESULT_NEXT_STAGE
+    ja: "\u3064\u304E\u306E\u30B9\u30C6\u30FC\u30B8\u3078"
+    en: Next Stage
+    note: "\u30AF\u30EA\u30A2\u753B\u9762"
+  - key: RESULT_GAME_OVER
+    ja: "\u5C11\u5973\u306F\u529B\u5C3D\u304D\u305F\u2026"
+    en: "She collapsed\u2026"
+    note: "\u30B2\u30FC\u30E0\u30AA\u30FC\u30D0\u30FC\u753B\u9762"
+  - key: RESULT_RETRY
+    ja: "\u30EA\u30C8\u30E9\u30A4"
+    en: Retry
+    note: "\u30B2\u30FC\u30E0\u30AA\u30FC\u30D0\u30FC\u753B\u9762"
+  - key: RESULT_CREDITS
+    ja: "\u30A8\u30F3\u30C9\u30ED\u30FC\u30EB\n\u3092\u898B\u308B"
+    en: Credits
+    note: "\u30AF\u30EA\u30A2\u753B\u9762"
+  - key: Player_YES
+    ja: "\u306F\u3044"
+    en: Yes
+    note: "\u30E9\u30A4\u30D5\u4EA4\u63DB"
+  - key: Player_NO
+    ja: "\u3044\u3044\u3048"
+    en: No
+    note: "\u30E9\u30A4\u30D5\u4EA4\u63DB"
+  - key: SHOP_ASK_EXCHANGE
+    ja: "\u30DC\u30BF\u30F3\u3092\u30E9\u30A4\u30D5\u306B\u4EA4\u63DB\u3059\u308B\uFF1F"
+    en: Trade buttons for life?
+    note: "\u5E97"
+  - key: SHOP_THANKS
+    ja: "\u307E\u3044\u3069\u3042\u308A\uFF01"
+    en: Thanks!
+    note: "\u5E97"
+  - key: SHOP_NOT_ENOUGH
+    ja: "\u30DC\u30BF\u30F3\u304C\u8DB3\u3089\u306A\u3044\u3088\uFF01"
+    en: Not enough buttons!
+    note: "\u5E97"
+  - key: STARTUP_SELECT_LANGUAGE
+    ja: "\u4F7F\u7528\u8A00\u8A9E"
+    en: Language
+    note: "\u30B9\u30BF\u30FC\u30C8\u30A2\u30C3\u30D7\u753B\u9762"
+  - key: STARTUP_CONFIRM
+    ja: "\u6C7A\u5B9A"
+    en: Confirm
+    note: "\u30B9\u30BF\u30FC\u30C8\u30A2\u30C3\u30D7\u753B\u9762"
