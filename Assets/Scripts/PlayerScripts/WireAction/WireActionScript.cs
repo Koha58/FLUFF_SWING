@@ -150,73 +150,22 @@ public class WireActionScript : MonoBehaviour
     {
         if (IsConnected) return;
 
-        // 1. マウスのスクリーン座標をゲーム内のワールド座標（Vector3）に変換
+        // 1) マウスのワールド座標
         Vector3 mouseWorldPos = GetMouseWorldPosition();
 
-        // 2. 判定対象とするレイヤーを "Ground" のみに限定するためのマスクを取得
-        int groundLayer = LayerMask.GetMask("Ground");
+        // 2) Ground上の「表面ヒット(point/normal)」を安定して取得
+        //    取れなければ接続しない
+        if (!TryGetSurfacePointOnGround(mouseWorldPos, out RaycastHit2D surfaceHit))
+            return;
 
-        // 3. マウス位置にコライダー（Groundレイヤー）が存在するか「点判定」を行う
-        // Physics2D.Raycast(地点, 方向, 距離, レイヤー)
-        // 方向を zero、距離を 0 にすることで、その地点に重なっているものだけを検出する
-        RaycastHit2D initialHit = Physics2D.Raycast(mouseWorldPos, Vector2.zero, 0f, groundLayer);
+        // 3) 接続点は表面+法線方向に少しだけ逃がす（めり込み防止）
+        const float offset = 0.01f;
+        Vector2 finalConnectPoint = surfaceHit.point + surfaceHit.normal * offset;
 
-        // 4. Groundレイヤーのオブジェクトにヒットしなかった場合は、ここで処理を終了（針を投げない）
-        if (initialHit.collider == null) return;
+        // 4) 対象オブジェクト
+        GameObject hitObj = surfaceHit.collider.gameObject;
 
-        // 5. ヒットしたオブジェクトの参照と、実際にクリックされた座標（ヒット地点）を保持
-        GameObject hitObj = initialHit.collider.gameObject;
-        Vector2 connectPoint = initialHit.point;
-
-        // 6. ヒットしたオブジェクトが「動く床（Rigidbody2Dあり）」か「タイルマップ」かを判定
-        // 後のステップで、それぞれの性質に合わせた接続位置の補正を行うために取得しておく
-        Rigidbody2D hitRb = hitObj.GetComponent<Rigidbody2D>();
-        Tilemap tilemap = hitObj.GetComponent<Tilemap>() ?? hitObj.GetComponentInParent<Tilemap>();
-
-        Vector2 finalConnectPoint = connectPoint;
-        const float offset = 0.01f; // 針の埋まりを防ぐためのオフセット量
-
-        // 🔹① Tilemapの場合
-        if (tilemap != null)
-        {
-            Vector3Int cellPos = tilemap.WorldToCell(connectPoint);
-            TileBase tile = tilemap.GetTile(cellPos);
-
-            if (tile is CustomTile c && c.tileType == CustomTile.TileType.Ground ||
-                tile is ITileWithType t && t.tileType == CustomTile.TileType.Ground)
-            {
-                // Tilemapは専用の探索ロジックで補正
-                finalConnectPoint = FindSurfaceAlongPlayerDirectionTilemap(connectPoint);
-            }
-        }
-        // 🔹② Tilemap以外のコライダー (静的 or 動的)
-        else
-        {
-            // 正確な法線を取得するために、コライダーに沿ったRaycastを実行する
-            // プレイヤーからヒット点へ向かう方向のRaycast
-            Vector2 directionToHit = (connectPoint - (Vector2)transform.position).normalized;
-
-            // ヒット点の少し手前（0.05f）から、ヒット点に向けてRaycast（距離0.1f）を飛ばすことで、
-            // 安定したヒットポイントと法線を取得する。
-            RaycastHit2D surfaceHit = Physics2D.Raycast(connectPoint - directionToHit * 0.05f,
-                                                        directionToHit,
-                                                        0.1f);
-
-            if (surfaceHit.collider != null && surfaceHit.collider.gameObject == hitObj)
-            {
-                // Raycastで得られた正確な表面位置と法線でオフセットを適用
-                finalConnectPoint = surfaceHit.point + surfaceHit.normal * offset;
-            }
-            else
-            {
-                // 安定したRaycastが失敗した場合（非常に薄いコライダーなど）、
-                // 最初の点判定の法線を使用してオフセットを試みる（最後の手段）
-                finalConnectPoint = connectPoint + initialHit.normal * offset;
-            }
-        }
-
-        // 接続判定
-        // すでにLayerMaskで絞っているため、タグ判定は補助的に
+        // 5) 既存の接続条件（必要なら）
         if (hitObj.CompareTag("WireConnectable") || hitObj.layer == LayerMask.NameToLayer("Ground"))
         {
             TryConnectWire(finalConnectPoint, hitObj);
@@ -495,6 +444,47 @@ public class WireActionScript : MonoBehaviour
         mousePosition.z = -Camera.main.transform.position.z; // カメラZ位置補正
         return Camera.main.ScreenToWorldPoint(mousePosition);
     }
+
+    /// <summary>
+    /// マウス位置にある Ground の「表面ヒット(point/normal)」を安定して取得する。
+    /// OverlapPointで対象Colliderを決めてから、手元→マウス方向にRaycastして表面を取る。
+    /// </summary>
+    private bool TryGetSurfacePointOnGround(Vector2 mouseWorld, out RaycastHit2D surfaceHit)
+    {
+        int mask = LayerMask.GetMask("Ground");
+
+        // 1) その点に重なっているGroundコライダーを取得
+        Collider2D col = Physics2D.OverlapPoint(mouseWorld, mask);
+        if (col == null)
+        {
+            surfaceHit = default;
+            return false;
+        }
+
+        // 2) 手元(推奨)からマウスへ向けてRaycastし、表面point/normalを取得
+        Vector2 origin = (Vector2)rightHandTransform.position;
+        Vector2 dir = (mouseWorld - origin);
+        float dist = dir.magnitude;
+        if (dist <= 0.0001f)
+        {
+            surfaceHit = default;
+            return false;
+        }
+        dir /= dist;
+
+        const float startBack = 0.05f;
+        Vector2 rayOrigin = origin - dir * startBack;
+
+        surfaceHit = Physics2D.Raycast(rayOrigin, dir, dist + startBack + 0.2f, mask);
+
+        if (surfaceHit.collider == null) return false;
+
+        // OverlapPointで拾ったColliderと違うものをRaycastが拾ったら不採用（奥のGround拾い防止）
+        if (surfaceHit.collider != col) return false;
+
+        return true;
+    }
+
 
     /// <summary>
     /// プレイヤー方向に沿ってクリック位置から地面を探す
