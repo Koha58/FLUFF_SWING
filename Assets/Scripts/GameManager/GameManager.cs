@@ -35,6 +35,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private PlayerAttack playerAttack;
     [SerializeField] private WireActionScript wireActionScript; // ワイヤー操作を無効化するため
 
+    [Header("▼ デバッグ設定")]
+    [SerializeField]
+    private bool enableDebugInput = false;
+
     #endregion
 
     #region State Management
@@ -58,6 +62,8 @@ public class GameManager : MonoBehaviour
     #region === デバッグ用クリア判定処理 ===
     private void Update()
     {
+        if (!enableDebugInput) return;
+
         DebugCleared();
     }
 

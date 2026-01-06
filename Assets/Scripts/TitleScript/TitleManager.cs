@@ -283,23 +283,4 @@ public class TitleManager : MonoBehaviour
 
         Debug.Log("操作方法パネル非表示");
     }
-
-    // =========================================================
-    // Debug
-    // =========================================================
-
-#if UNITY_EDITOR
-    /// <summary>
-    /// デバッグ用：
-    /// ステージ解放状態を初期化する
-    /// </summary>
-    private void DebugResetStages()
-    {
-        // 初期状態：ClearedStage = 0 → ステージ1のみ解放
-        PlayerPrefs.SetInt("ClearedStage", 0);
-        PlayerPrefs.Save();
-
-        Debug.Log("【DEBUG】ステージロックを初期状態に戻しました（ステージ1のみ解放）");
-    }
-#endif
 }

@@ -76,13 +76,30 @@ public class SelectManager : MonoBehaviour
 
     #endregion
 
+    #region === デバッグ設定 ===
+
+    [Header("▼ デバッグ設定")]
+    [SerializeField]
+    private bool enableDebugInput = false;
+
+    [Header("▼ デバッグUI")]
+    [SerializeField] private GameObject debugUIRoot;
+
+    #endregion
+
     #region === 初期化 ===
 
     private void Start()
     {
         // 起動時はパネルを閉じた状態にする（誤表示防止）
         if (setPanel != null) setPanel.SetActive(false);
-        if (resetPanel != null) resetPanel.SetActive(false);
+
+        // デバッグ設定によって表示するUI
+        if (debugUIRoot != null)
+        {
+            debugUIRoot.SetActive(enableDebugInput);
+            if (resetPanel != null) resetPanel.SetActive(false);
+        }
 
         // ステージロック状態を反映
         UpdateStageLocks();
@@ -356,6 +373,8 @@ public class SelectManager : MonoBehaviour
 
     private void Update()
     {
+        if (!enableDebugInput) return;
+
         CheckDebugUnlockInput();
     }
 
