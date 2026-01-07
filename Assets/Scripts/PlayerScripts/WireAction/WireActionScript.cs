@@ -179,6 +179,27 @@ public class WireActionScript : MonoBehaviour
             CutWire(); // ワイヤー切断
     }
 
+    /// <summary>
+    /// 敵にワイヤーを掴まれた際、プレイヤーの物理挙動を一時停止する
+    /// </summary>
+    /// <param name="grabPosition">敵がワイヤーを掴んだ位置</param>
+    public void GrabWire(Vector2 grabPosition)
+    {
+        if (!IsConnected) return;
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            // 1. 速度をゼロにして物理的な慣性を止める
+            rb.linearVelocity = Vector2.zero;
+            // 2. 敵が掴んでいる間、重力の影響を受けないようにする（任意）
+            rb.gravityScale = 0f;
+        }
+
+        // 必要であれば、DistanceJointの距離をその時の距離に固定し直す
+        distanceJoint.distance = Vector2.Distance(transform.position, _hookedPosition);
+    }
+
     /// <summary>ワイヤー切断処理</summary>
     public void CutWire()
     {
@@ -191,6 +212,14 @@ public class WireActionScript : MonoBehaviour
         {
             StopCoroutine(currentNeedleCoroutine);
             currentNeedleCoroutine = null;
+        }
+
+        // 重力を元に戻す
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            // GrabWire で 0 にされた重力を、設定データ(config)の値に戻す
+            rb.gravityScale = playerGravityScale;
         }
 
         // 【1】 物理的な切断
@@ -234,100 +263,217 @@ public class WireActionScript : MonoBehaviour
 
     #region === 針発射・接続 ===
 
-    /// <summary>ワイヤー接続を試みる</summary>
+    /// <summary>
+    /// ワイヤー接続を試みる
+    /// ・すでに接続中、または針発射中の場合は無視
+    /// ・針の射出と同時にライン描画を初期化する
+    /// </summary>
     private void TryConnectWire(Vector2 targetPos, GameObject hitObject)
     {
+        // すでにワイヤー接続中、または針が飛んでいる最中なら処理しない
         if (IsConnected || currentNeedleCoroutine != null) return;
 
-        // 針表示ON
+        // ===== ラインレンダラー初期化 =====
+        // 発射直後にワイヤーが「手元から伸びる」ように見せるため、
+        // すべての頂点を右手位置に揃えておく
+        if (lineRenderer != null)
+        {
+            // 投擲中もワイヤーを表示したい場合はここで有効化
+            lineRenderer.enabled = true;
+
+            // 全頂点を右手位置にセット（初期状態）
+            for (int i = 0; i < lineRenderer.positionCount; i++)
+            {
+                lineRenderer.SetPosition(i, rightHandTransform.position);
+            }
+        }
+
+        // 針を表示し、射出開始
         SetNeedleVisible(true);
 
-        // 発射コルーチン開始
-        currentNeedleCoroutine = StartCoroutine(ThrowNeedle(targetPos, hitObject));
+        // 針の移動＆接続処理をコルーチンで開始
+        // ※ currentNeedleCoroutine を保持することで多重発射を防ぐ
+        currentNeedleCoroutine = StartCoroutine(
+            ThrowNeedle(targetPos, hitObject)
+        );
     }
 
-    /// <summary>針を目標座標まで飛ばしてワイヤー接続する</summary>
-    private IEnumerator ThrowNeedle(Vector2 targetPosition, GameObject hitObject)
+    /// <summary>
+    /// 針を目標座標まで飛ばし、命中したオブジェクトにワイヤー接続する
+    /// ・静止オブジェクト／動く床 両対応
+    /// ・動く床の場合はローカル座標で接続点を保持する
+    /// ・射出〜接続までの描画チラつきを防止する
+    /// </summary>
+    private IEnumerator ThrowNeedle(Vector2 initialTargetPosition, GameObject hitObject)
     {
-        SetNeedleVisible(true);
-        needle.transform.position = transform.position;
+        // ===== 射出初期化 =====
 
-        while (Vector2.Distance(needle.transform.position, targetPosition) > NeedleStopDistance)
+        // 射出フレームで針を「即座に」右手位置へ移動
+        // 　→ TryConnectWire 側のライン初期化とズレないようにするため
+        needle.transform.position = rightHandTransform.position;
+
+        // 針の表示を有効化
+        SetNeedleVisible(true);
+
+        // 初フレームからワイヤー描画を更新
+        // 　→ 1フレーム目の「線が消える／跳ねる」現象を完全に防ぐ
+        UpdateBezierWireLine();
+        if (lineRenderer != null) lineRenderer.enabled = true;
+
+        // ===== 接続対象の判定 =====
+
+        // 命中オブジェクトの Rigidbody（動く床判定）
+        Rigidbody2D targetRb = hitObject.GetComponent<Rigidbody2D>();
+
+        // 動く床用：床ローカル空間での接続点
+        Vector2 localTargetPos = Vector2.zero;
+
+        if (targetRb != null)
         {
-            Vector2 direction = (targetPosition - (Vector2)needle.transform.position).normalized;
+            // ヒット時のワールド座標を床ローカル座標に変換
+            // 　→ 床が動いても接続点がズレない
+            localTargetPos = targetRb.transform.InverseTransformPoint(initialTargetPosition);
+        }
+
+        // ===== 針の飛行処理 =====
+
+        float elapsed = 0f;
+
+        // 最大2秒で到達しなければ中断（安全装置）
+        while (elapsed < 2.0f)
+        {
+            elapsed += Time.deltaTime;
+
+            // 現在のターゲット座標を取得
+            // ・動く床：ローカル → ワールドへ再変換
+            // ・静止物：初期ヒット位置をそのまま使用
+            Vector2 currentTargetPos = (targetRb != null)
+                ? (Vector2)targetRb.transform.TransformPoint(localTargetPos)
+                : initialTargetPosition;
+
+            float distance = Vector2.Distance(needle.transform.position, currentTargetPos);
+
+            // 到達判定
+            // ・十分近づいた
+            // ・次フレームで追い越す距離
+            if (distance <= 0.1f || distance < needleSpeed * Time.deltaTime)
+            {
+                _hookedPosition = currentTargetPos;
+                break;
+            }
+
+            // ===== 針の移動 =====
+
+            // ターゲットへの進行方向
+            Vector2 direction = (currentTargetPos - (Vector2)needle.transform.position).normalized;
+
+            // 針の向きを進行方向に合わせる（先端が向く）
             needle.transform.up = -direction;
-            needle.transform.position = Vector2.MoveTowards(needle.transform.position, targetPosition, needleSpeed * Time.deltaTime);
+
+            // 一定速度でターゲットに向かって移動
+            needle.transform.position = Vector2.MoveTowards(
+                needle.transform.position,
+                currentTargetPos,
+                needleSpeed * Time.deltaTime
+            );
+
+            // 飛行中も毎フレーム描画更新
+            // 　→ ベジェ曲線ワイヤーを常に滑らかに表示
+            UpdateBezierWireLine();
+
             yield return null;
         }
 
-        // ◆ 接続初期位置を記録
-        needle.transform.position = targetPosition;
-        targetObject = hitObject;
-        _hookedPosition = targetPosition;
+        // ===== ワイヤー接続処理 =====
 
-        AudioManager.Instance?.PlaySE(wireSE);
-        if (lineRenderer != null)
-            lineRenderer.enabled = true;
-
-        // =============================
-        // ◆ DistanceJoint2D 接続処理
-        // =============================
         if (distanceJoint != null)
         {
+            // 再設定前に一度無効化
             distanceJoint.enabled = false;
 
-            Rigidbody2D hitRb = hitObject.GetComponent<Rigidbody2D>();
-
-            if (hitRb != null) // 🔹動く床に接続
+            if (targetRb != null)
             {
-                distanceJoint.connectedBody = hitRb;
+                // 【動く床】
+                // Rigidbody に直接接続
+                distanceJoint.connectedBody = targetRb;
 
-                // ワールド座標のヒット位置を、Rigidbodyのローカル座標に変換
-                distanceJoint.connectedAnchor = hitRb.transform.InverseTransformPoint(targetPosition);
+                // アンカーは床ローカル座標で指定
+                distanceJoint.connectedAnchor = localTargetPos;
 
-                // 後で針位置を更新できるよう保存
                 isConnectedToMovingObject = true;
                 connectedObject = hitObject;
             }
-            else // Tilemapなどの静的オブジェクト
+            else
             {
+                // 【静止オブジェクト】
+                // ワールド座標アンカーを使用
                 distanceJoint.connectedBody = null;
                 distanceJoint.connectedAnchor = _hookedPosition;
 
                 isConnectedToMovingObject = false;
-                connectedObject = null;
             }
 
-            distanceJoint.maxDistanceOnly = true;
+            // ワイヤー長を固定
             distanceJoint.distance = fixedWireLength;
+
+            // ここで物理的にワイヤーが接続される
             distanceJoint.enabled = true;
         }
 
-        // =============================
-        // ◆ スイング初速
-        // =============================
-        Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            rb.gravityScale = playerGravityScale;
-            rb.linearDamping = rigidbodyLinearDamping;
-            rb.angularDamping = rigidbodyAngularDamping;
+        // ===== 接続成功後の共通処理 =====
 
-            Vector2 dir = (_hookedPosition - (Vector2)transform.position).normalized;
-            Vector2 tangent = new Vector2(-dir.y, dir.x);
-            tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent;
-            rb.linearVelocity = tangent * swingInitialSpeed;
-        }
+        // 接続対象を保持
+        targetObject = hitObject;
 
-        // =============================
-        // ◆ アニメーション
-        // =============================
-        Vector2 dirForAnimation = (_hookedPosition - (Vector2)transform.position).normalized;
-        lastSwingDirectionX = dirForAnimation.x;
-        animatorController.PlayGrappleSwingAnimation(dirForAnimation.x);
+        // 針を最終接続位置に固定
+        needle.transform.position = _hookedPosition;
 
+        // 接続完了状態のワイヤーを最終更新
+        UpdateBezierWireLine();
+
+        // 効果音再生
+        AudioManager.Instance?.PlaySE(wireSE);
+
+        // スイング用物理設定＆初速付与
+        ApplySwingPhysics();
+
+        // コルーチン終了通知
         currentNeedleCoroutine = null;
     }
+
+
+    /// <summary>
+    /// スイング開始時の物理設定と初速付与
+    /// </summary>
+    private void ApplySwingPhysics()
+    {
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb == null) return;
+
+        // 重力・減衰設定（スイング用）
+        rb.gravityScale = playerGravityScale;
+        rb.linearDamping = rigidbodyLinearDamping;
+        rb.angularDamping = rigidbodyAngularDamping;
+
+        // フック方向（中心→接続点）
+        Vector2 dir = (_hookedPosition - (Vector2)transform.position).normalized;
+
+        // 円運動の接線方向を算出
+        Vector2 tangent = new Vector2(-dir.y, dir.x);
+
+        // 直前の入力方向に応じてスイング方向を決定
+        tangent = (lastSwingDirectionX >= 0) ? tangent : -tangent;
+
+        // スイング初速を付与
+        rb.linearVelocity = tangent * swingInitialSpeed;
+
+        // スイングアニメーション再生
+        animatorController.PlayGrappleSwingAnimation(dir.x);
+
+        // 次回用に方向を保存
+        lastSwingDirectionX = dir.x;
+    }
+
 
     #endregion
 

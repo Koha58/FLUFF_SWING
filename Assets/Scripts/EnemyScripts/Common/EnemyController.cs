@@ -197,12 +197,30 @@ public class EnemyController : MonoBehaviour, IDamageable
         // ワイヤー接触時（Birdのみ）
         if (collision.CompareTag("Wire") && Type == EnemyType.Bird)
         {
-            // ワイヤーのPlayerを取得
             var player = collision.GetComponentInParent<WireActionScript>();
-            if (player != null)
+
+            if (player != null && player.IsConnected)
             {
-                wireToCut = player;                  // ワイヤーを保持
-                stateMachine.ChangeState(stateMachineSO.cutState); // 攻撃ステートに遷移
+                wireToCut = player;
+
+                // 当たった場所の「芯」を取得
+                Vector2 hitPoint = collision.ClosestPoint(transform.position);
+
+                // 敵のハサミ（中心）をワイヤーの芯に合わせる
+                transform.position = new Vector3(hitPoint.x, hitPoint.y, transform.position.z);
+
+                // プレイヤー側で物理を止める
+                wireToCut.GrabWire(hitPoint);
+
+                // カットアニメーションステートへ
+                if (stateMachineSO.cutState != null)
+                {
+                    stateMachine.ChangeState(stateMachineSO.cutState);
+                }
+                else
+                {
+                    Debug.LogError("CutState is missing in SO!");
+                }
             }
         }
 
