@@ -4325,7 +4325,7 @@ MonoBehaviour:
   - {fileID: 672351660}
   - {fileID: 173998841}
   - {fileID: 622511764}
-  enableDebugInput: 0
+  enableDebugInput: 1
   debugUIRoot: {fileID: 45111041}
 --- !u!1 &1310669739
 GameObject:

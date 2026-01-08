@@ -24240,7 +24240,7 @@ MonoBehaviour:
   playerMove: {fileID: 1455774591}
   playerAttack: {fileID: 1455774601}
   wireActionScript: {fileID: 1455774590}
-  enableDebugInput: 0
+  enableDebugInput: 1
 --- !u!4 &929820029
 Transform:
   m_ObjectHideFlags: 0
