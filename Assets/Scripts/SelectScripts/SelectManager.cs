@@ -87,10 +87,39 @@ public class SelectManager : MonoBehaviour
 
     #endregion
 
+    #region === セーブデータ管理（バージョン管理） ===
+
+    /// <summary>
+    /// セーブデータのバージョン管理用キー。
+    /// 初回起動判定や、セーブ仕様変更時の初期化に使用する。
+    /// </summary>
+    private const string SaveVersionKey = "SAVE_VERSION";
+
+    /// <summary>
+    /// 現在のセーブデータ仕様のバージョン。
+    /// 値を変更すると、古いセーブデータは「初回起動扱い」となり、
+    /// ステージ解放状態などを安全に初期化できる。
+    /// </summary>
+    private const int CurrentSaveVersion = 1;
+
+    #endregion
+
+
     #region === 初期化 ===
 
     private void Start()
     {
+        // 初回起動 or セーブ仕様更新時だけ初期化
+        if (!PlayerPrefs.HasKey(SaveVersionKey) || PlayerPrefs.GetInt(SaveVersionKey) != CurrentSaveVersion)
+        {
+            PlayerPrefs.SetInt("ClearedStage", 0);
+            PlayerPrefs.SetInt("LastUnlockedStage", -1);
+            PlayerPrefs.SetInt("UnlockedMaxStage", 1);
+
+            PlayerPrefs.SetInt(SaveVersionKey, CurrentSaveVersion);
+            PlayerPrefs.Save();
+        }
+
         // 起動時はパネルを閉じた状態にする（誤表示防止）
         if (setPanel != null) setPanel.SetActive(false);
 
