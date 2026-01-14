@@ -55,6 +55,17 @@ public class SelectManager : MonoBehaviour
     /// </summary>
     private string nextStageName;
 
+    /// <summary>
+    /// ステージロック初期化がすでに実行されたかどうかを管理するフラグ。
+    /// 
+    /// 遷移演出あり／なし、
+    /// OnEnable・トランジション完了イベントなど
+    /// 複数の経路から初期化処理が呼ばれる可能性があるため、
+    /// UpdateStageLocks() を「一度だけ」実行するためのガードとして使用する。
+    /// </summary>
+    private bool _stageLockInitialized = false;
+
+
     [Header("各ステージのロックオブジェクト")]
     [Tooltip("各ステージボタンのLock（子オブジェクト）を順番に設定")]
     [SerializeField] private GameObject[] stageLocks;
@@ -131,7 +142,7 @@ public class SelectManager : MonoBehaviour
         }
 
         // ステージロック状態を反映
-        UpdateStageLocks();
+        //UpdateStageLocks();
 
         // 連打対策フラグ初期化（念のため）
         _isSceneMoveReserved = false;
@@ -143,6 +154,65 @@ public class SelectManager : MonoBehaviour
     #endregion
 
     #region === ステージロック管理 ===
+
+    /// <summary>
+    /// オブジェクト有効化時に呼ばれる。
+    /// 遷移演出あり／なしのどちらの起動経路でも
+    /// ステージロック初期化が「必ず一度だけ」行われるようにする。
+    /// </summary>
+    private void OnEnable()
+    {
+        // TransitionManager が存在する場合：
+        // → 遷移演出明けイベントを購読し、遷移演出完了後に初期化する
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.OnTransitionCompleted += OnTransitionCompleted;
+        }
+        else
+        {
+            // 遷移演出無し起動（直接シーン再生・テスト起動など）
+            // → ここで即座に初期化を行う
+            TryInitializeStageLocks();
+        }
+    }
+
+    /// <summary>
+    /// オブジェクト無効化時に呼ばれる。
+    /// イベント購読を解除し、シーン切替時の多重登録を防ぐ。
+    /// </summary>
+    private void OnDisable()
+    {
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.OnTransitionCompleted -= OnTransitionCompleted;
+        }
+    }
+
+    /// <summary>
+    /// トランジション完了時に呼ばれるコールバック。
+    /// 画面が完全に表示された後に、ステージロックの更新を行う。
+    /// </summary>
+    private void OnTransitionCompleted()
+    {
+        TryInitializeStageLocks();
+    }
+
+    /// <summary>
+    /// ステージロックの初期化を「一度だけ」実行するためのガード付きメソッド。
+    /// 
+    /// ・遷移演出あり：遷移演出完了後に1回
+    /// ・遷移演出なし：OnEnable 時に1回
+    /// のどちらの経路でも、重複実行を防ぐ。
+    /// </summary>
+    private void TryInitializeStageLocks()
+    {
+        // すでに初期化済みなら何もしない
+        if (_stageLockInitialized) return;
+
+        _stageLockInitialized = true;
+        UpdateStageLocks();
+    }
+
 
     /// <summary>
     /// PlayerPrefsの状態に応じてステージロック表示を更新する

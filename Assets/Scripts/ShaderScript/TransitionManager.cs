@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,6 +16,9 @@ public class TransitionManager : MonoBehaviour
     /// 遷移中フラグ（多重遷移防止）
     /// </summary>
     public static bool isTransitioning = false;
+
+    // 遷移演出完了イベント
+    public event Action OnTransitionCompleted;
 
     [Header("トランジション用プレハブ (Canvasごと)")]
     [Tooltip("CloseTransitionとOpenTransitionコンポーネントを持つCanvasプレハブを指定します。")]
@@ -98,6 +102,9 @@ public class TransitionManager : MonoBehaviour
         }
 
         yield return open.Play();
+
+        // 遷移演出完全終了を通知
+        OnTransitionCompleted?.Invoke();
 
         Destroy(openCanvasInstance);
 
