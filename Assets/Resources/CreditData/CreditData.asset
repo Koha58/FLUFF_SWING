@@ -18,7 +18,7 @@ MonoBehaviour:
     name: 
     specialData: 
   - type: LINEBREAK
-    title: 200
+    title: 100
     name: 
     specialData: 
   - type: ROLE
