@@ -113,26 +113,54 @@ public class SelectManager : MonoBehaviour
     /// </summary>
     private const int CurrentSaveVersion = 2;
 
-    // PlayerPrefsキーの名前空間
+    // ================================
+    // PlayerPrefs用キーのプレフィックス定義
+    // ================================
+    //
+    // UNITY_EDITOR または DEVELOPMENT_BUILD の場合のみ
+    // PlayerPrefs のキーに "DEV_" を付与する。
+    // これにより、
+    // ・開発環境と本番環境でセーブデータを分離できる
+    // ・テスト中に本番用セーブデータを汚さずに済む
+    //
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     private const string PrefPrefix = "DEV_";
 #else
+    // リリースビルドではプレフィックスなし
     private const string PrefPrefix = "";
 #endif
 
+    // PlayerPrefs 用のキーを生成するヘルパーメソッド
+    // 引数で渡したキー名に、ビルド設定に応じたプレフィックスを付与して返す
+    // 例: K("Gold") -> "DEV_Gold" または "Gold"
     private static string K(string key) => PrefPrefix + key;
 
     #endregion
 
+    // ================================
+    // 開発用設定（ビルド時のみ有効）
+    // ================================
     [Header("▼ 開発用（ビルド時のみ）")]
+    // DEVELOPMENT_BUILD で起動した際に、
+    // 既存のセーブデータ（PlayerPrefs）を強制的にリセットするかどうか
+    // ※ 本番ビルドでは影響しない
     [SerializeField] private bool resetSaveOnBootInDevBuild = false;
+
 
     #region === 初期化 ===
 
+    // --------------------------------------------------
+    // Awake
+    // ・セーブデータの初期化
+    // ・ステージロック状態の即時反映（演出なし）
+    // --------------------------------------------------
     private void Awake()
     {
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
+        // 開発ビルド時のみ有効
+        // Inspector から指定された場合、起動時にステージ関連のセーブを初期化する
+        // ※ 本番ビルドでは一切実行されない
         if (resetSaveOnBootInDevBuild)
         {
             PlayerPrefs.DeleteKey(K("ClearedStage"));
@@ -140,27 +168,45 @@ public class SelectManager : MonoBehaviour
             PlayerPrefs.DeleteKey(K("UnlockedMaxStage"));
             PlayerPrefs.DeleteKey(K(SaveVersionKey));
             PlayerPrefs.Save();
+
             Debug.Log("[DEV] Stage prefs cleared on boot.");
         }
 #endif
-        EnsureSaveInitializedIfNeeded();   // ★先に初期化（ここが重要）
+        // ★ 必ず最初に呼ぶ
+        // セーブが未作成 or バージョン不一致の場合に初期値を保証する
+        // この後の PlayerPrefs.GetInt() が安全に使える前提を作る
+        EnsureSaveInitializedIfNeeded();
 
+        // 最後にアンロックされたステージ番号
+        // 未プレイ状態の場合は -1
         int lastUnlockedStage = PlayerPrefs.GetInt(K("LastUnlockedStage"), -1);
 
         if (lastUnlockedStage == -1)
         {
+            // 初回起動 or データリセット直後
+            // 全ステージのロック状態を即時反映（演出なし）
             ApplyAllLocksImmediate();
-            _stageLockInitialized = true; // 後のOnTransitionCompletedで二重更新しない
+
+            // 後続の演出処理で二重更新しないためのフラグ
+            _stageLockInitialized = true;
         }
         else
         {
+            // 既存データあり
+            // 最後にアンロックされたステージ以外のロック状態を即時反映
+            // アンロック演出は OnTransitionCompleted → UpdateStageLocks に任せる
             ApplyLocksImmediateExcept(lastUnlockedStage);
-            // 演出対象は OnTransitionCompleted → UpdateStageLocks で処理
         }
     }
 
+    // --------------------------------------------------
+    // 全ステージのロック状態を即時反映する
+    // ・演出なし
+    // ・主に初回起動／初期化時用
+    // --------------------------------------------------
     private void ApplyAllLocksImmediate()
     {
+        // 現在アンロック済みの最大ステージ番号
         int unlockedMax = PlayerPrefs.GetInt(K("UnlockedMaxStage"), 1);
 
         for (int i = 0; i < stageLocks.Length; i++)
@@ -171,11 +217,15 @@ public class SelectManager : MonoBehaviour
             int stageNumber = i + 1;
             bool isUnlocked = stageNumber <= unlockedMax;
 
-            // 即反映（演出なし）
+            // ロック状態を即座に反映（true = ロック表示）
             lockObj.SetActive(!isUnlocked);
         }
     }
 
+    // --------------------------------------------------
+    // 指定ステージを除外してロック状態を即時反映する
+    // ・最後にアンロックされたステージは演出対象
+    // --------------------------------------------------
     private void ApplyLocksImmediateExcept(int lastUnlockedStage)
     {
         int unlockedMax = PlayerPrefs.GetInt(K("UnlockedMaxStage"), 1);
@@ -187,7 +237,8 @@ public class SelectManager : MonoBehaviour
 
             int stageNumber = i + 1;
 
-            // 演出対象はここでは触らない（とりあえず表示はONにしておくのが無難）
+            // 演出対象のステージはここでは触らない
+            // 一旦ロック表示にしておき、演出完了後に解除する
             if (stageNumber == lastUnlockedStage)
             {
                 lockObj.SetActive(true);
@@ -199,12 +250,17 @@ public class SelectManager : MonoBehaviour
         }
     }
 
-
+    // --------------------------------------------------
+    // Start
+    // ・UIの初期表示のみを担当
+    // ・ゲームロジック系の初期化は行わない
+    // --------------------------------------------------
     private void Start()
     {
-        // UI初期状態だけ担当
+        // 設定パネルを非表示
         if (setPanel != null) setPanel.SetActive(false);
 
+        // デバッグUIの初期状態制御
         if (debugUIRoot != null)
         {
             debugUIRoot.SetActive(enableDebugInput);
@@ -215,21 +271,30 @@ public class SelectManager : MonoBehaviour
         CancelInvoke(nameof(LoadNextScene));
     }
 
+    // --------------------------------------------------
+    // セーブデータの初期化保証
+    // ・キーが存在しない
+    // ・セーブバージョンが異なる
+    // 上記いずれかの場合に初期値を書き込む
+    // --------------------------------------------------
     private void EnsureSaveInitializedIfNeeded()
     {
         if (!PlayerPrefs.HasKey(K(SaveVersionKey)) ||
             PlayerPrefs.GetInt(K(SaveVersionKey)) != CurrentSaveVersion)
         {
+            // ステージ進行データ初期値
             PlayerPrefs.SetInt(K("ClearedStage"), 0);
             PlayerPrefs.SetInt(K("LastUnlockedStage"), -1);
             PlayerPrefs.SetInt(K("UnlockedMaxStage"), 1);
 
+            // セーブバージョン更新
             PlayerPrefs.SetInt(K(SaveVersionKey), CurrentSaveVersion);
             PlayerPrefs.Save();
         }
     }
 
     #endregion
+
 
     #region === ステージロック管理 ===
 
@@ -636,15 +701,26 @@ public class SelectManager : MonoBehaviour
             AudioManager.Instance.PlaySE(resetClickSE);
     }
 
-    // 開発中だけ使う
+    // --------------------------------------------------
+    // 開発用：ステージ関連の PlayerPrefs を手動で削除する
+    // --------------------------------------------------
+    // ・Inspector のコンテキストメニューから実行可能
+    // ・開発中のテスト／デバッグ専用
+    // ・PrefPrefix（DEV_ など）が付いたキーのみ削除されるため、
+    //   本番用セーブデータを誤って消す心配がない
+    //
     [ContextMenu("DEV: Clear Namespaced Stage Prefs")]
     private void DevClearPrefs()
     {
-        PlayerPrefs.DeleteKey(K("ClearedStage"));
-        PlayerPrefs.DeleteKey(K("LastUnlockedStage"));
-        PlayerPrefs.DeleteKey(K("UnlockedMaxStage"));
-        PlayerPrefs.DeleteKey(K(SaveVersionKey));
+        // ステージ進行関連のセーブデータを削除
+        PlayerPrefs.DeleteKey(K("ClearedStage"));       // クリア済みステージ情報
+        PlayerPrefs.DeleteKey(K("LastUnlockedStage"));  // 最後に解放されたステージ
+        PlayerPrefs.DeleteKey(K("UnlockedMaxStage"));   // アンロック済み最大ステージ
+        PlayerPrefs.DeleteKey(K(SaveVersionKey));       // セーブバージョン
+
+        // 削除内容を即座に反映
         PlayerPrefs.Save();
+
         Debug.Log("Namespaced stage prefs cleared.");
     }
 
