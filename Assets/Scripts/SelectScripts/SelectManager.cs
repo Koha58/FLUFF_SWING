@@ -111,44 +111,122 @@ public class SelectManager : MonoBehaviour
     /// 値を変更すると、古いセーブデータは「初回起動扱い」となり、
     /// ステージ解放状態などを安全に初期化できる。
     /// </summary>
-    private const int CurrentSaveVersion = 1;
+    private const int CurrentSaveVersion = 2;
+
+    // PlayerPrefsキーの名前空間
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private const string PrefPrefix = "DEV_";
+#else
+    private const string PrefPrefix = "";
+#endif
+
+    private static string K(string key) => PrefPrefix + key;
 
     #endregion
 
+    [Header("▼ 開発用（ビルド時のみ）")]
+    [SerializeField] private bool resetSaveOnBootInDevBuild = false;
 
     #region === 初期化 ===
 
+    private void Awake()
+    {
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        if (resetSaveOnBootInDevBuild)
+        {
+            PlayerPrefs.DeleteKey(K("ClearedStage"));
+            PlayerPrefs.DeleteKey(K("LastUnlockedStage"));
+            PlayerPrefs.DeleteKey(K("UnlockedMaxStage"));
+            PlayerPrefs.DeleteKey(K(SaveVersionKey));
+            PlayerPrefs.Save();
+            Debug.Log("[DEV] Stage prefs cleared on boot.");
+        }
+#endif
+        EnsureSaveInitializedIfNeeded();   // ★先に初期化（ここが重要）
+
+        int lastUnlockedStage = PlayerPrefs.GetInt(K("LastUnlockedStage"), -1);
+
+        if (lastUnlockedStage == -1)
+        {
+            ApplyAllLocksImmediate();
+            _stageLockInitialized = true; // 後のOnTransitionCompletedで二重更新しない
+        }
+        else
+        {
+            ApplyLocksImmediateExcept(lastUnlockedStage);
+            // 演出対象は OnTransitionCompleted → UpdateStageLocks で処理
+        }
+    }
+
+    private void ApplyAllLocksImmediate()
+    {
+        int unlockedMax = PlayerPrefs.GetInt(K("UnlockedMaxStage"), 1);
+
+        for (int i = 0; i < stageLocks.Length; i++)
+        {
+            var lockObj = stageLocks[i];
+            if (lockObj == null) continue;
+
+            int stageNumber = i + 1;
+            bool isUnlocked = stageNumber <= unlockedMax;
+
+            // 即反映（演出なし）
+            lockObj.SetActive(!isUnlocked);
+        }
+    }
+
+    private void ApplyLocksImmediateExcept(int lastUnlockedStage)
+    {
+        int unlockedMax = PlayerPrefs.GetInt(K("UnlockedMaxStage"), 1);
+
+        for (int i = 0; i < stageLocks.Length; i++)
+        {
+            var lockObj = stageLocks[i];
+            if (lockObj == null) continue;
+
+            int stageNumber = i + 1;
+
+            // 演出対象はここでは触らない（とりあえず表示はONにしておくのが無難）
+            if (stageNumber == lastUnlockedStage)
+            {
+                lockObj.SetActive(true);
+                continue;
+            }
+
+            bool isUnlocked = stageNumber <= unlockedMax;
+            lockObj.SetActive(!isUnlocked);
+        }
+    }
+
+
     private void Start()
     {
-        // 初回起動 or セーブ仕様更新時だけ初期化
-        if (!PlayerPrefs.HasKey(SaveVersionKey) || PlayerPrefs.GetInt(SaveVersionKey) != CurrentSaveVersion)
-        {
-            PlayerPrefs.SetInt("ClearedStage", 0);
-            PlayerPrefs.SetInt("LastUnlockedStage", -1);
-            PlayerPrefs.SetInt("UnlockedMaxStage", 1);
-
-            PlayerPrefs.SetInt(SaveVersionKey, CurrentSaveVersion);
-            PlayerPrefs.Save();
-        }
-
-        // 起動時はパネルを閉じた状態にする（誤表示防止）
+        // UI初期状態だけ担当
         if (setPanel != null) setPanel.SetActive(false);
 
-        // デバッグ設定によって表示するUI
         if (debugUIRoot != null)
         {
             debugUIRoot.SetActive(enableDebugInput);
             if (resetPanel != null) resetPanel.SetActive(false);
         }
 
-        // ステージロック状態を反映
-        //UpdateStageLocks();
-
-        // 連打対策フラグ初期化（念のため）
         _isSceneMoveReserved = false;
-
-        // もし前回の予約が残っていた場合に備えてキャンセル
         CancelInvoke(nameof(LoadNextScene));
+    }
+
+    private void EnsureSaveInitializedIfNeeded()
+    {
+        if (!PlayerPrefs.HasKey(K(SaveVersionKey)) ||
+            PlayerPrefs.GetInt(K(SaveVersionKey)) != CurrentSaveVersion)
+        {
+            PlayerPrefs.SetInt(K("ClearedStage"), 0);
+            PlayerPrefs.SetInt(K("LastUnlockedStage"), -1);
+            PlayerPrefs.SetInt(K("UnlockedMaxStage"), 1);
+
+            PlayerPrefs.SetInt(K(SaveVersionKey), CurrentSaveVersion);
+            PlayerPrefs.Save();
+        }
     }
 
     #endregion
@@ -220,7 +298,7 @@ public class SelectManager : MonoBehaviour
     private void UpdateStageLocks()
     {
         // 前回「新規解放演出を出したステージ番号」（無ければ-1）
-        int lastUnlockedStage = PlayerPrefs.GetInt("LastUnlockedStage", -1);
+        int lastUnlockedStage = PlayerPrefs.GetInt(K("LastUnlockedStage"), -1);
 
         // stageLocks 配列を順に見て、表示を更新
         for (int i = 0; i < stageLocks.Length; i++)
@@ -278,7 +356,7 @@ public class SelectManager : MonoBehaviour
             // 3) 未解放ステージ
             // --------------------------
             // ここは通常のロック判定：UnlockedMaxStage 以下なら解放済み
-            int unlockedMax = PlayerPrefs.GetInt("UnlockedMaxStage", 1);
+            int unlockedMax = PlayerPrefs.GetInt(K("UnlockedMaxStage"), 1);
             bool isUnlocked = stageNumber <= unlockedMax;
 
             // 解放済み→ロック非表示 / 未解放→ロック表示
@@ -288,7 +366,7 @@ public class SelectManager : MonoBehaviour
         // 「今回の新規解放演出」は一度見せたらリセットして次回に持ち越さない
         if (lastUnlockedStage != -1)
         {
-            PlayerPrefs.SetInt("LastUnlockedStage", -1);
+            PlayerPrefs.SetInt(K("LastUnlockedStage"), -1);
             PlayerPrefs.Save();
         }
     }
@@ -511,8 +589,9 @@ public class SelectManager : MonoBehaviour
     {
         int totalStages = stageLocks.Length;
 
-        PlayerPrefs.SetInt("ClearedStage", totalStages);
-        PlayerPrefs.SetInt("UnlockedMaxStage", totalStages);
+        PlayerPrefs.SetInt(K("ClearedStage"), totalStages);
+        PlayerPrefs.SetInt(K("UnlockedMaxStage"), totalStages);
+        PlayerPrefs.SetInt(K("LastUnlockedStage"), -1); // 演出フラグも消しておく（任意だけど安全）
         PlayerPrefs.Save();
 
         Debug.Log("<b><color=orange>【デバッグ】Ctrl+Shift+U→全ステージを解放しました</color></b>");
@@ -525,9 +604,9 @@ public class SelectManager : MonoBehaviour
 
     private void DebugResetStages()
     {
-        PlayerPrefs.SetInt("ClearedStage", 0);
-        PlayerPrefs.SetInt("LastUnlockedStage", -1);
-        PlayerPrefs.SetInt("UnlockedMaxStage", 1);
+        PlayerPrefs.SetInt(K("ClearedStage"), 0);
+        PlayerPrefs.SetInt(K("LastUnlockedStage"), -1);
+        PlayerPrefs.SetInt(K("UnlockedMaxStage"), 1);
         PlayerPrefs.Save();
 
         Debug.Log("<b><color=orange>【デバッグ】Ctrl+Shift+R→ステージロックを初期状態に戻しました（ステージ1のみ解放）</color></b>");
@@ -544,9 +623,9 @@ public class SelectManager : MonoBehaviour
     /// </summary>
     public void ResetStageData()
     {
-        PlayerPrefs.SetInt("ClearedStage", 0);
-        PlayerPrefs.SetInt("LastUnlockedStage", -1);
-        PlayerPrefs.SetInt("UnlockedMaxStage", 1);
+        PlayerPrefs.SetInt(K("ClearedStage"), 0);
+        PlayerPrefs.SetInt(K("LastUnlockedStage"), -1);
+        PlayerPrefs.SetInt(K("UnlockedMaxStage"), 1);
         PlayerPrefs.Save();
 
         Debug.Log("<b><color=orange>ステージデータをリセットしました（ステージ1のみ解放）</color></b>");
@@ -555,6 +634,18 @@ public class SelectManager : MonoBehaviour
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlaySE(resetClickSE);
+    }
+
+    // 開発中だけ使う
+    [ContextMenu("DEV: Clear Namespaced Stage Prefs")]
+    private void DevClearPrefs()
+    {
+        PlayerPrefs.DeleteKey(K("ClearedStage"));
+        PlayerPrefs.DeleteKey(K("LastUnlockedStage"));
+        PlayerPrefs.DeleteKey(K("UnlockedMaxStage"));
+        PlayerPrefs.DeleteKey(K(SaveVersionKey));
+        PlayerPrefs.Save();
+        Debug.Log("Namespaced stage prefs cleared.");
     }
 
     #endregion
