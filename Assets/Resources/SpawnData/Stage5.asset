@@ -180,7 +180,7 @@ MonoBehaviour:
   - id: 42
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
-    position: {x: 24.97, y: 25.03, z: 0}
+    position: {x: 24.97, y: 29.13, z: 0}
   - id: 43
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda

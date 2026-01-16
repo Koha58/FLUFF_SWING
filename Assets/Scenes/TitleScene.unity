@@ -7922,7 +7922,10 @@ MonoBehaviour:
   bgmSource: {fileID: 1848773473}
   seSource: {fileID: 1848773472}
   testSE: {fileID: 8300000, guid: 841db6c7743ce544f95b76f53bef5cc9, type: 3}
-  seClips: []
+  seClips:
+  - {fileID: 8300000, guid: ab3c4b9f2d0fad44eb56be8a5a3abfb8, type: 3}
+  - {fileID: 8300000, guid: c604c9ff7d6aafd48969047e9e9cca4b, type: 3}
+  - {fileID: 8300000, guid: 95d5c209a2a0e65498b1e59e67996d44, type: 3}
 --- !u!4 &1848773475
 Transform:
   m_ObjectHideFlags: 0

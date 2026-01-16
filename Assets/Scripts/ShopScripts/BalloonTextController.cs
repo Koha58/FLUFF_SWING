@@ -343,8 +343,12 @@ public class BalloonTextController : MonoBehaviour
                     {
                         AudioManager.Instance.PlaySE(seName);
                     }
+                    else
+                    {
+                        Debug.Log("AudioSourceÇ™Ç†ÇËÇ‹ÇπÇÒÅI");
+                    }
 
-                    lastTypeSETime = Time.time;
+                        lastTypeSETime = Time.time;
                 }
             }
 
