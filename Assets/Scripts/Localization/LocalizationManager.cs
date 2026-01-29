@@ -192,4 +192,15 @@ public class LocalizationManager : MonoBehaviour
         // キーが見つからない場合は分かりやすく表示
         return $"[{key}]";
     }
+
+    /// <summary>
+    /// 言語選択シーンスキップ用(開発環境のみ使用)
+    /// </summary>
+    public void ResetFirstLaunch()
+    {
+        // PlayerPrefs 削除後に再評価
+        // これにより HasSelectedLanguageOnce が正しく false になる
+        CurrentLanguage = DetectDefaultLanguageFromOS();
+    }
+
 }
