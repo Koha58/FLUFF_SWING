@@ -55,6 +55,10 @@ MonoBehaviour:
     ja: "\u653B\u6483   \u2192   \u53F3\u30AF\u30EA\u30C3\u30AF"
     en: 'Attack: Right Click'
     note: "\u64CD\u4F5C\u8AAC\u660E"
+  - key: HOWTO_GOAL
+    ja: "\u30B4\u30FC\u30EB"
+    en: Goal
+    note: "\u64CD\u4F5C\u8AAC\u660E"
   - key: STAGE_SELECT
     ja: "\u30B9\u30C6\u30FC\u30B8\u30BB\u30EC\u30AF\u30C8"
     en: Stage Select

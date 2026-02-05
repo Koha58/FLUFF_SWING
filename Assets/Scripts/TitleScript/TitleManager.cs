@@ -36,6 +36,9 @@ public class TitleManager : MonoBehaviour
     [Tooltip("攻撃操作の説明パネル")]
     [SerializeField] private GameObject attackInfoPanel;
 
+    [Tooltip("ゴール操作の説明パネル")]
+    [SerializeField] private GameObject goalInfoPanel;
+
     /// <summary>
     /// 現在表示中の操作説明パネル（同時表示防止用）
     /// </summary>
@@ -86,6 +89,7 @@ public class TitleManager : MonoBehaviour
         if (moveInfoPanel != null) moveInfoPanel.SetActive(false);
         if (wireInfoPanel != null) wireInfoPanel.SetActive(false);
         if (attackInfoPanel != null) attackInfoPanel.SetActive(false);
+        if (goalInfoPanel != null) goalInfoPanel.SetActive(false);
 
         currentInfoPanel = null;
 
@@ -240,6 +244,15 @@ public class TitleManager : MonoBehaviour
     {
         ShowInfoPanel(attackInfoPanel);
         Debug.Log("操作方法：攻撃 パネル表示");
+    }
+
+    /// <summary>
+    /// 操作説明（ゴール）パネルを表示する
+    /// </summary>
+    public void OnInfoGoalPanel()
+    {
+        ShowInfoPanel(goalInfoPanel);
+        Debug.Log("操作方法：ゴール パネル表示");
     }
 
     // =========================================================

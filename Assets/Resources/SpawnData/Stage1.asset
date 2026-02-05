@@ -80,11 +80,11 @@ MonoBehaviour:
   - id: 17
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 85.7, y: 7.17, z: 0}
+    position: {x: 85.7, y: 2.97, z: 0}
   - id: 18
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
-    position: {x: 90.83, y: 9.98, z: 0}
+    position: {x: 90.83, y: 6.22, z: 0}
   - id: 19
     type: coin
     prefabName: SpawnPrefabs/CoinPrefab/Coin
@@ -176,7 +176,7 @@ MonoBehaviour:
   - id: 41
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/YellowRabbit
-    position: {x: 153.3, y: 14.9, z: 0}
+    position: {x: 155.03, y: 3.57, z: 0}
   - id: 42
     type: enemy
     prefabName: SpawnPrefabs/EnemyPrefab/RedPanda
